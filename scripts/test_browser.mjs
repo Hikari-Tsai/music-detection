@@ -33,7 +33,7 @@ try {
   assert.ok(await page.locator('#choose-file').isVisible());
   // Real file selection, browser decoding, model, result UI, and MIDI download.
   await page.locator('#audio-file').setInputFiles('samples/choice.ogg');
-  await page.locator('#analyze-range').click();
+
   await page.waitForFunction(
     () =>
       !document.querySelector('#download-midi').disabled ||
@@ -123,7 +123,7 @@ try {
   // Variable audio must show an average while downloading the real tempo map.
   await page.locator('#clear-file').click();
   await page.locator('#audio-file').setInputFiles('.cache/web-fixtures/long.wav');
-  await page.locator('#analyze-range').click();
+
   await page.waitForFunction(
     () => document.querySelector('#result-status-text').textContent === 'Variable tempo',
     null,
@@ -140,7 +140,7 @@ try {
   // Silence and decode failures must recover without producing a stale download.
   await page.locator('#clear-file').click();
   await page.locator('#audio-file').setInputFiles('.cache/web-fixtures/silence.wav');
-  await page.locator('#analyze-range').click();
+
   await page.waitForFunction(
     () => document.querySelector('#result-status-text').textContent === 'Not enough beats'
   );

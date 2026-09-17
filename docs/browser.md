@@ -85,7 +85,7 @@ npm run test:skey-browser
 
 ## 範圍分析
 
-拖入音訊後先解碼並顯示完整波形，預設選取整首；使用者調整滑桿或起訖秒數，再按「分析選取範圍」。`frontend/ui/audio-source.js` 保留完整 PCM 與波形，`range-editor.js` 管理秒數和驗證。範圍最少 1 秒，S-KEY 至少需要 3 秒；修改範圍時清除舊結果與下載。
+拖入音訊後解碼、顯示完整波形並自動分析全曲；若使用者調整雙把手或起訖秒數，則需按「分析選取範圍」才分析該片段。`frontend/ui/audio-source.js` 保留完整 PCM 與波形，`range-editor.js` 管理秒數和驗證。範圍最少 1 秒，S-KEY 至少需要 3 秒；修改範圍時清除舊結果與下載。
 
 瀏覽器 client 以選取秒數換算取樣位置，只複製片段送進 Worker，讓模型與 MIDI 使用片段相對時間。Local Python 的 multipart 請求另帶 `start_seconds`、`end_seconds`，後端驗證並裁切解碼後的音訊，再交給兩個模型；JSON 回傳來源長度與實際選取起訖秒數。前端會拒絕未確認範圍的舊版後端結果。
 

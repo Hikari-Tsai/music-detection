@@ -42,8 +42,17 @@ try {
       new DragEvent('drop', { dataTransfer: transfer, bubbles: true, cancelable: true })
     );
   }, bytes);
-  await page.waitForFunction(() => !document.querySelector('#analyze-range').disabled);
-  assert.equal(await page.locator('#bpm-value').innerText(), '—');
+  await page.waitForFunction(
+    () =>
+      !document.querySelector('#analyze-range').disabled &&
+      !document.querySelector('#analysis-status').hidden,
+    null,
+    { timeout: 180000 }
+  );
+  assert.equal(await page.locator('#error-message').innerText(), '');
+  assert.equal(await page.locator('#bpm-value').innerText(), '68.007');
+  assert.equal(await page.locator('#key-value').innerText(), 'G major');
+  assert.match(await page.locator('#result-range').innerText(), /whole track/);
   assert.equal(posts.length, 0);
   await page.locator('#clip-start').fill('5');
   await page.locator('#clip-end').fill('20');
@@ -136,6 +145,15 @@ try {
   assert.match(await page.locator('#result-range').innerText(), /whole track/);
   await page.locator('#clear-file').click();
   assert.equal(await page.locator('#selected-file').isVisible(), false);
+  // A fresh file also starts full-track analysis automatically in Local Python.
+  await page.locator('#engine-select').selectOption('python');
+  const previousPosts = posts.length;
+  await page.locator('#audio-file').setInputFiles('samples/choice.ogg');
+  await done();
+  assert.equal(posts.length, previousPosts + 1);
+  assert.equal(await page.locator('#bpm-value').innerText(), '68.007');
+  assert.equal(await page.locator('#key-value').innerText(), 'G major');
+  assert.match(await page.locator('#result-range').innerText(), /whole track/);
   assert.deepEqual(errors, []);
   console.log(
     JSON.stringify(
@@ -145,7 +163,7 @@ try {
         python_clip_bpm: native.result.bpm,
         python_clip_key: native.key.label,
         checks:
-          'drag/drop, deferred analysis, selection preview, both real models/engines, clipped MIDI, stale-result clearing, invalid/short ranges, engine switching, reset to full track, three-language responsive UI'
+          'drag/drop, automatic full-track analysis in both engines, selection preview, both real models/engines, clipped MIDI, stale-result clearing, invalid/short ranges, engine switching, reset to full track, three-language responsive UI'
       },
       null,
       2

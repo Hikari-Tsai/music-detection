@@ -63,7 +63,7 @@ try {
   );
   await failedPage.goto(base);
   await failedPage.locator('#audio-file').setInputFiles('samples/choice.ogg');
-  await failedPage.locator('#analyze-range').click();
+
   await failedPage.waitForFunction(() => !document.querySelector('#download-midi').disabled, null, {
     timeout: 120000
   });
@@ -78,7 +78,7 @@ try {
   await context.unroute(`${HUGGING_FACE_MODELS.key}**`);
   await failedPage.locator('#clear-file').click();
   await failedPage.locator('#audio-file').setInputFiles('samples/choice.ogg');
-  await failedPage.locator('#analyze-range').click();
+
   await failedPage.waitForFunction(
     () => document.querySelector('#key-value').textContent === 'G major',
     null,
@@ -111,7 +111,7 @@ try {
       mimeType: 'audio/wav',
       buffer: Buffer.concat([header, pcm])
     });
-    await failedPage.locator('#analyze-range').click();
+
     await failedPage.waitForFunction(
       () => {
         const text = document.querySelector('#key-description').textContent;

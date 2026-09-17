@@ -213,6 +213,8 @@ async function prepareFile(file) {
     setBusy(false);
     drawWaveform();
   }
+  // New uploads always begin with the full track. Later range edits remain manual.
+  if (sourceAudio || engine.kind === 'python') await analyze();
 }
 
 async function analyze() {

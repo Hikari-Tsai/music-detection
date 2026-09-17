@@ -2,7 +2,7 @@
 
 # Key & Tempo — 音樂 BPM、調性與 MIDI 速度圖
 
-拖入音訊，選擇整首或指定範圍，即可分析 BPM、拍號與調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
+拖入音訊即自動分析全曲，也可選取指定範圍分析 BPM、拍號與調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
 
 [線上使用](https://hikari-tsai.github.io/music-detection/) · [GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
 
@@ -10,7 +10,7 @@
 
 - **節拍與拍號**：以 Beat This! 偵測拍點、小節首拍，再推算 BPM 與每小節拍數。
 - **固定／平均／變速**：固定速度顯示 BPM；確認變速時顯示平均 BPM，並提供逐拍變速 MIDI。資訊不足以確認固定或變速時，顯示平均值。
-- **範圍選取**：拖入後先顯示波形，以同一條滑桿的雙把手或秒數選取、試聽，再按「分析選取範圍」。支援兩種引擎，原始檔案不會被修改。
+- **範圍選取**：拖入後自動分析全曲並顯示波形。若只分析片段，可用同一條滑桿的雙把手或秒數選取、試聽，再按「分析選取範圍」。支援兩種引擎，原始檔案不會被修改。
 - **整首／片段調性**：以 S-KEY 估計 12 個大調與 12 個小調之一，例如 G 大調、A 小調。
 - **MIDI 下載**：輸出速度與可判定的拍號，不包含音符、和弦或調性事件。
 - **兩種分析引擎**：Browser ONNX 與 Local Python 共用檔案拖放、播放、結果與下載介面。
@@ -63,8 +63,8 @@ Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型�
 ### 直接使用線上版
 
 1. 開啟 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)，維持預設的 **Browser ONNX**。
-2. 拖入音訊，等待波形顯示；預設選取整首，也可用滑桿或秒數調整起點與終點。
-3. 按播放按鈕試聽選取範圍，再按「分析選取範圍」。首次分析會下載模型。
+2. 拖入音訊後會自動分析全曲；首次分析會下載模型。
+3. 若只想分析片段，使用雙把手或秒數調整範圍，試聽後按「分析選取範圍」。
 4. 查看 BPM、拍號與調性，按下下載按鈕取得固定或變速的 MIDI Tempo 檔案。
 
 選取範圍至少需 1 秒，S-KEY 調性分析至少需 3 秒；較短片段仍可嘗試 BPM 分析。修改範圍會清除舊結果與下載，避免誤用上一段的分析。按「整首音訊」可恢復完整範圍。
@@ -92,7 +92,7 @@ npm run build
 npm run serve
 ```
 
-開啟 [瀏覽器版介面](http://127.0.0.1:8766/)，拖入音訊、選取範圍並按下分析。之後只需執行 `npm run serve`，macOS 也可雙擊 `start_frontend.command`。
+開啟 [瀏覽器版介面](http://127.0.0.1:8766/)，拖入音訊即自動分析全曲，也可調整範圍後按下分析。之後只需執行 `npm run serve`，macOS 也可雙擊 `start_frontend.command`。
 
 若已具備 `assets/onnx/` 中的兩個模型、manifest 與前處理資料，可跳過 Python 安裝及匯出步驟。修改前端後執行 `npm run build` 更新 `dist/`；不要直接修改建置產物。
 

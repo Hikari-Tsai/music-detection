@@ -50,10 +50,10 @@ export const messages = {
     'zh-Hant': '請選擇至少 1 秒且不超出音訊的有效範圍。'
   },
   rangeHelp: {
-    en: 'Drag either handle on the range bar or enter seconds, then press Analyze. Playback previews this range. Minimum 1 second; key detection needs 3 seconds. Your original file is unchanged.',
-    ja: '1本のバーの両端をドラッグするか、秒数で範囲を指定して解析を押してください。再生も選択範囲のみです。最低1秒、調の推定には3秒必要です。元のファイルは変更されません。',
+    en: 'Uploads are analyzed in full automatically. To analyze a clip, drag either handle or enter seconds, then press Analyze. Playback previews this range. Minimum 1 second; key detection needs 3 seconds. Your original file is unchanged.',
+    ja: '音声の追加後は曲全体を自動解析します。一部だけ解析する場合はバーの両端または秒数で範囲を指定し、解析を押してください。再生も選択範囲のみです。最低1秒、調の推定には3秒必要です。元のファイルは変更されません。',
     'zh-Hant':
-      '拖動同一條滑桿上的起點、終點把手，或輸入秒數後按下分析；播放按鈕僅試聽這段。範圍至少 1 秒，調性分析需 3 秒。原始檔案不會被修改。'
+      '加入音訊後會自動分析全曲。若要分析片段，請拖動雙把手或輸入秒數後按下分析；播放按鈕僅試聽這段。範圍至少 1 秒，調性分析需 3 秒。原始檔案不會被修改。'
   },
   rangeReady: { en: 'Ready to analyze', ja: '解析の準備完了', 'zh-Hant': '可開始分析' },
   rangeReading: {
@@ -294,10 +294,10 @@ export const messages = {
     'zh-Hant': '4. 回到此頁分析音訊'
   },
   pythonGuideUseText: {
-    en: 'Select Local Python, add an audio file, choose a range, then press Analyze selected range. Switching engines analyzes the current range. After starting the service, press Analyze again to retry a failed attempt.',
-    ja: 'Local Python を選び、音声を追加して範囲を指定し、「選択範囲を解析」を押します。エンジンの切り替えでも現在の範囲を解析します。失敗した場合は、サービス起動後に解析ボタンで再試行できます。',
+    en: 'Select Local Python and add an audio file to start whole-track analysis automatically. To analyze a clip, adjust the range and press Analyze selected range. Switching engines analyzes the current range. After starting the service, press Analyze again to retry a failed attempt.',
+    ja: 'Local Python を選び、音声を追加すると曲全体の解析が自動で始まります。一部だけ解析する場合は範囲を指定し、「選択範囲を解析」を押します。エンジンの切り替えでも現在の範囲を解析します。失敗した場合は、サービス起動後に解析ボタンで再試行できます。',
     'zh-Hant':
-      '選擇 Local Python，加入音訊、選取範圍後按「分析選取範圍」。切換引擎也會分析目前範圍；若先前失敗，可在服務啟動後再按分析重試。'
+      '選擇 Local Python，加入音訊後會自動分析全曲。若只分析片段，請調整範圍後按「分析選取範圍」。切換引擎也會分析目前範圍；若先前失敗，可在服務啟動後再按分析重試。'
   },
   pythonGuideFirstRun: {
     en: 'The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.',
@@ -468,9 +468,9 @@ export const messages = {
     ja: '音声ファイルを選択'
   },
   dropRelease: {
-    'zh-Hant': '放開以選取範圍',
-    en: 'Release to select a range',
-    ja: 'ドロップして範囲を選択'
+    'zh-Hant': '放開以分析全曲',
+    en: 'Release to analyze the whole track',
+    ja: 'ドロップして曲全体を解析'
   },
   clearFile: {
     'zh-Hant': '移除音訊，重新選擇',
