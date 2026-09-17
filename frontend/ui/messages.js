@@ -1,5 +1,15 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  githubStar: {
+    en: 'Star on GitHub',
+    ja: 'スターで応援',
+    'zh-Hant': '賞我星星'
+  },
+  githubStarAria: {
+    en: 'Star on GitHub (opens the repository in a new tab)',
+    ja: 'スターで応援（リポジトリを新しいタブで開く）',
+    'zh-Hant': '賞我星星（在新分頁開啟 GitHub Repo）'
+  },
   pythonGuidePlatformsUntested: {
     en: 'The service has been tested locally on macOS. These Windows and Linux setup instructions have not yet been verified end to end on those systems.',
     ja: 'ローカルサービスは macOS で検証済みです。Windows と Linux の手順は、それぞれの実機での一連の動作をまだ検証していません。',
