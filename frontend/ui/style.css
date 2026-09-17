@@ -88,3 +88,18 @@ footer > span { margin-right: auto; }
 .python-online { border-top: 1px solid var(--line); padding-top: 15px; }
 .python-online summary { font-size: 12px; line-height: 1.8; color: #c6d8b7; cursor: pointer; }
 @media(max-width:760px) { .python-setup-steps { grid-template-columns: 1fr; gap: 8px; } .python-setup > summary { padding: 14px 16px; } .python-setup-content { padding: 2px 16px 16px; } }
+.python-platform { margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.python-platform > summary { color: var(--accent); font-size: 12px; line-height: 1.8; cursor: pointer; }
+.python-setup .python-command-label { color: #c6d8b7; font-weight: 600; margin-bottom: 4px; }
+.python-api { border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+
+.python-setup-steps > section:nth-child(-n+2) { grid-column: 1 / -1; }
+
+.github-star { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 8px 12px; border: 1px solid #526742; border-radius: 6px; background: #202c1d; color: var(--accent); font-size: 12px; font-weight: 550; white-space: nowrap; }
+.github-star .icon { width: 16px; height: 16px; }
+.github-star:hover { background: #2c3b23; border-color: var(--accent); }
+@media (max-width: 760px) {
+  .site-header { height: auto; min-height: 83px; padding: 18px 0; flex-wrap: wrap; gap: 14px; }
+  .header-tools { width: 100%; justify-content: space-between; }
+  .github-star, .language-picker select { min-height: 44px; }
+}
