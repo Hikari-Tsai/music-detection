@@ -133,9 +133,9 @@ export const messages = {
   },
   engineTitle: { 'zh-Hant': '分析引擎', en: 'Analysis engine', ja: '解析エンジン' },
   engineBrowserHelp: {
-    'zh-Hant': '在此裝置分析，不上傳音訊。切換引擎會重新分析已選取的檔案。',
-    en: 'Analyze on this device without uploading audio. Switching engines reanalyzes the selected file.',
-    ja: '音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択中のファイルを再解析します。'
+    'zh-Hant': '（推薦）在此裝置分析，不上傳音訊。切換引擎會重新分析已選取的檔案。',
+    en: '(Recommended) Analyze on this device without uploading audio. Switching engines reanalyzes the selected file.',
+    ja: '（推奨）音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択中のファイルを再解析します。'
   },
   enginePythonHelp: {
     'zh-Hant':
