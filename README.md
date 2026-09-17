@@ -6,7 +6,11 @@
 
 拖入音訊即自動分析全曲，也可選取指定範圍分析 BPM、拍號與調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
 
-[線上使用](https://hikari-tsai.github.io/music-detection/) · [GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
+[Main 正式版](https://hikari-tsai.github.io/music-detection/) · [Staging 預覽版](https://hikari-tsai.github.io/music-detection/staging/)
+
+日常使用請選 Main；若要試用尚未合併至 main 的變更，請選 Staging。
+
+[GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
 
 ## 功能
 
@@ -66,7 +70,7 @@ Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型�
 
 ### 直接使用線上版
 
-1. 開啟 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)，維持預設的 **Browser ONNX**。
+1. 開啟 [Main 正式版](https://hikari-tsai.github.io/music-detection/) 或 [Staging 預覽版](https://hikari-tsai.github.io/music-detection/staging/)，維持預設的 **Browser ONNX**。
 2. 拖入音訊後會自動分析全曲；首次分析會下載模型。
 3. 若只想分析片段，使用雙把手或秒數調整範圍，試聽後按「分析選取範圍」。
 4. 查看 BPM、拍號與調性，按下下載按鈕取得固定或變速的 MIDI Tempo 檔案。

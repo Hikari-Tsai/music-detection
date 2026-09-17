@@ -6,7 +6,11 @@
 
 Drop in audio to analyze the whole track automatically, or select a range to detect its BPM, meter and musical key. Download a MIDI tempo file for your music production software. Models run directly in your browser by default, with an optional local Python engine available on the same page.
 
-[Try it online](https://hikari-tsai.github.io/music-detection/) · [GitHub repository](https://github.com/Hikari-Tsai/music-detection) · [Architecture image](docs/diagrams/key-tempo-system.webp) · [Interactive architecture diagram](docs/diagrams/key-tempo-architecture.html) · [MIT License](LICENSE)
+[Main — Production](https://hikari-tsai.github.io/music-detection/) · [Staging — Preview](https://hikari-tsai.github.io/music-detection/staging/)
+
+Use Main for everyday use, or Staging to try changes that have not yet been merged into main.
+
+[GitHub repository](https://github.com/Hikari-Tsai/music-detection) · [Architecture image](docs/diagrams/key-tempo-system.webp) · [Interactive architecture diagram](docs/diagrams/key-tempo-architecture.html) · [MIT License](LICENSE)
 
 ## Features
 
@@ -66,7 +70,7 @@ See the [browser ONNX documentation](docs/browser.md) for pinned versions, model
 
 ### Use the hosted app
 
-1. Open [Key & Tempo](https://hikari-tsai.github.io/music-detection/) and keep the default **Browser ONNX** engine.
+1. Open [Main — Production](https://hikari-tsai.github.io/music-detection/) or [Staging — Preview](https://hikari-tsai.github.io/music-detection/staging/) and keep the default **Browser ONNX** engine.
 2. Drop in audio to start whole-track analysis automatically. Models are downloaded on the first analysis.
 3. To analyze a clip, adjust the two range handles or start/end times, preview the selection, then press **Analyze selected range**.
 4. Review BPM, meter and key, then download the constant or variable MIDI tempo file.
