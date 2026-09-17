@@ -5,7 +5,7 @@ import { createKeyEngine } from './key-engine.js';
 
 ort.env.wasm.numThreads = 1; // Works on GitHub Pages without COOP/COEP headers.
 ort.env.wasm.wasmPaths = new URL('./ort/', import.meta.url).href;
-import { createModelAssets } from './model-assets.js';
+import { createModelAssets, ModelLoadError } from './model-assets.js';
 import { HUGGING_FACE_MODELS } from './model-sources.js';
 
 let session = null,
@@ -124,7 +124,10 @@ self.onmessage = async ({ data }) => {
     console.error('Browser analysis failed', error);
     self.postMessage({
       type: 'error',
-      message: '瀏覽器分析未完成，請嘗試較短音訊，或更新瀏覽器後重試。'
+      message:
+        error instanceof ModelLoadError
+          ? error.message
+          : '瀏覽器分析未完成，請嘗試較短音訊，或更新瀏覽器後重試。'
     });
   }
 };

@@ -1,4 +1,6 @@
 // A source supplies a complete bundle: manifest, optional frontend, and verified weights.
+export class ModelLoadError extends Error {}
+
 class SourceError extends Error {
   constructor(reason) {
     super(reason);
@@ -178,7 +180,7 @@ export function createModelAssets(
         const reason = { key: error.reason || 'modelSourceNetwork' };
         if (index + 1 === sources.length) {
           progress([...notice, `${sources[index].name}: `, reason]);
-          throw new Error(
+          throw new ModelLoadError(
             primaryBaseURL
               ? 'Hugging Face 與備援來源皆無法載入模型，請檢查網路後重試。'
               : error.reason === 'modelSourceIntegrity'

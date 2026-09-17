@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createModelAssets } from '../../frontend/inference/model-assets.js';
+import { createModelAssets, ModelLoadError } from '../../frontend/inference/model-assets.js';
 const bytes = new Uint8Array([1, 2, 3, 4]);
 const manifest = {
   model_file: 'model.onnx',
@@ -243,7 +243,11 @@ test('both sources fail explicitly; a later attempt starts fresh at Hugging Face
     if (offline) throw new TypeError('offline');
     return serve(url);
   });
-  await assert.rejects(assets.model(), /Hugging Face.*備援/);
+  await assert.rejects(assets.model(), (error) => {
+    assert.ok(error instanceof ModelLoadError);
+    assert.match(error.message, /Hugging Face.*備援/);
+    return true;
+  });
   assert.deepEqual(calls, [primary + 'manifest.json', fallback + 'manifest.json']);
   offline = false;
   assert.deepEqual(await assets.model(), bytes);
