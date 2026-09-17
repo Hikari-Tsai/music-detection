@@ -1,15 +1,58 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  pythonGuidePlatformsUntested: {
+    en: 'The service has been tested locally on macOS. These Windows and Linux setup instructions have not yet been verified end to end on those systems.',
+    ja: 'ローカルサービスは macOS で検証済みです。Windows と Linux の手順は、それぞれの実機での一連の動作をまだ検証していません。',
+    'zh-Hant': '本機服務已在 macOS 驗證；Windows 與 Linux 教學尚未在對應系統完成端到端實測。'
+  },
+  pythonGuideContinue: {
+    en: 'Reopen your terminal, return to the project folder, then run:',
+    ja: 'ターミナルを開き直し、プロジェクトフォルダーに戻ってから実行：',
+    'zh-Hant': '重新開啟終端機並回到專案資料夾，再執行：'
+  },
+  pythonGuideLinuxTools: {
+    en: 'These commands are for Ubuntu/Debian. On other distributions, install git, curl, and ffmpeg with your package manager, then install uv.',
+    ja: '以下は Ubuntu/Debian 用です。ほかのディストリビューションではパッケージマネージャーで git、curl、ffmpeg を導入してから uv をインストールしてください。',
+    'zh-Hant':
+      '以下以 Ubuntu／Debian 為例。其他發行版請使用自己的套件管理器安裝 git、curl 與 ffmpeg，再安裝 uv。'
+  },
+  pythonGuideWindowsTools: {
+    en: 'Install uv, Git, and FFmpeg with WinGet. If winget is unavailable, install or update App Installer using the Microsoft guide below.',
+    ja: 'WinGet で uv、Git、FFmpeg を導入します。winget がない場合は、下の Microsoft の案内に従って App Installer を導入または更新してください。',
+    'zh-Hant':
+      '使用 WinGet 安裝 uv、Git 與 FFmpeg。若找不到 winget，請依下方 Microsoft 說明安裝或更新 App Installer。'
+  },
+  pythonGuideLinux: {
+    en: 'Linux · Ubuntu / Debian',
+    ja: 'Linux · Ubuntu / Debian',
+    'zh-Hant': 'Linux · Ubuntu／Debian'
+  },
+  pythonGuideWindows: {
+    en: 'Windows 10/11 · PowerShell',
+    ja: 'Windows 10/11 · PowerShell',
+    'zh-Hant': 'Windows 10/11 · PowerShell'
+  },
+  pythonGuideApiText: {
+    en: 'Uvicorn runs the local FastAPI HTTP service. The browser sends audio with POST /api/analyze (multipart/form-data), receives JSON results, then downloads MIDI with GET /api/download/{token}. Audio is sent only to the service on this computer.',
+    ja: 'Uvicorn がローカルの FastAPI HTTP サービスを起動します。ブラウザーは POST /api/analyze（multipart/form-data）で音声を送り、JSON の解析結果を受け取ります。MIDI は GET /api/download/{token} で取得します。音声の送信先はこのパソコンのサービスです。',
+    'zh-Hant':
+      'Uvicorn 啟動本機 FastAPI HTTP 服務。前端以 POST /api/analyze（multipart/form-data）傳送音訊，接收 JSON 分析結果，再透過 GET /api/download/{token} 下載 MIDI。音訊只會送往此電腦上的服務。'
+  },
+  pythonGuideApi: {
+    en: 'How the browser communicates with Python',
+    ja: 'ブラウザーと Python の通信',
+    'zh-Hant': '前端如何與 Python 通訊'
+  },
   pythonGuideTitle: {
-    en: 'Local Python setup & troubleshooting (macOS)',
-    ja: 'Local Python の起動方法とトラブル対処（macOS）',
-    'zh-Hant': 'Local Python 啟動教學與疑難排解（macOS）'
+    en: 'Local Python setup & troubleshooting',
+    ja: 'Local Python の起動方法とトラブル対処',
+    'zh-Hant': 'Local Python 啟動教學與疑難排解'
   },
   pythonGuideIntro: {
-    en: 'Local Python runs on the same computer as your browser. Set it up once, then start the service whenever you need it. Already installed? Jump to step 3.',
-    ja: 'Local Python はブラウザーと同じパソコンで動作します。初回だけ環境を準備し、使うときにサービスを起動します。設定済みの場合は手順 3 へ。',
+    en: 'Local Python runs on the same computer as your browser. Follow the macOS, Windows (PowerShell), or Linux instructions below. Set it up once; if already installed, jump to step 3.',
+    ja: 'Local Python はブラウザーと同じパソコンで動作します。macOS、Windows（PowerShell）、Linux の手順を選んで初回設定してください。設定済みの場合は手順 3 へ。',
     'zh-Hant':
-      'Local Python 在瀏覽器所在的同一台電腦執行。首次安裝一次，之後使用時再啟動服務。已安裝完成可直接跳到步驟 3。'
+      'Local Python 在瀏覽器所在的同一台電腦執行。請依 macOS、Windows（PowerShell）或 Linux 教學完成首次安裝；已安裝完成可跳到步驟 3。'
   },
   pythonGuidePrepare: {
     en: '1. Prepare your project folder',
@@ -17,10 +60,10 @@ export const messages = {
     'zh-Hant': '1. 準備專案資料夾'
   },
   pythonGuideFolder: {
-    en: 'You need the complete project source, including web_app.py and requirements.txt. Open Terminal, type cd followed by a space, drag the project folder into Terminal, then press Enter. Run every command below from that folder.',
-    ja: 'web_app.py と requirements.txt を含むプロジェクト一式が必要です。ターミナルで cd と半角スペースを入力し、プロジェクトフォルダーをドラッグして Enter を押します。以下のコマンドはすべてそのフォルダー内で実行してください。',
+    en: 'Download or clone the complete project, including web_app.py and requirements.txt. Open Terminal on macOS/Linux or PowerShell on Windows, then run cd "path/to/music-detection" with your actual folder path. Run all commands from that folder.',
+    ja: 'web_app.py と requirements.txt を含むプロジェクト一式を取得します。macOS/Linux はターミナル、Windows は PowerShell を開き、cd "path/to/music-detection" のパスを実際のフォルダーに置き換えて実行してください。以下のコマンドはすべてそのフォルダー内で実行します。',
     'zh-Hant':
-      '需要完整專案原始碼，包含 web_app.py 與 requirements.txt。開啟「終端機」，輸入 cd 加一個空格，把專案資料夾拖進終端機後按 Enter。以下指令都在此資料夾內執行。'
+      '下載或 clone 完整專案，確認包含 web_app.py 與 requirements.txt。macOS／Linux 開啟終端機，Windows 開啟 PowerShell，執行 cd "path/to/music-detection"，將路徑換成實際專案資料夾。以下指令都在此資料夾內執行。'
   },
   pythonGuideTools: {
     en: 'With Homebrew installed, install the required tools:',
@@ -38,10 +81,10 @@ export const messages = {
     'zh-Hant': '2. 首次安裝 Python 套件'
   },
   pythonGuideEnvironment: {
-    en: "Use Python 3.12 in the project's .venv environment. The command below preserves an existing .venv. Downloads may take a few minutes; wait for installation to finish.",
-    ja: 'プロジェクトの .venv 環境で Python 3.12 を使用します。以下のコマンドは既存の .venv を保持します。ダウンロードに数分かかる場合があるので、完了までお待ちください。',
+    en: "Choose your operating system below. Use Python 3.12 in the project's .venv; these commands preserve an existing environment. Wait for installation to finish. After installing tools, reopen your terminal and return to the project folder before continuing.",
+    ja: '以下で OS を選び、プロジェクトの .venv で Python 3.12 を使用します。既存の環境は保持されます。ツールの導入後はターミナルを開き直し、プロジェクトフォルダーに戻ってから続けてください。',
     'zh-Hant':
-      '使用專案 .venv 環境中的 Python 3.12。以下指令會保留既有 .venv；下載可能花幾分鐘，請等待安裝完成。'
+      '請展開對應的作業系統，使用專案 .venv 中的 Python 3.12；指令會保留既有環境。工具安裝後，請重新開啟終端機並回到專案資料夾，再繼續安裝 Python 套件。'
   },
   pythonGuideStart: {
     en: '3. Start the local service',
@@ -49,10 +92,10 @@ export const messages = {
     'zh-Hant': '3. 啟動本機服務'
   },
   pythonGuideStartText: {
-    en: 'Double-click start_ui.command in Finder, or run this command in Terminal. You do not need to reinstall the dependencies each time.',
-    ja: 'Finder で start_ui.command をダブルクリックするか、ターミナルで以下を実行します。依存パッケージを毎回インストールする必要はありません。',
+    en: 'Run the command for your operating system. On macOS you can also double-click start_ui.command in Finder. You only need to start the service each time; no dependency reinstall or virtual environment activation is required.',
+    ja: 'OS に対応するコマンドを実行します。macOS では Finder で start_ui.command をダブルクリックしても起動できます。毎回のパッケージ再インストールや仮想環境の有効化は不要です。',
     'zh-Hant':
-      '在 Finder 雙擊 start_ui.command，或在終端機執行下方指令。之後每次使用只需啟動，不必重新安裝套件。'
+      '執行對應作業系統的指令；macOS 也可在 Finder 雙擊 start_ui.command。之後只需啟動服務，不必重新安裝套件或啟用虛擬環境。'
   },
   pythonGuideReady: {
     en: 'The service is ready when Terminal shows:',
@@ -103,16 +146,16 @@ export const messages = {
       '連線失敗：確認服務在這台電腦的 8765 連接埠執行。試著開啟上方本機服務頁面；若打不開，先查看終端機錯誤。排解期間可改用 Browser ONNX。'
   },
   pythonGuideModules: {
-    en: 'ModuleNotFoundError or a missing .venv: complete step 2 and use .venv/bin/python, rather than a different system Python. If requirements.txt is missing, return to the project folder in step 1.',
-    ja: 'ModuleNotFoundError や .venv がない場合：手順 2 を完了し、システムの別の Python ではなく .venv/bin/python を使ってください。requirements.txt がない場合は手順 1 のプロジェクトフォルダーに戻ります。',
+    en: 'ModuleNotFoundError or a missing .venv: complete step 2. Use .venv/bin/python on macOS/Linux or .\\.venv\\Scripts\\python.exe on Windows. If requirements.txt is missing, return to the project folder in step 1.',
+    ja: 'ModuleNotFoundError や .venv がない場合は手順 2 を完了し、macOS/Linux は .venv/bin/python、Windows は .\\.venv\\Scripts\\python.exe を使ってください。requirements.txt がなければ手順 1 のフォルダーに戻ります。',
     'zh-Hant':
-      '出現 ModuleNotFoundError 或找不到 .venv：完成步驟 2，並使用 .venv/bin/python，而不是其他系統 Python。若找不到 requirements.txt，請回到步驟 1 的專案資料夾。'
+      '出現 ModuleNotFoundError 或找不到 .venv：完成步驟 2，macOS／Linux 使用 .venv/bin/python，Windows 使用 .\\.venv\\Scripts\\python.exe。若找不到 requirements.txt，請回到步驟 1 的專案資料夾。'
   },
   pythonGuideFfmpeg: {
-    en: 'FFmpeg not found: run brew install ffmpeg, then verify ffmpeg -version. Address already in use: a service already occupies port 8765; reuse your running service or stop its previous Terminal session with Control + C before starting again.',
-    ja: 'FFmpeg がない場合は brew install ffmpeg を実行し、ffmpeg -version で確認します。Address already in use はポート 8765 が使用中という意味です。起動済みのサービスを使うか、前のターミナルで Control + C を押してから再起動してください。',
+    en: 'FFmpeg not found: install it using the commands for your OS in step 2, reopen the terminal, and check ffmpeg -version. Address already in use means port 8765 is occupied; use the running service or stop its terminal session with Control + C before restarting.',
+    ja: 'FFmpeg がない場合は手順 2 の OS 別コマンドで導入し、ターミナルを開き直して ffmpeg -version を確認します。Address already in use はポート 8765 が使用中という意味です。起動済みのサービスを使うか、元の画面で Control + C を押して停止してから再起動します。',
     'zh-Hant':
-      '找不到 FFmpeg：執行 brew install ffmpeg，再以 ffmpeg -version 確認。出現 Address already in use：8765 已被使用，請沿用已啟動的服務，或在先前的終端機按 Control + C 停止後再啟動。'
+      '找不到 FFmpeg：使用步驟 2 對應作業系統的指令安裝，重新開啟終端機，再以 ffmpeg -version 確認。Address already in use 代表 8765 已被使用；請沿用既有服務，或在原終端機按 Control + C 停止後重啟。'
   },
   pythonGuideOnline: {
     en: 'Connecting from GitHub Pages or another website',
@@ -138,10 +181,10 @@ export const messages = {
     ja: '（推奨）音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択中のファイルを再解析します。'
   },
   enginePythonHelp: {
+    en: 'Audio is sent over HTTP to the FastAPI service at http://127.0.0.1:8765 on this device. See the setup guide below; switching reanalyzes the selected file.',
+    ja: '音声を HTTP 経由で、この端末の FastAPI サービス http://127.0.0.1:8765 に送信します。下の起動ガイドをご覧ください。切り替えると選択中のファイルを再解析します。',
     'zh-Hant':
-      '音訊會送至本機 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會重新分析已選檔案。',
-    en: 'Audio is sent to http://127.0.0.1:8765 on this device. See the setup guide below; switching reanalyzes the selected file.',
-    ja: '音声をこの端末の http://127.0.0.1:8765 に送信します。下の起動ガイドをご覧ください。切り替えると選択中のファイルを再解析します。'
+      '音訊透過 HTTP 傳送至本機 FastAPI 服務 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會重新分析已選檔案。'
   },
   pageTitle: {
     'zh-Hant': 'Key & Tempo — BPM、調性分析與 MIDI',

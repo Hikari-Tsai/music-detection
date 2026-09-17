@@ -88,35 +88,107 @@ npm run serve
 
 若已具備 `assets/onnx/` 中的兩個模型、manifest 與前處理資料，可跳過 Python 安裝及匯出步驟。修改前端後執行 `npm run build` 更新 `dist/`；不要直接修改建置產物。
 
-### Local Python 版（macOS）
+### Local Python 版（macOS／Windows／Linux）
 
-先取得完整專案原始碼，確認根目錄包含 `web_app.py` 與 `requirements.txt`。若尚未安裝工具，先依 [Homebrew 官方說明](https://brew.sh/) 安裝 Homebrew，再執行：
+Local Python 是由 **Uvicorn 啟動的 FastAPI HTTP 服務**，在瀏覽器所在的同一台電腦執行，位址為 `http://127.0.0.1:8765`。前端透過 HTTP API 與 Python 通訊：
+
+| 請求 | 用途 |
+| --- | --- |
+| `POST /api/analyze` | 以 `multipart/form-data` 的 `file` 欄位傳送音訊；Python 執行模型後回傳 JSON 分析結果與 `download_url` |
+| `GET /api/download/{token}` | 依分析結果中的下載網址取得 MIDI，回應類型為 `audio/midi` |
+
+音訊會送往這台電腦上的 FastAPI 服務，由 FFmpeg／PyTorch 處理，不會送至 Hugging Face。Hugging Face 優先下載與 GitHub 備援的流程適用於 Browser ONNX；Python 使用自身的模型權重載入流程。
+
+先下載或 clone 完整專案，確認根目錄包含 `web_app.py` 與 `requirements.txt`。macOS／Linux 使用終端機；Windows 使用 **PowerShell**。工具安裝後請重新開啟終端機，執行 `cd "path/to/music-detection"`（替換成實際路徑）回到專案根目錄，再執行 Python 安裝與啟動指令。
+
+#### macOS
+
+先依 [Homebrew 官方說明](https://brew.sh/) 安裝 Homebrew，再安裝工具：
 
 ```sh
 brew install uv ffmpeg git
+```
+
+首次安裝 Python 依賴：
+
+```sh
 uv python install 3.12
 test -d .venv || uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 ```
 
-上述指令保留既有 `.venv`；現有環境應使用 Python 3.12。安裝完成後，每次使用只需雙擊 `start_ui.command`，或執行：
+之後每次使用只需雙擊 `start_ui.command`，或執行：
 
 ```sh
 .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8765
 ```
 
-看到 `Uvicorn running on http://127.0.0.1:8765` 代表服務已啟動。開啟 [本機服務介面](http://127.0.0.1:8765/)，將 **Analysis engine** 切換為 **Local Python**，再選取音訊。分析期間保持終端機開啟；使用完畢可按 `Control + C` 停止服務。首次分析會下載模型權重，可能需要較長時間。
+#### Windows 10／11（PowerShell）
+
+使用 WinGet 安裝工具。若找不到 `winget`，請先依 [Microsoft 安裝說明](https://learn.microsoft.com/windows/package-manager/winget/) 安裝或更新 App Installer。
+
+```powershell
+winget install --id astral-sh.uv -e
+winget install --id Git.Git -e
+winget install --id Gyan.FFmpeg -e
+```
+
+安裝完成後**重新開啟 PowerShell**，回到專案根目錄，再執行：
+
+```powershell
+uv python install 3.12
+if (-not (Test-Path .venv)) { uv venv --python 3.12 .venv }
+uv pip install --python .\.venv\Scripts\python.exe -r requirements.txt
+```
+
+每次啟動服務：
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn web_app:app --host 127.0.0.1 --port 8765
+```
+
+這裡直接使用虛擬環境的 Python，不必執行 `Activate.ps1` 或修改 PowerShell 的執行政策。`start_ui.command` 是 macOS 用的啟動檔，Windows 請使用上述指令。
+
+#### Linux（Ubuntu／Debian）
+
+以下以 Ubuntu／Debian 為例，先安裝系統工具，再使用 [uv 官方安裝方式](https://docs.astral.sh/uv/getting-started/installation/)：
+
+```sh
+sudo apt update
+sudo apt install -y git curl ffmpeg
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+其他 Linux 發行版請使用對應的套件管理器安裝 `git`、`curl`、`ffmpeg`。完成後重新開啟終端機，回到專案根目錄，再執行：
+
+```sh
+uv python install 3.12
+test -d .venv || uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+```
+
+每次啟動服務：
+
+```sh
+.venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8765
+```
+
+三個平台都使用 Python 3.12，建立環境的指令會保留既有 `.venv`。若已有環境，請確認其 Python 版本；從其他作業系統複製來的 `.venv` 無法直接共用，須在目標系統另行建立。
+
+#### 確認啟動與使用
+
+看到 `Uvicorn running on http://127.0.0.1:8765` 代表 FastAPI 服務已啟動。開啟 [本機服務介面](http://127.0.0.1:8765/)，將 **Analysis engine** 切換為 **Local Python**，再選取音訊。分析期間保持終端機開啟；使用完畢按 `Control + C` 停止服務。首次分析會下載模型權重，需要網路連線。
 
 本機服務頁面同樣預設 ONNX；若只安裝 Python 依賴、尚未匯出模型及建立 `dist/`，請先選擇 Local Python。若要在此頁使用 ONNX，須完成前一節建置，服務會從 `/runtime/` 提供 `dist/` 資源。
 
-選擇 Local Python 後，頁面會提供三語啟動教學；連線失敗時自動展開。常見問題如下：
+網頁中的三語教學提供可展開的 macOS、Windows 與 Linux 安裝指令，連線失敗時會自動展開教學。本機服務已在 macOS 驗證；Windows 與 Linux 尚未完成對應系統的端到端實測。
 
 | 狀況 | 處理方式 |
 | --- | --- |
-| 無法連線 | 確認服務在瀏覽器所在的同一台電腦執行，並開啟本機服務網址檢查；服務啟動後移除音訊再加入重試 |
-| `ModuleNotFoundError` 或找不到 `.venv` | 完成依賴安裝，使用 `.venv/bin/python` 啟動；確認目前位於專案根目錄 |
-| 找不到 FFmpeg | 執行 `brew install ffmpeg`，再以 `ffmpeg -version` 確認 |
-| `Address already in use` | 8765 已被使用；若是既有服務可直接使用，或在原終端機停止後重啟 |
+| 無法連線 | 確認 FastAPI 在同一台電腦的 8765 埠執行，並開啟本機服務網址；服務啟動後移除音訊再加入重試 |
+| `ModuleNotFoundError` 或找不到 `.venv` | 完成依賴安裝；macOS／Linux 使用 `.venv/bin/python`，Windows 使用 `.\.venv\Scripts\python.exe`；確認目前位於專案根目錄 |
+| 找不到 `uv`、`git` 或 `ffmpeg` | 依作業系統的安裝指令補齊工具，重新開啟終端機以載入 PATH；分別以 `uv --version`、`git --version`、`ffmpeg -version` 確認 |
+| `Address already in use` | 8765 已被使用；若是既有服務可直接使用，或在原終端機按 `Control + C` 停止後重啟 |
 
 ## 分支與 GitHub Pages 部署
 
@@ -139,8 +211,17 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 若從 Pages 網站使用 Local Python，仍須在使用者電腦上啟動服務，並明確允許網站來源。先停止既有服務，再執行：
 
+macOS／Linux：
+
 ```sh
 TEMPO_ALLOWED_ORIGINS=https://YOUR-NAME.github.io .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8765
+```
+
+Windows PowerShell：
+
+```powershell
+$env:TEMPO_ALLOWED_ORIGINS="https://YOUR-NAME.github.io"
+.\.venv\Scripts\python.exe -m uvicorn web_app:app --host 127.0.0.1 --port 8765
 ```
 
 請將 `YOUR-NAME` 換成網站帳號；來源只含協定與網域，不加儲存庫路徑，多個來源以逗號分隔。本機 `localhost`、`127.0.0.1`、`::1` 來源已允許。網站存取本機服務仍受瀏覽器網路政策限制；若受阻，可改用本機服務頁面或 Browser ONNX。線上 Pages 與其本機服務連線情境尚未驗證。
