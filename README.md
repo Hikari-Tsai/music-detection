@@ -232,6 +232,50 @@ S-KEY 提供單一全曲大調／小調估計，不定位轉調或辨識和弦�
 3. **nnAudio** — K. W. Cheuk 等人，*nnAudio: An on-the-Fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks*，IEEE Access，2020。[論文 DOI](https://doi.org/10.1109/ACCESS.2020.3019084) · [官方程式](https://github.com/KinWaiCheuk/nnAudio)。用於 S-KEY 的頻譜前處理。
 4. **ConvNeXt** — Zhuang Liu 等人，*A ConvNet for the 2020s*，CVPR 2022。[論文](https://arxiv.org/abs/2201.03545) · [官方程式](https://github.com/facebookresearch/ConvNeXt)。S-KEY 所含的 ConvNeXt 實作註明源自 Meta FAIR，本專案保留相應授權。
 
+### 依官方 README 引用與署名
+
+以下於 2026-09-17 核對兩個上游 README，並與本專案固定版本比對；其引用與授權段落一致。Beat This! 提供 **Citation** 格式；S-KEY 在 **Reference** 段落明確請研究使用者引用論文。下列 BibTeX 保留官方欄位與引用鍵，僅整理空白。
+
+#### Beat This! 官方引用
+
+來源：[官方 README 的 Citation](https://github.com/CPJKU/beat_this/blob/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c/README.md#citation)。
+
+```bibtex
+@inproceedings{foscarin2024beatthis,
+    author = {Francesco Foscarin and Jan Schl{\"u}ter and Gerhard Widmer},
+    title = {Beat this! Accurate beat tracking without {DBN} postprocessing},
+    year = 2024,
+    month = nov,
+    booktitle = {Proceedings of the 25th International Society for Music Information Retrieval Conference (ISMIR)},
+    address = {San Francisco, CA, United States},
+}
+```
+
+#### S-KEY 官方引用
+
+來源：[官方 README 的 Reference](https://github.com/deezer/skey/blob/918b83d273568d5041569bb8068843d19a335726/README.md#-reference)。
+
+```bibtex
+@INPROCEEDINGS{kongskey2025,
+  author={Kong, Yuexuan and Meseguer-Brocal, Gabriel and Lostanlen, Vincent and Lagrange, Mathieu and Hennequin, Romain},
+  booktitle={ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  title={S-KEY: Self-supervised Learning of Major and Minor Keys from Audio},
+  year={2025},
+  pages={1-5},
+  doi={10.1109/ICASSP49660.2025.10890222}}
+```
+
+#### 版權署名與授權保留
+
+| 上游專案 | 保留的原始版權署名 | 官方授權說明與本專案保存位置 |
+| --- | --- | --- |
+| Beat This! | Copyright (c) 2024 Institute of Computational Perception, JKU Linz, Austria | [官方 README](https://github.com/CPJKU/beat_this/blob/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c/README.md#license) 明確將程式碼與發布的模型權重列為 MIT；完整聲明保存於 [Beat-This-LICENSE](third_party/Beat-This-LICENSE) |
+| S-KEY | Copyright (c) 2019-present, Deezer SA. | [官方 README](https://github.com/deezer/skey/blob/918b83d273568d5041569bb8068843d19a335726/README.md#-license) 明列程式碼為 MIT，該段未另行說明權重授權；完整聲明保存於 [S-KEY-LICENSE](third_party/S-KEY-LICENSE) 與 [模型原始碼 LICENSE](backend/models/skey/LICENSE) |
+
+兩份 MIT LICENSE 都要求在軟體副本或重要部分中保留原始版權與授權聲明。上表與論文引用不取代完整 LICENSE；靜態建置會將上游授權一併放入 `dist/licenses/`。本專案的 MIT LICENSE 不覆蓋上游的版權署名。
+
+本次核對的兩個 README 未另列必須展示的徽章、Logo 或固定網頁署名文字。Beat This! 另提醒部分訓練音訊有獨立版權或受限的 Creative Commons 授權，不能因程式與權重採 MIT 就將訓練資料視為 MIT。
+
 ### 使用的套件與工具
 
 | 套件／工具 | 在本專案中的用途 |
