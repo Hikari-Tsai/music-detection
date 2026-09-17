@@ -99,6 +99,26 @@ TEMPO_ALLOWED_ORIGINS=https://YOUR-NAME.github.io .venv/bin/python -m uvicorn we
 
 請將 `YOUR-NAME` 換成網站帳號；來源只含協定與網域，不加儲存庫路徑，多個來源以逗號分隔。本機 `localhost`、`127.0.0.1`、`::1` 來源已允許。網站存取本機服務仍受瀏覽器網路政策限制；若受阻，可改用本機服務頁面或 Browser ONNX。線上 Pages 與其本機服務連線情境尚未驗證。
 
+## PR-Agent 自動審查
+
+[PR Agent 工作流程](.github/workflows/pr-agent.yml) 使用 [官方開源 GitHub Action](https://docs.pr-agent.ai/installation/github/)，在同一儲存庫的 PR 建立、重新開啟、轉為可審查或推送新提交時，自動以繁體中文產生 review。草稿、機器人事件與 fork PR 的自動審查會略過。
+
+首次啟用請至儲存庫 **Settings → Secrets and variables → Actions → New repository secret**，新增 `OPENAI_KEY`，填入可使用所選模型的 OpenAI API 金鑰。`GITHUB_TOKEN` 由 GitHub 自動提供，不必自行建立。預設模型為 `gpt-5.6`；如需變更，可在同頁的 **Variables** 新增 `PR_AGENT_MODEL`。未設定金鑰時，工作流程會明確提示缺少設定，不會執行模型審查。
+
+PR-Agent 會將 PR 的程式碼差異與相關內容送至模型 API，使用 API 配額；這是開發階段的程式碼審查，與網站在裝置上分析音訊的流程分開。
+
+儲存庫擁有者、成員與協作者也可在 PR 一般留言區單獨輸入下列指令（整則留言僅包含該指令）：
+
+| 指令 | 功能 |
+| --- | --- |
+| `/review` | 重新審查 PR |
+| `/describe` | 產生或更新 PR 說明 |
+| `/improve` | 提供程式碼改善建議 |
+
+自動流程只執行 review；PR 說明與改善建議由上述留言指令觸發。工作流程不 checkout 或執行 PR 程式碼，僅透過 GitHub API 讀取內容並發表結果。Action 原始碼固定於 v0.45.0 對應提交；其上游 Dockerfile 使用可更新的 `github_action` 映像標籤，容器內容並未鎖定 digest。
+
+設定 Secret 後，建立一個非草稿 PR，或在既有 PR 留言 `/review`，即可驗證實際模型回覆；可於 **Actions → PR Agent** 查看執行結果。此工作流程不是功能測試，不應取代前後端測試。
+
 ## 檔案結構
 
 ```text
@@ -147,7 +167,9 @@ music-detection/
 │   ├── browser.md               # ONNX 部署、限制與驗證
 │   ├── skey.md                  # S-KEY 來源、匯出與一致性驗證
 │   └── experiment.md            # Beat This! 原始實驗紀錄
-├── .github/workflows/pages.yml  # GitHub Pages 建置與部署
+├── .github/workflows/
+│   ├── pages.yml                # GitHub Pages 建置與部署
+│   └── pr-agent.yml             # PR 自動審查與成員留言指令
 ├── web_app.py                   # Python 網頁服務的相容入口
 ├── run_beat_this.py              # Beat This! 命令列相容入口
 ├── convert_tempo.py              # MIDI Tempo 轉換相容入口
