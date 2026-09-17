@@ -59,7 +59,7 @@
 
       <section class="engine-controls" aria-labelledby="engine-title">
         <label class="engine-choice" for="engine-select"><span id="engine-title" data-i18n="engineTitle">Analysis engine</span><select id="engine-select" aria-describedby="engine-description"><option value="browser">Browser ONNX</option><option value="python">Local Python</option></select></label>
-        <p id="engine-description" data-i18n="engineBrowserHelp">(Recommended) Analyze on this device without uploading audio. Switching engines reanalyzes the selected file.</p>
+        <p id="engine-description" data-i18n="engineBrowserHelp">(Recommended) Analyze on this device without uploading audio. Switching engines analyzes the selected range.</p>
       </section>
       <details id="python-startup" class="python-setup" hidden>
         <summary data-i18n="pythonGuideTitle">Local Python setup &amp; troubleshooting</summary>
@@ -80,7 +80,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh</code></pre><p data-i18n="python
 test -d .venv || uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python -r requirements.txt</code></pre></details><a href="https://docs.astral.sh/uv/getting-started/installation/" target="_blank" rel="noreferrer">uv / Python ↗</a></section>
             <section><h3 data-i18n="pythonGuideStart">3. Start the local service</h3><p data-i18n="pythonGuideStartText">Run the command for your operating system. On macOS you can also double-click start_ui.command in Finder. You only need to start the service each time; no dependency reinstall or virtual environment activation is required.</p><p class="python-command-label">macOS / Linux</p><pre><code>.venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8765</code></pre><p class="python-command-label">Windows · PowerShell</p><pre><code>.\.venv\Scripts\python.exe -m uvicorn web_app:app --host 127.0.0.1 --port 8765</code></pre><p data-i18n="pythonGuideReady">The service is ready when Terminal shows:</p><pre><code>Uvicorn running on http://127.0.0.1:8765</code></pre><p data-i18n="pythonGuideKeepOpen">Keep that Terminal window open while analyzing. Press Control + C in that window when you want to stop the service.</p></section>
-            <section><h3 data-i18n="pythonGuideUse">4. Return here and analyze</h3><p data-i18n="pythonGuideUseText">Select Local Python, then choose or drop an audio file. Switching engines reanalyzes a file that is already selected. If a previous attempt failed, remove the file and add it again after starting the service.</p><p data-i18n="pythonGuideFirstRun">The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.</p><a href="http://127.0.0.1:8765/" target="_blank" rel="noreferrer" data-i18n="pythonGuideOpen">Open the local service page ↗</a><p data-i18n="pythonGuideDefault">That page also defaults to Browser ONNX. Select Local Python there if you want to use the Python service.</p></section>
+            <section><h3 data-i18n="pythonGuideUse">4. Return here and analyze</h3><p data-i18n="pythonGuideUseText">Select Local Python and add an audio file to start whole-track analysis automatically. To analyze a clip, adjust the range and press Analyze selected range. Switching engines analyzes the current range. After starting the service, press Analyze again to retry a failed attempt.</p><p data-i18n="pythonGuideFirstRun">The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.</p><a href="http://127.0.0.1:8765/" target="_blank" rel="noreferrer" data-i18n="pythonGuideOpen">Open the local service page ↗</a><p data-i18n="pythonGuideDefault">That page also defaults to Browser ONNX. Select Local Python there if you want to use the Python service.</p></section>
           </div>
           <p data-i18n="pythonGuidePlatformsUntested">The service has been tested locally on macOS. These Windows and Linux setup instructions have not yet been verified end to end on those systems.</p>
           <section class="python-troubleshooting"><h3 data-i18n="pythonGuideTrouble">Still unable to connect?</h3><ul><li data-i18n="pythonGuideConnection">Connection failed: check that the service is running on this computer at port 8765. Open the local service page above. If it does not open, check the Terminal error first. You can switch to Browser ONNX while resolving the issue.</li><li data-i18n="pythonGuideModules">ModuleNotFoundError or a missing .venv: complete step 2. Use .venv/bin/python on macOS/Linux or .\.venv\Scripts\python.exe on Windows. If requirements.txt is missing, return to the project folder in step 1.</li><li data-i18n="pythonGuideFfmpeg">FFmpeg not found: install it using the commands for your OS in step 2, reopen the terminal, and check ffmpeg -version. Address already in use means port 8765 is occupied; use the running service or stop its terminal session with Control + C before restarting.</li></ul></section>
@@ -98,7 +98,7 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
             <p id="drop-copy"><span data-i18n="dropCopy">Let your next idea start with a beat.</span></p>
             <button class="choose-button" id="choose-file" type="button"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="chooseFile">Choose audio file</span></button>
             <span class="formats">WAV · MP3 · FLAC · M4A · OGG · AIFF · AAC</span>
-            <div class="drop-overlay" aria-hidden="true"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="dropRelease">Release to analyze</span></div>
+            <div class="drop-overlay" aria-hidden="true"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="dropRelease">Release to analyze the whole track</span></div>
           </div>
 
           <div class="selected-file" id="selected-file" hidden>
@@ -115,8 +115,26 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
               <span class="player-time" id="total-time">0:00</span>
             </div>
             <p id="preview-note" class="preview-note" hidden><span data-i18n="previewPython">Your browser cannot preview this format. Analysis is still available.</span></p>
+            <section class="range-editor" aria-labelledby="range-title">
+              <div class="range-heading"><h3 id="range-title" data-i18n="rangeTitle">Select an analysis range</h3><button id="reset-range" type="button" data-i18n="rangeReset" disabled>Whole track</button></div>
+              <fieldset id="range-fields" disabled><legend class="visually-hidden" data-i18n="rangeTitle">Select an analysis range</legend>
+                <div class="range-bar" id="range-bar">
+                  <div class="range-track" aria-hidden="true"><span class="range-fill"></span></div>
+                  <input id="clip-start-slider" type="range" min="0" max="0" step="0.001" value="0" aria-label="Start (seconds)" data-i18n-aria-label="rangeStart" aria-describedby="range-help">
+                  <input id="clip-end-slider" type="range" min="0" max="0" step="0.001" value="0" aria-label="End (seconds)" data-i18n-aria-label="rangeEnd" aria-describedby="range-help">
+                </div>
+                <div class="range-times">
+                  <div class="range-row"><label for="clip-start" data-i18n="rangeStart">Start (seconds)</label><input id="clip-start" type="number" min="0" max="0" step="0.001" value="0" inputmode="decimal"></div>
+                  <div class="range-row"><label for="clip-end" data-i18n="rangeEnd">End (seconds)</label><input id="clip-end" type="number" min="0" max="0" step="0.001" value="0" inputmode="decimal"></div>
+                </div>
+              </fieldset>
+              <p id="range-summary" class="range-summary" aria-live="polite"></p>
+              <p id="range-help" class="range-help"></p>
+              <button id="analyze-range" class="choose-button analyze-range" type="button" data-i18n="rangeAnalyze" disabled>Analyze selected range</button>
+            </section>
             <audio id="audio-player" preload="metadata"></audio>
           </div>
+          <p id="result-range" class="range-result" aria-live="polite" hidden></p>
           <div class="analysis-status" id="analysis-status" role="status" aria-live="polite" hidden><span class="spinner" id="spinner"></span><span id="status-message"></span><span id="elapsed"></span></div>
           <p class="error-message" id="error-message" role="alert" hidden></p>
           <p class="input-hint"><svg class="icon"><use href="#i-lock"/></svg><span id="privacy-note-text"><span data-i18n="privacyPython">Audio stays off the cloud. Temporary uploads are deleted after analysis.</span></span></p>
@@ -162,8 +180,43 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
         </div>
         <p class="model-info-note"><span data-i18n="modelsNote">Results are model estimates; use your ears to check them. MIDI includes tempo and any detected time signature. The key is shown in the results.</span></p>
       </section>
+      <section class="model-info engine-comparison" aria-labelledby="engines-title">
+        <div class="model-info-heading"><h2 id="engines-title"><span data-i18n="compareTitle">ONNX vs. PyTorch: model differences</span></h2><p><span data-i18n="compareIntro">Both use the same Beat This! and S-KEY models to detect BPM, meter and key and generate tempo MIDI. The model format and runtime differ.</span></p></div>
+        <aside class="accuracy-note" aria-labelledby="accuracy-title">
+          <div class="accuracy-heading"><h3 id="accuracy-title" data-i18n="compareAccuracyTitle">Recognition accuracy</h3><span class="precision-badge" data-i18n="comparePrecision">Model weights: FP32</span></div>
+          <p data-i18n="compareAccuracy">ONNX export preserves the trained weights without retraining or quantization, and its model outputs are checked against PyTorch. FP32 describes numerical precision, not recognition accuracy. We have not benchmarked the two engines against labeled music to establish an accuracy advantage; audio decoding and numerical differences can still affect results.</p>
+          <div class="export-errors" aria-labelledby="export-error-title">
+            <h4 id="export-error-title"><span data-i18n="exportErrorTitle">ONNX export error · maximum absolute difference</span></h4>
+            <div class="export-error-grid">
+              <div class="export-error-card"><strong>Beat This!</strong><span class="export-error-value">≈ 6.1393 × 10⁻⁶</span><p><span data-i18n="exportBeatError">Beat/downbeat logits, tested at 63, 128, 1,264 and 1,500 spectrogram frames.</span></p><a href="https://huggingface.co/aaatmy/beat-this-onnx/blob/e2c0d4376fac8141905a8312c1b327849751d59c/manifest.json" target="_blank" rel="noopener noreferrer" aria-label="Beat This! export validation record (opens in a new tab)" data-i18n-aria-label="exportBeatRecordAria"><span data-i18n="exportErrorRecord">Validation record</span> <span aria-hidden="true">↗</span></a></div>
+              <div class="export-error-card"><strong>S-KEY</strong><span class="export-error-value">≈ 3.7551 × 10⁻⁶</span><p><span data-i18n="exportKeyError">24 key scores, tested on clips of 3, about 25 and about 75 seconds.</span></p><a href="https://huggingface.co/aaatmy/skey-onnx/blob/c04b6a2bc1d82e50b46d8669560d056f3a2344ab/manifest.json" target="_blank" rel="noopener noreferrer" aria-label="S-KEY export validation record (opens in a new tab)" data-i18n-aria-label="exportKeyRecordAria"><span data-i18n="exportErrorRecord">Validation record</span> <span aria-hidden="true">↗</span></a></div>
+            </div>
+            <p class="export-error-scope"><span data-i18n="exportErrorScope">These are the recorded maxima for the pinned Hugging Face exports, comparing PyTorch with ONNX Runtime on CPU using identical inputs. They are not BPM errors, accuracy percentages or guaranteed bounds for other audio, exports or browser/GPU runtimes.</span></p>
+          </div>
+        </aside>
+        <div class="model-info-grid">
+          <article class="model-card engine-card" aria-labelledby="compare-browser-title"><h3 id="compare-browser-title"><span data-i18n="compareBrowser">Browser ONNX · Recommended</span></h3><dl>
+            <div><dt><span data-i18n="compareSetup">Getting started</span></dt><dd><span data-i18n="compareBrowserSetup">Open this page; no Python installation needed. Models download on first use and are cached when browser storage is available.</span></dd></div>
+            <div><dt><span data-i18n="compareRuntime">How it runs</span></dt><dd><span data-i18n="compareBrowserRuntime">ONNX Runtime Web runs exported models in a Web Worker. Beat This! tries WebGPU, with a WASM fallback; S-KEY uses WASM.</span></dd></div>
+            <div><dt><span data-i18n="comparePrivacy">Audio processing</span></dt><dd><span data-i18n="compareBrowserPrivacy">Audio is decoded and analyzed in your browser. It is not uploaded to an analysis server.</span></dd></div>
+            <div><dt><span data-i18n="compareSpeed">Performance</span></dt><dd><span data-i18n="compareBrowserSpeed">Speed depends on browser, GPU support and available memory. ONNX is not always faster; the first run also includes model downloads.</span></dd></div>
+            <div><dt><span data-i18n="compareBestFor">When to use it</span></dt><dd><span data-i18n="compareBrowserBestFor">Quick analysis with no installation, including the GitHub Pages version.</span></dd></div>
+          </dl></article>
+          <article class="model-card engine-card" aria-labelledby="compare-python-title"><h3 id="compare-python-title"><span data-i18n="comparePython">Local Python</span></h3><dl>
+            <div><dt><span data-i18n="compareSetup">Getting started</span></dt><dd><span data-i18n="comparePythonSetup">Install Python dependencies and FFmpeg, then start the local FastAPI service. Model weights download on first use.</span></dd></div>
+            <div><dt><span data-i18n="compareRuntime">How it runs</span></dt><dd><span data-i18n="comparePythonRuntime">PyTorch runs the original models directly. This app currently uses CPU inference, with FFmpeg decoding the audio.</span></dd></div>
+            <div><dt><span data-i18n="comparePrivacy">Audio processing</span></dt><dd><span data-i18n="comparePythonPrivacy">The browser sends audio over HTTP to FastAPI on this computer (127.0.0.1:8765), which returns results and a MIDI download.</span></dd></div>
+            <div><dt><span data-i18n="compareSpeed">Performance</span></dt><dd><span data-i18n="comparePythonSpeed">Speed depends on your CPU and available memory. It avoids browser runtime constraints but needs a running local service.</span></dd></div>
+            <div><dt><span data-i18n="compareBestFor">When to use it</span></dt><dd><span data-i18n="comparePythonBestFor">A local Python workflow, or an alternative when browser inference cannot run. See the setup guide in the engine selector above.</span></dd></div>
+          </dl></article>
+        </div>
+      </section>
       <details class="method-note"><summary><span data-i18n="tempoQuestion">How are average BPM and variable tempo MIDI calculated?</span></summary><p><span data-i18n="tempoAnswer">Average BPM uses the number of beat intervals and the time from the first to the last beat. With at least five beats and a deviation of more than 30 ms from a constant grid, the result is marked as variable tempo. MIDI tempo changes follow each beat interval and preserve the initial beat offset. Import it at the same start time as the audio, with tempo-map import enabled in your DAW. The adjacent tempo extends before the first and after the last beat. Jitter or missed beats may also appear as tempo changes. An uncertain meter is omitted and does not by itself indicate variable tempo. When evidence is insufficient, a single average tempo is exported; insufficient or invalid beats, or tempos outside the MIDI range, return -1. Each detected beat is treated as a quarter note, so half-time and double-time ambiguity remain possible.</span></p></details>
       <details class="method-note"><summary><span data-i18n="keyQuestion">What does the S-KEY result mean?</span></summary><p><span data-i18n="keyAnswer">S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. Tempo MIDI contains only tempo and any detected meter; the key is displayed on this page.</span></p></details>
+      <section class="report-issue" aria-labelledby="report-title">
+        <div><h2 id="report-title" data-i18n="reportTitle">Found a problem?</h2><p data-i18n="reportDescription">Report bugs or share suggestions on GitHub Issues. Include your browser, operating system and analysis engine to help us investigate.</p></div>
+        <a class="report-link" href="https://github.com/Hikari-Tsai/music-detection/issues" target="_blank" rel="noopener noreferrer" aria-label="Report an issue on GitHub (opens in a new tab)" data-i18n-aria-label="reportLinkAria"><span data-i18n="reportLink">Report an issue</span><span aria-hidden="true">↗</span></a>
+      </section>
     </main>
 
     <footer><span><span data-i18n="footer">Every beat, a new beginning.</span></span><a href="https://github.com/CPJKU/beat_this" target="_blank" rel="noreferrer">Beat This!<svg class="icon"><use href="#i-arrow"/></svg></a><a href="https://github.com/deezer/skey" target="_blank" rel="noreferrer">S-KEY<svg class="icon"><use href="#i-arrow"/></svg></a></footer>

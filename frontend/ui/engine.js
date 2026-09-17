@@ -27,13 +27,17 @@ export function createEngine(
         ? '分析資源載入失敗，請確認網路連線後重試。'
         : '無法連線到本機分析服務，請確認服務正在執行。';
     },
-    async analyze(file, onProgress) {
+    async analyze(file, onProgress, options = {}) {
       if (browser) {
         const { analyzeInBrowser } = await import(browserModuleURL);
-        return analyzeInBrowser(file, onProgress);
+        return analyzeInBrowser(file, onProgress, options);
       }
       const body = new FormData();
       body.append('file', file);
+      if (options.range) {
+        body.append('start_seconds', options.range.start);
+        body.append('end_seconds', options.range.end);
+      }
       const response = await fetch(new URL('/api/analyze', pythonBaseURL), {
         method: 'POST',
         body,
@@ -49,6 +53,14 @@ export function createEngine(
         throw new Error(
           typeof data.detail === 'string' ? data.detail : '分析失敗，請重新選擇檔案。'
         );
+      if (
+        options.range &&
+        (!Number.isFinite(data.selection_start_seconds) ||
+          !Number.isFinite(data.selection_end_seconds) ||
+          Math.abs(data.selection_start_seconds - options.range.start) > 0.001 ||
+          Math.abs(data.selection_end_seconds - options.range.end) > 0.001)
+      )
+        throw new Error('本機 Python 未確認選取範圍，請更新專案並重新啟動服務後再試。');
       return {
         ...data,
         download_url: data.download_url ? new URL(data.download_url, pythonBaseURL).href : null

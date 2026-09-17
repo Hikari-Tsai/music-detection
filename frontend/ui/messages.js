@@ -1,5 +1,214 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  exportErrorTitle: {
+    en: 'ONNX export error · maximum absolute difference',
+    ja: 'ONNX 変換誤差 · 最大絶対差',
+    'zh-Hant': 'ONNX 匯出誤差・最大絕對差'
+  },
+  exportBeatError: {
+    en: 'Beat/downbeat logits, tested at 63, 128, 1,264 and 1,500 spectrogram frames.',
+    ja: '拍・小節頭の logits を、スペクトログラムの長さ 63・128・1,264・1,500 フレームで比較。',
+    'zh-Hant': '節拍／小節首拍原始輸出（logits）；測試 63、128、1,264 與 1,500 幀頻譜。'
+  },
+  exportKeyError: {
+    en: '24 key scores, tested on clips of 3, about 25 and about 75 seconds.',
+    ja: '24種類の調のスコアを、3秒・約25秒・約75秒の音声で比較。',
+    'zh-Hant': '24 個調性分數；測試 3 秒、約 25 秒與約 75 秒音訊。'
+  },
+  exportErrorScope: {
+    en: 'These are the recorded maxima for the pinned Hugging Face exports, comparing PyTorch with ONNX Runtime on CPU using identical inputs. They are not BPM errors, accuracy percentages or guaranteed bounds for other audio, exports or browser/GPU runtimes.',
+    ja: '固定バージョンの Hugging Face モデルの変換時に、同じ入力で PyTorch と CPU 上の ONNX Runtime を比較した最大値です。BPM の誤差や正解率ではなく、別の音声・変換環境・ブラウザー／GPU での誤差の上限を保証するものでもありません。',
+    'zh-Hant':
+      '以上為目前固定版本 Hugging Face 模型的匯出驗證最大值，以相同輸入比較 PyTorch 與 CPU 上的 ONNX Runtime。不是 BPM 誤差或準確率百分比，也不代表其他音訊、匯出環境或瀏覽器／GPU 的誤差上限。'
+  },
+  exportErrorRecord: { en: 'Validation record', ja: '検証記録', 'zh-Hant': '驗證紀錄' },
+  exportBeatRecordAria: {
+    en: 'Beat This! export validation record (opens in a new tab)',
+    ja: 'Beat This! の変換検証記録（新しいタブで開く）',
+    'zh-Hant': 'Beat This! 匯出驗證紀錄（在新分頁開啟）'
+  },
+  exportKeyRecordAria: {
+    en: 'S-KEY export validation record (opens in a new tab)',
+    ja: 'S-KEY の変換検証記録（新しいタブで開く）',
+    'zh-Hant': 'S-KEY 匯出驗證紀錄（在新分頁開啟）'
+  },
+  comparePrecision: {
+    en: 'Model weights: FP32',
+    ja: 'モデルの重み：FP32',
+    'zh-Hant': '模型權重：FP32'
+  },
+  compareAccuracyTitle: { en: 'Recognition accuracy', ja: '認識精度', 'zh-Hant': '辨識精確度' },
+  reportTitle: {
+    en: 'Found a problem?',
+    ja: '問題が見つかりましたか？',
+    'zh-Hant': '遇到問題了嗎？'
+  },
+  reportDescription: {
+    en: 'Report bugs or share suggestions on GitHub Issues. Include your browser, operating system and analysis engine to help us investigate.',
+    ja: '不具合の報告や改善の提案は GitHub Issues へ。調査のため、ブラウザー・OS・解析エンジンを添えてください。',
+    'zh-Hant':
+      '歡迎透過 GitHub Issues 回報問題或提供建議，並附上瀏覽器、作業系統與使用的分析引擎，方便我們查找原因。'
+  },
+  reportLink: { en: 'Report an issue', ja: '問題を報告', 'zh-Hant': '回報問題' },
+  reportLinkAria: {
+    en: 'Report an issue on GitHub (opens in a new tab)',
+    ja: 'GitHub で問題を報告（新しいタブで開く）',
+    'zh-Hant': '前往 GitHub 回報問題（在新分頁開啟）'
+  },
+
+  rangePythonUpdate: {
+    en: 'Local Python did not confirm the selected range. Update the project and restart the service, then try again.',
+    ja: 'Local Python が選択範囲を確認できませんでした。プロジェクトを更新してサービスを再起動し、再試行してください。',
+    'zh-Hant': '本機 Python 未確認選取範圍，請更新專案並重新啟動服務後再試。'
+  },
+  rangeError: {
+    en: 'Invalid selection. Choose at least 1 second within the audio.',
+    ja: '選択範囲が無効です。音声内で1秒以上の範囲を選んでください。',
+    'zh-Hant': '選取範圍無效，請選擇至少 1 秒且不超出音訊的片段。'
+  },
+  rangeTitle: { en: 'Select an analysis range', ja: '解析範囲を選択', 'zh-Hant': '選取分析範圍' },
+  rangeReset: { en: 'Whole track', ja: '曲全体', 'zh-Hant': '整首音訊' },
+  rangeStart: { en: 'Start (seconds)', ja: '開始（秒）', 'zh-Hant': '起點（秒）' },
+  rangeEnd: { en: 'End (seconds)', ja: '終了（秒）', 'zh-Hant': '終點（秒）' },
+  rangeAnalyze: { en: 'Analyze selected range', ja: '選択範囲を解析', 'zh-Hant': '分析選取範圍' },
+  rangeSummary: {
+    en: '{start}–{end} s · {duration} s selected',
+    ja: '{start}〜{end} 秒 · 選択範囲 {duration} 秒',
+    'zh-Hant': '{start}–{end} 秒・已選取 {duration} 秒'
+  },
+  rangeWhole: { en: 'Whole track selected', ja: '曲全体を選択', 'zh-Hant': '已選取整首音訊' },
+  rangeUnavailable: {
+    en: 'Range selection becomes available once the duration is known. If your browser cannot decode this format, Local Python can analyze the whole file first.',
+    ja: '長さを取得すると範囲を選択できます。ブラウザーがデコードできない形式は、まず Local Python でファイル全体を解析できます。',
+    'zh-Hant': '取得音訊長度後即可選取範圍。若瀏覽器無法解碼此格式，可先使用本機 Python 分析整首。'
+  },
+  rangeInvalid: {
+    en: 'Choose a valid range of at least 1 second within the audio.',
+    ja: '音声内で1秒以上の有効な範囲を選んでください。',
+    'zh-Hant': '請選擇至少 1 秒且不超出音訊的有效範圍。'
+  },
+  rangeHelp: {
+    en: 'Uploads are analyzed in full automatically. To analyze a clip, drag either handle or enter seconds, then press Analyze. Playback previews this range. Minimum 1 second; key detection needs 3 seconds. Your original file is unchanged.',
+    ja: '音声の追加後は曲全体を自動解析します。一部だけ解析する場合はバーの両端または秒数で範囲を指定し、解析を押してください。再生も選択範囲のみです。最低1秒、調の推定には3秒必要です。元のファイルは変更されません。',
+    'zh-Hant':
+      '加入音訊後會自動分析全曲。若要分析片段，請拖動雙把手或輸入秒數後按下分析；播放按鈕僅試聽這段。範圍至少 1 秒，調性分析需 3 秒。原始檔案不會被修改。'
+  },
+  rangeReady: { en: 'Ready to analyze', ja: '解析の準備完了', 'zh-Hant': '可開始分析' },
+  rangeReading: {
+    en: 'Preparing audio & waveform',
+    ja: '音声と波形を準備中',
+    'zh-Hant': '正在準備音訊與波形'
+  },
+  rangeNoWaveform: {
+    en: 'Waveform preview unavailable',
+    ja: '波形を表示できません',
+    'zh-Hant': '無法預覽波形'
+  },
+  rangeKey: {
+    en: 'Selected range key · S-KEY',
+    ja: '選択範囲の調 · S-KEY',
+    'zh-Hant': '選取範圍調性・S-KEY'
+  },
+  rangeResult: {
+    en: 'Results: {start}–{end} s of the original audio. MIDI starts at 0 s of this clip; align it with the clip, or place it at {start} s in the original timeline.',
+    ja: '解析結果：元の音声の {start}〜{end} 秒。MIDI の0秒はこの範囲の開始位置です。切り出した音声の先頭、または元のタイムラインの {start} 秒に合わせてください。',
+    'zh-Hant':
+      '分析結果：原音訊的 {start}–{end} 秒。MIDI 的 0 秒對應片段起點；請與裁切片段對齊，或放在原時間軸的 {start} 秒處。'
+  },
+  rangeFullResult: {
+    en: 'Results cover the whole track. Align the tempo MIDI with the start of the original audio.',
+    ja: '曲全体の解析結果です。テンポ MIDI は元の音声の先頭に合わせてください。',
+    'zh-Hant': '此結果涵蓋整首音訊，Tempo MIDI 請與原音訊起點對齊。'
+  },
+  rangeVariable: {
+    en: 'Average BPM for the selected range; MIDI tempo changes follow its detected beats. The MIDI timeline starts at the beginning of the selected clip.',
+    ja: '選択範囲の平均 BPM です。MIDI のテンポ変化は検出した拍に従い、時間軸は選択範囲の先頭から始まります。',
+    'zh-Hant': '顯示選取範圍的平均 BPM；MIDI 依片段內拍點寫入變速，時間軸從片段起點開始。'
+  },
+
+  compareTitle: {
+    en: 'ONNX vs. PyTorch: model differences',
+    ja: 'ONNX と PyTorch のモデルの違い',
+    'zh-Hant': 'ONNX 與 PyTorch 兩種模型的差異'
+  },
+  compareIntro: {
+    en: 'Both use the same Beat This! and S-KEY models to detect BPM, meter and key and generate tempo MIDI. The model format and runtime differ.',
+    ja: 'どちらも同じ Beat This! と S-KEY で BPM・拍子・調を推定し、テンポ MIDI を生成します。違いはモデルの形式と実行環境です。',
+    'zh-Hant':
+      '兩者使用相同的 Beat This! 與 S-KEY 模型，分析 BPM、拍號、調性並產生 Tempo MIDI；差別在於模型格式與執行環境。'
+  },
+  compareBrowser: {
+    en: 'Browser ONNX · Recommended',
+    ja: 'Browser ONNX · 推奨',
+    'zh-Hant': '瀏覽器 ONNX・推薦'
+  },
+  comparePython: { en: 'Local Python', ja: 'Local Python', 'zh-Hant': '本機 Python' },
+  compareSetup: { en: 'Getting started', ja: '利用の準備', 'zh-Hant': '使用準備' },
+  compareRuntime: { en: 'How it runs', ja: '実行方法', 'zh-Hant': '執行方式' },
+  comparePrivacy: { en: 'Audio processing', ja: '音声の処理', 'zh-Hant': '音訊處理' },
+  compareSpeed: { en: 'Performance', ja: '処理速度', 'zh-Hant': '效能差異' },
+  compareBestFor: { en: 'When to use it', ja: '用途の目安', 'zh-Hant': '適合情境' },
+  compareBrowserSetup: {
+    en: 'Open this page; no Python installation needed. Models download on first use and are cached when browser storage is available.',
+    ja: 'ページを開くだけで利用でき、Python の導入は不要です。モデルは初回にダウンロードされ、ブラウザーのストレージが利用できる場合はキャッシュされます。',
+    'zh-Hant': '開啟網頁即可使用，無須安裝 Python。首次使用會下載模型，瀏覽器儲存空間可用時會快取。'
+  },
+  comparePythonSetup: {
+    en: 'Install Python dependencies and FFmpeg, then start the local FastAPI service. Model weights download on first use.',
+    ja: 'Python の依存パッケージと FFmpeg を導入し、ローカルの FastAPI サービスを起動します。モデルの重みは初回にダウンロードされます。',
+    'zh-Hant': '需安裝 Python 相依套件與 FFmpeg，並啟動本機 FastAPI 服務；首次使用會下載模型權重。'
+  },
+  compareBrowserRuntime: {
+    en: 'ONNX Runtime Web runs exported models in a Web Worker. Beat This! tries WebGPU, with a WASM fallback; S-KEY uses WASM.',
+    ja: '変換済みモデルを Web Worker 内の ONNX Runtime Web で実行します。Beat This! は WebGPU を試し、利用できなければ WASM に切り替えます。S-KEY は WASM を使用します。',
+    'zh-Hant':
+      '透過 Web Worker 中的 ONNX Runtime Web 執行匯出模型。Beat This! 優先使用 WebGPU，失敗時改用 WASM；S-KEY 使用 WASM。'
+  },
+  comparePythonRuntime: {
+    en: 'PyTorch runs the original models directly. This app currently uses CPU inference, with FFmpeg decoding the audio.',
+    ja: 'PyTorch で元のモデルを直接実行します。このアプリの現在の実装は CPU 推論を使用し、音声は FFmpeg でデコードします。',
+    'zh-Hant': '由 PyTorch 直接執行原始模型。目前此專案使用 CPU 推論，並以 FFmpeg 解碼音訊。'
+  },
+  compareBrowserPrivacy: {
+    en: 'Audio is decoded and analyzed in your browser. It is not uploaded to an analysis server.',
+    ja: '音声のデコードと解析はブラウザー内で完結し、解析サーバーにはアップロードされません。',
+    'zh-Hant': '音訊在瀏覽器內解碼與分析，不會上傳至分析伺服器。'
+  },
+  comparePythonPrivacy: {
+    en: 'The browser sends audio over HTTP to FastAPI on this computer (127.0.0.1:8765), which returns results and a MIDI download.',
+    ja: 'ブラウザーから同じ端末の FastAPI（127.0.0.1:8765）へ HTTP で音声を送り、解析結果と MIDI のダウンロード先を受け取ります。',
+    'zh-Hant':
+      '瀏覽器透過 HTTP 將音訊傳至同一台電腦的 FastAPI（127.0.0.1:8765），再取得分析結果與 MIDI 下載。'
+  },
+  compareBrowserSpeed: {
+    en: 'Speed depends on browser, GPU support and available memory. ONNX is not always faster; the first run also includes model downloads.',
+    ja: '速度はブラウザー、GPU 対応、使用可能なメモリーに依存します。ONNX が常に高速とは限らず、初回はモデルのダウンロード時間も必要です。',
+    'zh-Hant':
+      '速度取決於瀏覽器、GPU 支援與可用記憶體。ONNX 不一定較快，首次使用還需加上模型下載時間。'
+  },
+  comparePythonSpeed: {
+    en: 'Speed depends on your CPU and available memory. It avoids browser runtime constraints but needs a running local service.',
+    ja: '速度は CPU と使用可能なメモリーに依存します。ブラウザーの実行環境による制約は受けませんが、ローカルサービスの起動が必要です。',
+    'zh-Hant': '速度取決於 CPU 與可用記憶體，不受瀏覽器執行環境限制，但需持續執行本機服務。'
+  },
+  compareBrowserBestFor: {
+    en: 'Quick analysis with no installation, including the GitHub Pages version.',
+    ja: 'インストールせずにすぐ解析したい場合。GitHub Pages 版でも利用できます。',
+    'zh-Hant': '不想安裝環境、希望直接在網頁分析，包含 GitHub Pages 版本。'
+  },
+  comparePythonBestFor: {
+    en: 'A local Python workflow, or an alternative when browser inference cannot run. See the setup guide in the engine selector above.',
+    ja: 'ローカルの Python 環境を使いたい場合や、ブラウザー推論が動作しない場合。上のエンジン選択欄に起動手順があります。',
+    'zh-Hant':
+      '已有 Python 工作環境，或瀏覽器無法完成推論時使用。啟動步驟請見上方引擎選擇區的教學。'
+  },
+  compareAccuracy: {
+    en: 'ONNX export preserves the trained weights without retraining or quantization, and its model outputs are checked against PyTorch. FP32 describes numerical precision, not recognition accuracy. We have not benchmarked the two engines against labeled music to establish an accuracy advantage; audio decoding and numerical differences can still affect results.',
+    ja: 'ONNX への変換では再学習や量子化を行わず、学習済みの重みを保持し、モデルの出力を PyTorch と比較しています。FP32 は数値精度を示し、認識の正解率ではありません。注釈付きの音楽データで両エンジンの認識精度の優劣は評価していません。音声のデコードや数値計算の違いにより、結果に差が出ることがあります。',
+    'zh-Hant':
+      'ONNX 匯出保留已訓練權重，未重新訓練或量化，並已比對 PyTorch 的模型輸出。FP32 指的是數值精度，不是辨識準確率。目前尚未用標註音樂資料集比較兩種引擎的準確率，無法宣稱哪一種較準；音訊解碼與數值運算差異仍可能影響結果。'
+  },
+
   githubStar: {
     en: 'Star on GitHub',
     ja: 'スターで応援',
@@ -123,10 +332,10 @@ export const messages = {
     'zh-Hant': '4. 回到此頁分析音訊'
   },
   pythonGuideUseText: {
-    en: 'Select Local Python, then choose or drop an audio file. Switching engines reanalyzes a file that is already selected. If a previous attempt failed, remove the file and add it again after starting the service.',
-    ja: 'Local Python を選択し、音声ファイルを選ぶかドロップしてください。選択中のファイルがあれば切り替え時に再解析します。接続に失敗した場合は、サービス起動後にファイルを削除して追加し直してください。',
+    en: 'Select Local Python and add an audio file to start whole-track analysis automatically. To analyze a clip, adjust the range and press Analyze selected range. Switching engines analyzes the current range. After starting the service, press Analyze again to retry a failed attempt.',
+    ja: 'Local Python を選び、音声を追加すると曲全体の解析が自動で始まります。一部だけ解析する場合は範囲を指定し、「選択範囲を解析」を押します。エンジンの切り替えでも現在の範囲を解析します。失敗した場合は、サービス起動後に解析ボタンで再試行できます。',
     'zh-Hant':
-      '選擇 Local Python，再選取或拖入音訊。若已有選取檔案，切換時會重新分析；若先前連線失敗，啟動服務後請移除檔案，再重新加入。'
+      '選擇 Local Python，加入音訊後會自動分析全曲。若只分析片段，請調整範圍後按「分析選取範圍」。切換引擎也會分析目前範圍；若先前失敗，可在服務啟動後再按分析重試。'
   },
   pythonGuideFirstRun: {
     en: 'The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.',
@@ -186,15 +395,15 @@ export const messages = {
   },
   engineTitle: { 'zh-Hant': '分析引擎', en: 'Analysis engine', ja: '解析エンジン' },
   engineBrowserHelp: {
-    'zh-Hant': '（推薦）在此裝置分析，不上傳音訊。切換引擎會重新分析已選取的檔案。',
-    en: '(Recommended) Analyze on this device without uploading audio. Switching engines reanalyzes the selected file.',
-    ja: '（推奨）音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択中のファイルを再解析します。'
+    'zh-Hant': '（推薦）在此裝置分析，不上傳音訊。切換引擎會分析目前選取的範圍。',
+    en: '(Recommended) Analyze on this device without uploading audio. Switching engines analyzes the selected range.',
+    ja: '（推奨）音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択範囲を解析します。'
   },
   enginePythonHelp: {
-    en: 'Audio is sent over HTTP to the FastAPI service at http://127.0.0.1:8765 on this device. See the setup guide below; switching reanalyzes the selected file.',
-    ja: '音声を HTTP 経由で、この端末の FastAPI サービス http://127.0.0.1:8765 に送信します。下の起動ガイドをご覧ください。切り替えると選択中のファイルを再解析します。',
+    en: 'Audio is sent over HTTP to the FastAPI service at http://127.0.0.1:8765 on this device. See the setup guide below; switching analyzes the selected range.',
+    ja: '音声を HTTP 経由で、この端末の FastAPI サービス http://127.0.0.1:8765 に送信します。下の起動ガイドをご覧ください。切り替えると選択範囲を解析します。',
     'zh-Hant':
-      '音訊透過 HTTP 傳送至本機 FastAPI 服務 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會重新分析已選檔案。'
+      '音訊透過 HTTP 傳送至本機 FastAPI 服務 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會分析目前選取的範圍。'
   },
   pageTitle: {
     'zh-Hant': 'Key & Tempo — BPM、調性分析與 MIDI',
@@ -297,9 +506,9 @@ export const messages = {
     ja: '音声ファイルを選択'
   },
   dropRelease: {
-    'zh-Hant': '放開以開始分析',
-    en: 'Release to analyze',
-    ja: 'ドロップして解析を開始'
+    'zh-Hant': '放開以分析全曲',
+    en: 'Release to analyze the whole track',
+    ja: 'ドロップして曲全体を解析'
   },
   clearFile: {
     'zh-Hant': '移除音訊，重新選擇',

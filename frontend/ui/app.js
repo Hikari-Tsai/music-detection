@@ -1,5 +1,7 @@
 import { setText } from './i18n.js';
 import { createEngine } from './engine.js';
+import { decodeSource } from './audio-source.js';
+import { createRangeEditor } from './range-editor.js';
 const $ = (id) => document.getElementById(id);
 function makeEngine(kind) {
   return createEngine(kind, {
@@ -32,6 +34,17 @@ let downloadName = null;
 let waveform = [];
 let elapsedTimer = null;
 let lastFile = null;
+let sourceAudio = null;
+let sourceDuration = 0;
+const selection = createRangeEditor(() => {
+  audio.pause();
+  resetResult();
+  errorMessage('');
+  $('analysis-status').hidden = true;
+  $('analyze-range').disabled = busy || (selection.available && !selection.valid);
+  status({ key: 'rangeReady' });
+  drawWaveform();
+});
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return '0:00';
@@ -49,6 +62,7 @@ function status(text, state = '') {
 }
 
 function resetResult() {
+  $('result-range').hidden = true;
   if (downloadUrl?.startsWith('blob:')) URL.revokeObjectURL(downloadUrl);
   downloadUrl = null;
   downloadName = null;
@@ -72,6 +86,8 @@ function setBusy(value) {
   $('clear-file').disabled = value;
   input.disabled = value;
   $('engine-select').disabled = value;
+  selection.setBusy(value);
+  $('analyze-range').disabled = value || !lastFile || (selection.available && !selection.valid);
   $('result-panel').setAttribute('aria-busy', String(value));
 }
 
@@ -94,7 +110,11 @@ function drawWaveform() {
     const end = Math.max(start + 1, Math.floor(((i + 1) * waveform.length) / count));
     const amplitude = Math.max(...waveform.slice(start, end));
     const height = Math.max(2, amplitude * rect.height * 0.78);
-    ctx.fillStyle = i / count < progress ? '#c6f68a' : '#657c53';
+    const bounds = selection.bounds;
+    const selected =
+      !bounds ||
+      (i / count >= bounds.start / sourceDuration && i / count <= bounds.end / sourceDuration);
+    ctx.fillStyle = !selected ? '#303a3e' : i / count < progress ? '#c6f68a' : '#657c53';
     ctx.fillRect(i * step, (rect.height - height) / 2, Math.max(1, step - 2), height);
   }
 }
@@ -107,6 +127,9 @@ function clearFile() {
   if (objectUrl) URL.revokeObjectURL(objectUrl);
   objectUrl = null;
   lastFile = null;
+  sourceAudio = null;
+  sourceDuration = 0;
+  selection.setDuration(0);
   input.value = '';
   waveform = [];
   $('dropzone').hidden = false;
@@ -123,10 +146,10 @@ function selectFiles(files) {
     errorMessage('請一次加入一個音訊檔案。');
     return;
   }
-  analyze(files[0]);
+  prepareFile(files[0]);
 }
 
-async function analyze(file) {
+async function prepareFile(file) {
   const extension = file.name.split('.').pop().toLowerCase();
   if (!accepted.has(extension)) {
     errorMessage('不支援這個格式，請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF 或 AAC。');
@@ -147,6 +170,9 @@ async function analyze(file) {
   objectUrl = URL.createObjectURL(file);
   audio.src = objectUrl;
   lastFile = file;
+  sourceAudio = null;
+  sourceDuration = 0;
+  selection.setDuration(0);
   waveform = [];
   $('filename').textContent = file.name;
   $('file-meta').textContent =
@@ -160,7 +186,44 @@ async function analyze(file) {
   setText($('total-time'), '0:00');
   $('preview-note').hidden = true;
   $('wave-placeholder').hidden = false;
-  setText($('wave-placeholder'), '正在辨識音訊與拍點');
+  setText('wave-placeholder', { key: 'rangeReading' });
+  $('analysis-status').hidden = true;
+  setBusy(true);
+  status({ key: 'rangeReading' });
+  try {
+    sourceAudio = await decodeSource(file);
+    sourceDuration = sourceAudio.duration;
+    waveform = sourceAudio.waveform;
+    selection.setDuration(sourceDuration);
+    $('wave-placeholder').hidden = true;
+    setText('total-time', formatTime(sourceDuration));
+    $('file-meta').textContent += ` / ${formatTime(sourceDuration)}`;
+    status({ key: 'rangeReady' });
+  } catch (error) {
+    // Native Python can still decode formats unsupported by Web Audio.
+    const duration = audio.duration;
+    if (Number.isFinite(duration) && duration >= 1 && duration <= 1200) {
+      sourceDuration = duration;
+      selection.setDuration(duration);
+    }
+    setText('wave-placeholder', { key: 'rangeNoWaveform' });
+    status({ key: 'rangeReady' });
+    errorMessage(engine.errorMessage(error));
+  } finally {
+    setBusy(false);
+    drawWaveform();
+  }
+  // New uploads always begin with the full track. Later range edits remain manual.
+  if (sourceAudio || engine.kind === 'python') await analyze();
+}
+
+async function analyze() {
+  if (busy || !lastFile || (selection.available && !selection.valid)) return;
+  const file = lastFile;
+  const range = selection.range;
+  resetResult();
+  errorMessage('');
+  audio.pause();
   $('analysis-status').hidden = false;
   $('spinner').hidden = false;
   setText($('status-message'), '正在分析節拍，請稍候');
@@ -177,12 +240,16 @@ async function analyze(file) {
       setText($('status-message'), '正在處理音訊或等待模型，請稍候');
   }, 1000);
   try {
-    const data = await engine.analyze(file, (text) => {
-      setText($('status-message'), text);
-    });
+    const data = await engine.analyze(
+      file,
+      (text) => {
+        setText($('status-message'), text);
+      },
+      { range, prepared: sourceAudio }
+    );
     if (data.key_status === 'estimated' && data.key) {
       setText($('key-value'), [data.key.tonic, ' ', { key: data.key.mode }]);
-      setText($('key-description'), '全曲調性估計 · S-KEY');
+      setText($('key-description'), range ? { key: 'rangeKey' } : '全曲調性估計 · S-KEY');
     } else {
       setText($('key-value'), '—');
       setText(
@@ -194,10 +261,20 @@ async function analyze(file) {
             : '調性分析未完成，可重新分析'
       );
     }
-    waveform = data.waveform;
+    if (!waveform.length && !range) {
+      waveform = data.waveform;
+      sourceDuration = data.source_duration_seconds || data.duration_seconds;
+      selection.setDuration(sourceDuration);
+    }
     $('wave-placeholder').hidden = true;
-    setText($('total-time'), formatTime(data.duration_seconds));
-    $('file-meta').textContent += ` / ${formatTime(data.duration_seconds)}`;
+    setText($('total-time'), formatTime(sourceDuration || data.duration_seconds));
+    setText(
+      'result-range',
+      range
+        ? { key: 'rangeResult', args: { start: range.start.toFixed(3), end: range.end.toFixed(3) } }
+        : { key: 'rangeFullResult' }
+    );
+    $('result-range').hidden = false;
     drawWaveform();
     $('spinner').hidden = true;
     setText($('status-message'), { key: 'analysisDone', args: { count: data.beat_count } });
@@ -219,7 +296,9 @@ async function analyze(file) {
         setText($('tempo-label'), 'AVERAGE TEMPO');
         setText($('download-label'), '下載變速 MIDI Tempo');
         setText($('result-description'), [
-          '顯示整段平均 BPM；MIDI 依偵測拍點寫入速度變化。匯入時請與原音訊使用相同起點。',
+          range
+            ? { key: 'rangeVariable' }
+            : '顯示整段平均 BPM；MIDI 依偵測拍點寫入速度變化。匯入時請與原音訊使用相同起點。',
           hasSignature ? '' : '拍號未確定，僅匯出速度。'
         ]);
       } else if (data.tempo_mode === 'average') {
@@ -235,7 +314,10 @@ async function analyze(file) {
         setText($('result-description'), '速度與每小節拍數一致。每拍按四分音符解讀。');
       }
       downloadUrl = data.download_url;
-      downloadName = file.name.replace(/\.[^.]+$/, '') + '_tempo.mid';
+      downloadName =
+        file.name.replace(/\.[^.]+$/, '') +
+        (range ? `_${range.start.toFixed(3)}-${range.end.toFixed(3)}s` : '') +
+        '_tempo.mid';
       $('download-midi').disabled = false;
       setText($('midi-hint'), [
         hasSignature ? '僅含速度與拍號' : '僅含速度，不設定拍號',
@@ -262,6 +344,7 @@ async function analyze(file) {
   }
 }
 
+$('analyze-range').addEventListener('click', () => analyze());
 $('choose-file').addEventListener('click', () => input.click());
 $('engine-select').addEventListener('change', () => {
   if (busy) {
@@ -270,7 +353,7 @@ $('engine-select').addEventListener('change', () => {
   }
   engine = makeEngine($('engine-select').value);
   updateEngineCopy();
-  if (lastFile) analyze(lastFile);
+  if (lastFile) analyze();
   else {
     errorMessage('');
     resetResult();
@@ -321,6 +404,11 @@ function syncPlayButton() {
 audio.addEventListener('play', syncPlayButton);
 audio.addEventListener('pause', syncPlayButton);
 audio.addEventListener('timeupdate', () => {
+  const bounds = selection.bounds;
+  if (bounds && !audio.paused && audio.currentTime >= bounds.end) {
+    audio.pause();
+    audio.currentTime = bounds.end;
+  }
   setText($('current-time'), formatTime(audio.currentTime));
   $('seek').value = Number.isFinite(audio.duration)
     ? Math.round((audio.currentTime / audio.duration) * 1000)
@@ -330,14 +418,20 @@ audio.addEventListener('timeupdate', () => {
 $('play-button').addEventListener('click', async () => {
   if (!audio.paused) return audio.pause();
   try {
+    const bounds = selection.bounds;
+    if (bounds && (audio.currentTime < bounds.start || audio.currentTime >= bounds.end))
+      audio.currentTime = bounds.start;
     await audio.play();
   } catch {
     $('preview-note').hidden = false;
   }
 });
 $('seek').addEventListener('input', () => {
-  if (Number.isFinite(audio.duration))
-    audio.currentTime = (Number($('seek').value) / 1000) * audio.duration;
+  if (Number.isFinite(audio.duration)) {
+    const bounds = selection.bounds;
+    const next = (Number($('seek').value) / 1000) * audio.duration;
+    audio.currentTime = bounds ? Math.min(bounds.end, Math.max(bounds.start, next)) : next;
+  }
 });
 new ResizeObserver(drawWaveform).observe($('waveform'));
 

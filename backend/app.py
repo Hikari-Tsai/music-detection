@@ -4,7 +4,7 @@ import os
 import tempfile
 from pathlib import Path
 from urllib.parse import quote
-from fastapi import FastAPI, HTTPException, Request, UploadFile
+from fastapi import FastAPI, HTTPException, Request, UploadFile, Form
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,7 +38,7 @@ def index():
 
 
 @app.post("/api/analyze")
-async def analyze(file: UploadFile):
+async def analyze(file: UploadFile, start_seconds: float | None = Form(None), end_seconds: float | None = Form(None)):
     filename = (file.filename or "audio").replace("\\", "/").split("/")[-1]
     extension = Path(filename).suffix.lower()
     try:
@@ -55,7 +55,7 @@ async def analyze(file: UploadFile):
                     stream.write(chunk)
             if not size:
                 raise HTTPException(400, "檔案是空的，請重新選擇音訊。")
-            result = await run_in_threadpool(analyze_file, source, filename)
+            result = await run_in_threadpool(analyze_file, source, filename, start_seconds, end_seconds)
             midi = result.pop("midi")
             result["download_url"] = None if midi is None else DOWNLOADS.add(midi, Path(filename).stem + "_tempo.mid")
             return result

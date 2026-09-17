@@ -6,7 +6,7 @@
 
 預設 Browser ONNX 模式將音訊解碼、頻譜計算、Beat This! 推論、拍點處理與 MIDI 產生全部移到瀏覽器，不呼叫 `/api/analyze` 或上傳音訊，模型輸出沿用原本的四分音符假設及固定／平均／變速判定。WebGPU 優先；初始化或推論失敗時重新使用 WASM CPU 分析。CPU 使用單執行緒，不需要 GitHub Pages 無法直接設定的跨來源隔離標頭。
 
-同頁的 Analysis engine 可明確切換 Local Python，此時才將音訊送往本機 `http://127.0.0.1:8765`，並使用該服務產生的 MIDI 下載 URL。切換會重新分析已選音訊，失敗時不保留舊下載或自動改用另一個引擎。重新整理回到 Browser ONNX；語言選擇仍獨立保留。啟動方式與 CORS 設定見 [README](../README.md)。
+同頁的 Analysis engine 可明確切換 Local Python，此時才將音訊送往本機 `http://127.0.0.1:8765`，並使用該服務產生的 MIDI 下載 URL。切換會分析目前選取範圍，失敗時不保留舊下載或自動改用另一個引擎。重新整理回到 Browser ONNX；語言選擇仍獨立保留。啟動方式與 CORS 設定見 [README](../README.md)。
 
 本機預覽已建好的版本：雙擊 `start_frontend.command`，或執行 `npm run serve`，開啟 <http://127.0.0.1:8766/>。這裡的 Node 只提供靜態檔案，不執行模型；正式部署不需要 Node 或 Python。
 
@@ -81,3 +81,12 @@ npm run test:skey-browser
 下載來源驗證：Chrome 已實際從 Hugging Face 下載兩個模型，完成 BPM／調性分析與 MIDI 產生；來源正常時沒有請求本站備援模型，重新整理後使用雜湊快取。來源切換的單元測試涵蓋 HTTP／設定錯誤、逾時、損壞或不完整模型、不同來源雜湊、快取與失敗重試。
 
 目前未在實體手機、Safari、Firefox 驗證；手機尺寸測試代表排版，不代表實體手機效能。測試音訊也不構成節拍辨識準確率 benchmark。
+
+
+## 範圍分析
+
+拖入音訊後解碼、顯示完整波形並自動分析全曲；若使用者調整雙把手或起訖秒數，則需按「分析選取範圍」才分析該片段。`frontend/ui/audio-source.js` 保留完整 PCM 與波形，`range-editor.js` 管理秒數和驗證。範圍最少 1 秒，S-KEY 至少需要 3 秒；修改範圍時清除舊結果與下載。
+
+瀏覽器 client 以選取秒數換算取樣位置，只複製片段送進 Worker，讓模型與 MIDI 使用片段相對時間。Local Python 的 multipart 請求另帶 `start_seconds`、`end_seconds`，後端驗證並裁切解碼後的音訊，再交給兩個模型；JSON 回傳來源長度與實際選取起訖秒數。前端會拒絕未確認範圍的舊版後端結果。
+
+MIDI 的 0 秒對應選取起點，下載檔名會包含起訖秒數。原檔及完整波形不會被修改，也不會產生裁切音訊下載。範圍功能的實際瀏覽器測試可執行 `npm run test:range-browser`，需要本機靜態伺服器與更新後的 Python 服務。
