@@ -192,22 +192,28 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 ## 分支與 GitHub Pages 部署
 
-| 分支 | 用途 | 推送後的行為 |
+同一個 Pages 網站同時提供兩個分支的前端：
+
+| 分支 | 網址 | 用途 |
 | --- | --- | --- |
-| [`main`](https://github.com/Hikari-Tsai/music-detection/tree/main) | 正式網站版本 | 自動建置並部署 GitHub Pages |
-| [`staging`](https://github.com/Hikari-Tsai/music-detection/tree/staging) | 整理與驗證待發布變更 | 不觸發 Pages 自動部署，目前沒有獨立預覽網址 |
+| [`main`](https://github.com/Hikari-Tsai/music-detection/tree/main) | [正式版](https://hikari-tsai.github.io/music-detection/) | 正式網站版本 |
+| [`staging`](https://github.com/Hikari-Tsai/music-detection/tree/staging) | [Staging 預覽版](https://hikari-tsai.github.io/music-detection/staging/) | 驗證尚未合併至 main 的變更 |
 
-`staging` 的變更經確認後，可透過 PR 合併至 `main` 發布。正式網址為 [https://hikari-tsai.github.io/music-detection/](https://hikari-tsai.github.io/music-detection/)。
+### 自動部署流程
 
-### 自動與手動部署
+[Pages 工作流程](.github/workflows/pages.yml) 在推送到 `main` 或 `staging` 時自動觸發。開始執行時先記錄兩個分支當下的 commit，再各自 checkout、安裝依賴、匯出模型、測試及建置；任一建置失敗，該次部署就不會發布。
 
-儲存庫已包含 [GitHub Actions 工作流程](.github/workflows/pages.yml)，每次推送到 `main` 都會自動安裝依賴、匯出兩個 ONNX 模型、執行工作流程內的檢查，再建置與部署 `dist/`。也保留手動觸發，供重新部署使用。
+兩份建置結果會合併為同一個 Pages artifact：`main` 放在網站根目錄，`staging` 放在 `staging/`。每個版本保留自己的模型、runtime、前處理設定與相對路徑，避免跨分支混用檔案。部署會同時發布兩份內容，因此更新其中一個分支不會移除另一個版本，也不會把 staging 的 UI 當成正式版發布。
 
-1. 在儲存庫 **Settings → Pages** 將來源設為 **GitHub Actions**。
-2. 推送變更到 `main`；若要手動重部署，到 **Actions** 選擇 `Build and deploy browser ONNX app`，選擇 `main` 後執行 **Run workflow**。
-3. 部署完成後使用工作流程顯示的 Pages 網址。
+工作流程以同一個 concurrency group 排程，避免兩次部署互相覆蓋。執行中的工作不會因後續推送而取消；等候中的工作可能被更新的推送取代，下一次執行會重新取得兩個分支的最新 commit。兩個分支都須保留此雙版本部署工作流程，避免舊的單版本工作流程重新覆蓋整站。
 
-本儲存庫已公開並啟用 GitHub Pages。建置與部署為不同工作，只有建置成功才會進入部署。手動觸發若選擇其他分支，仍會部署至同一個正式 Pages 網站，並不會建立該分支的獨立預覽站。
+### 設定與手動部署
+
+1. 在 **Settings → Pages** 將來源設為 **GitHub Actions**。
+2. 在 **Settings → Environments → github-pages** 的部署分支規則中允許 `main` 與 `staging`。
+3. 推送任一分支，或到 **Actions → Build and deploy browser ONNX app → Run workflow**，選擇 `main` 或 `staging` 手動觸發。手動執行也會建置並發布兩個分支，不會改變兩個版本的網址。其他分支不執行此部署流程。
+
+Actions 的部署摘要會列出兩個網址。各版本的 `deployment.json` 記錄實際發布的分支與 commit，可用來確認目前站上版本：[正式版紀錄](https://hikari-tsai.github.io/music-detection/deployment.json) · [Staging 紀錄](https://hikari-tsai.github.io/music-detection/staging/deployment.json)。將 staging 變更合併至 main 後，才會成為正式版內容。
 
 若從 Pages 網站使用 Local Python，仍須在使用者電腦上啟動服務，並明確允許網站來源。先停止既有服務，再執行：
 
