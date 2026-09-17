@@ -6,7 +6,8 @@
 
 Drop in audio to analyze the whole track automatically, or select a range to detect its BPM, meter and musical key. Download a MIDI tempo file for your music production software. Models run directly in your browser by default, with an optional local Python engine available on the same page.
 
-[Main — Production](https://hikari-tsai.github.io/music-detection/) · [Staging — Preview](https://hikari-tsai.github.io/music-detection/staging/)
+[![Main — Production](docs/buttons/main.svg)](https://hikari-tsai.github.io/music-detection/)
+[![Staging — Preview](docs/buttons/staging.svg)](https://hikari-tsai.github.io/music-detection/staging/)
 
 Use Main for everyday use, or Staging to try changes that have not yet been merged into main.
 

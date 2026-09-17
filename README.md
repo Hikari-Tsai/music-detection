@@ -6,7 +6,8 @@
 
 拖入音訊即自動分析全曲，也可選取指定範圍分析 BPM、拍號與調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
 
-[Main 正式版](https://hikari-tsai.github.io/music-detection/) · [Staging 預覽版](https://hikari-tsai.github.io/music-detection/staging/)
+[![Main 正式版](docs/buttons/main.svg)](https://hikari-tsai.github.io/music-detection/)
+[![Staging 預覽版](docs/buttons/staging.svg)](https://hikari-tsai.github.io/music-detection/staging/)
 
 日常使用請選 Main；若要試用尚未合併至 main 的變更，請選 Staging。
 
