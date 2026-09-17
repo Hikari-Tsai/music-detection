@@ -1,5 +1,11 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  comparePrecision: {
+    en: 'Model weights: FP32',
+    ja: 'モデルの重み：FP32',
+    'zh-Hant': '模型權重：FP32'
+  },
+  compareAccuracyTitle: { en: 'Recognition accuracy', ja: '認識精度', 'zh-Hant': '辨識精確度' },
   reportTitle: {
     en: 'Found a problem?',
     ja: '問題が見つかりましたか？',
@@ -89,15 +95,15 @@ export const messages = {
   },
 
   compareTitle: {
-    en: 'Two ways to analyze your music',
-    ja: '音楽を解析する2つの方法',
-    'zh-Hant': '兩種音樂分析方式'
+    en: 'ONNX vs. PyTorch: model differences',
+    ja: 'ONNX と PyTorch のモデルの違い',
+    'zh-Hant': 'ONNX 與 PyTorch 兩種模型的差異'
   },
   compareIntro: {
-    en: 'Both use Beat This! and S-KEY, and provide BPM, meter, key and tempo MIDI. Choose how they run on your device.',
-    ja: 'どちらも Beat This! と S-KEY で BPM・拍子・調を推定し、テンポ MIDI を生成します。端末での実行方法を選べます。',
+    en: 'Both use the same Beat This! and S-KEY models to detect BPM, meter and key and generate tempo MIDI. The model format and runtime differ.',
+    ja: 'どちらも同じ Beat This! と S-KEY で BPM・拍子・調を推定し、テンポ MIDI を生成します。違いはモデルの形式と実行環境です。',
     'zh-Hant':
-      '兩者皆使用 Beat This! 與 S-KEY，提供 BPM、拍號、調性與 Tempo MIDI，可依需求選擇執行方式。'
+      '兩者使用相同的 Beat This! 與 S-KEY 模型，分析 BPM、拍號、調性並產生 Tempo MIDI；差別在於模型格式與執行環境。'
   },
   compareBrowser: {
     en: 'Browser ONNX · Recommended',
@@ -165,10 +171,10 @@ export const messages = {
       '已有 Python 工作環境，或瀏覽器無法完成推論時使用。啟動步驟請見上方引擎選擇區的教學。'
   },
   compareAccuracy: {
-    en: 'Same trained models, different runtimes: ONNX export converts the computation graph and weights without retraining. Export checks compare model outputs with PyTorch, but audio decoding and numerical differences can still affect the final results. Neither engine is guaranteed to be more accurate.',
-    ja: '学習済みモデルは共通で、実行環境が異なります。ONNX への変換は計算グラフと重みを書き出すもので、再学習は行いません。変換時に PyTorch の出力と比較していますが、音声のデコードや数値計算の違いで最終結果に差が出ることがあります。どちらかが常に高精度とは限りません。',
+    en: 'ONNX export preserves the trained weights without retraining or quantization, and its model outputs are checked against PyTorch. FP32 describes numerical precision, not recognition accuracy. We have not benchmarked the two engines against labeled music to establish an accuracy advantage; audio decoding and numerical differences can still affect results.',
+    ja: 'ONNX への変換では再学習や量子化を行わず、学習済みの重みを保持し、モデルの出力を PyTorch と比較しています。FP32 は数値精度を示し、認識の正解率ではありません。注釈付きの音楽データで両エンジンの認識精度の優劣は評価していません。音声のデコードや数値計算の違いにより、結果に差が出ることがあります。',
     'zh-Hant':
-      '相同的已訓練模型，不同的執行環境：ONNX 匯出會轉換計算圖與權重，不會重新訓練。匯出時已比對 PyTorch 的模型輸出，但音訊解碼與數值運算的差異仍可能影響最終結果，不能保證某個引擎一定較準。'
+      'ONNX 匯出保留已訓練權重，未重新訓練或量化，並已比對 PyTorch 的模型輸出。FP32 指的是數值精度，不是辨識準確率。目前尚未用標註音樂資料集比較兩種引擎的準確率，無法宣稱哪一種較準；音訊解碼與數值運算差異仍可能影響結果。'
   },
 
   githubStar: {
