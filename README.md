@@ -1,3 +1,5 @@
+[繁體中文](README.md) · [English](README.en.md)
+
 ![Key & Tempo 系統架構圖：共用網頁介面、瀏覽器 ONNX 推論與選用的本機 Python 服務](docs/diagrams/key-tempo-system.webp)
 
 # Key & Tempo — 音樂 BPM、調性與 MIDI 速度圖
@@ -323,6 +325,8 @@ music-detection/
 ├── requirements-onnx.txt        # 額外的 ONNX 匯出與驗證依賴
 ├── requirements-frozen.txt      # 初次 Python 環境版本快照
 ├── package.json / package-lock.json # 前端依賴、版本鎖定與工作指令
+├── README.md                   # 繁體中文說明
+├── README.en.md                # 英文說明
 └── LICENSE                     # 本專案 MIT 授權
 ```
 
