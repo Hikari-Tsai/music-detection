@@ -45,10 +45,27 @@ def decode_audio(source):
     return audio, sr, duration
 
 
-def analyze_file(source, filename):
+def select_audio(audio, sr, start_seconds=None, end_seconds=None):
+    duration = len(audio) / sr
+    if start_seconds is None and end_seconds is None:
+        return audio, 0.0, duration
+    if (start_seconds is None or end_seconds is None
+        or not np.isfinite(start_seconds) or not np.isfinite(end_seconds)
+        or start_seconds < 0 or end_seconds > duration + 0.001
+        or end_seconds - start_seconds < 1 - 1e-8):
+        raise AnalysisError(400, "選取範圍無效，請選擇至少 1 秒且不超出音訊的片段。")
+    first = round(start_seconds * sr)
+    last = min(len(audio), round(end_seconds * sr))
+    return audio[first:last], first / sr, last / sr
+
+
+def analyze_file(source, filename, start_seconds=None, end_seconds=None):
     global MODEL
     start = time.perf_counter()
     audio, sr, duration = decode_audio(source)
+    source_duration = duration
+    audio, selection_start, selection_end = select_audio(audio, sr, start_seconds, end_seconds)
+    duration = len(audio) / sr
     if float(np.max(np.abs(audio))) < 1e-7:
         beats, downbeats = np.array([]), np.array([])
     else:
@@ -72,6 +89,9 @@ def analyze_file(source, filename):
     return {
         **key_result,
         "filename": filename,
+        "source_duration_seconds": round(source_duration, 3),
+        "selection_start_seconds": selection_start,
+        "selection_end_seconds": selection_end,
         "duration_seconds": round(duration, 3),
         "analysis_seconds": round(time.perf_counter() - start, 2),
         "beat_count": len(beats),

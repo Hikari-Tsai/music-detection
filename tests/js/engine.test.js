@@ -44,3 +44,39 @@ test('unavailable Python and missing downloads remain explicit', async (t) => {
   await assert.rejects(engine.analyze(new File(['audio'], 'sample.wav')), TypeError);
   assert.match(engine.errorMessage(new TypeError('Failed to fetch')), /本機分析服務/);
 });
+
+test('both engine adapters forward the chosen range and Python sends time fields with the original file', async (t) => {
+  const range = { start: 12.5, end: 30 };
+  const module =
+    'export async function analyzeInBrowser(file, progress, options) { return options.range; }';
+  const browser = createEngine('browser', {
+    browserModuleURL: `data:text/javascript,${encodeURIComponent(module)}`
+  });
+  assert.deepEqual(
+    await browser.analyze(new File(['audio'], 'sample.wav'), () => {}, { range }),
+    range
+  );
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(options.body.get('start_seconds'), '12.5');
+    assert.equal(options.body.get('end_seconds'), '30');
+    assert.equal(await options.body.get('file').text(), 'original');
+    return Response.json({
+      download_url: null,
+      selection_start_seconds: 12.5,
+      selection_end_seconds: 30
+    });
+  });
+  await createEngine('python').analyze(new File(['original'], 'sample.wav'), () => {}, { range });
+});
+
+test('an older Python service must not silently return whole-track results for a clip', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () =>
+    Response.json({ result: { bpm: 120 }, download_url: '/api/download/old' })
+  );
+  await assert.rejects(
+    createEngine('python').analyze(new File(['audio'], 'sample.wav'), () => {}, {
+      range: { start: 5, end: 10 }
+    }),
+    /更新專案/
+  );
+});

@@ -1,25 +1,12 @@
+import { decodeSource, selectSamples } from '../ui/audio-source.js';
 let worker;
 function makeWorker() {
   return new Worker(new URL('./analysis-worker.js', import.meta.url), { type: 'module' });
 }
-export async function analyzeInBrowser(file, onProgress) {
+export async function analyzeInBrowser(file, onProgress, { range = null, prepared = null } = {}) {
   onProgress('正在瀏覽器內解碼音訊');
-  let decoded;
-  try {
-    const context = new OfflineAudioContext(1, 1, 22050);
-    decoded = await context.decodeAudioData(await file.arrayBuffer());
-  } catch {
-    throw new Error('瀏覽器無法解碼這個音訊，請轉成 WAV 或 MP3 後再試。');
-  }
-  if (decoded.duration > 1200) throw new Error('音訊超過 20 分鐘，請先截取較短片段。');
-  if (decoded.duration < 1) throw new Error('音訊太短，請提供至少 1 秒的檔案。');
-  const mono = new Float32Array(decoded.length);
-  for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
-    const channel = decoded.getChannelData(ch);
-    for (let i = 0; i < mono.length; i++) mono[i] += channel[i] / decoded.numberOfChannels;
-  }
-  if (mono.some((v) => !Number.isFinite(v))) throw new Error('音訊含有無效取樣，請重新匯出。');
-  decoded = null;
+  const source = prepared || (await decodeSource(file));
+  const mono = selectSamples(source.audio, source.sampleRate, range);
   if (!worker) worker = makeWorker();
   return new Promise((resolve, reject) => {
     worker.onmessage = ({ data }) => {

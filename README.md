@@ -2,7 +2,7 @@
 
 # Key & Tempo — 音樂 BPM、調性與 MIDI 速度圖
 
-拖入音訊，即可分析 BPM、拍號與全曲調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
+拖入音訊，選擇整首或指定範圍，即可分析 BPM、拍號與調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
 
 [線上使用](https://hikari-tsai.github.io/music-detection/) · [GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
 
@@ -10,7 +10,8 @@
 
 - **節拍與拍號**：以 Beat This! 偵測拍點、小節首拍，再推算 BPM 與每小節拍數。
 - **固定／平均／變速**：固定速度顯示 BPM；確認變速時顯示平均 BPM，並提供逐拍變速 MIDI。資訊不足以確認固定或變速時，顯示平均值。
-- **全曲調性**：以 S-KEY 估計 12 個大調與 12 個小調之一，例如 G 大調、A 小調。
+- **範圍選取**：拖入後先顯示波形，以起訖滑桿或秒數選取、試聽，再按「分析選取範圍」。支援兩種引擎，原始檔案不會被修改。
+- **整首／片段調性**：以 S-KEY 估計 12 個大調與 12 個小調之一，例如 G 大調、A 小調。
 - **MIDI 下載**：輸出速度與可判定的拍號，不包含音符、和弦或調性事件。
 - **兩種分析引擎**：Browser ONNX 與 Local Python 共用檔案拖放、播放、結果與下載介面。
 - **三語介面**：英文、日文、繁體中文共用同一份 HTML，由前端切換；依瀏覽器語言自動選擇，其餘語言使用英文，手動選擇優先並儲存。
@@ -28,7 +29,7 @@
 
 Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型。MIDI 暫存在服務記憶體中，最多保留一小時、100 筆；服務停止或重新啟動後，原下載即失效。
 
-切換引擎會重新分析已選取的檔案，分析與下載期間會鎖住切換控制。ONNX 失敗不會自動上傳音訊給 Python；每次重新整理仍預設 Browser ONNX。
+切換引擎會分析目前選取的範圍，分析與下載期間會鎖住切換控制。ONNX 失敗不會自動上傳音訊給 Python；每次重新整理仍預設 Browser ONNX。
 
 ## 模型下載、備援與快取
 
@@ -62,8 +63,15 @@ Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型�
 ### 直接使用線上版
 
 1. 開啟 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)，維持預設的 **Browser ONNX**。
-2. 拖入音訊，等待模型下載與自動分析。
-3. 查看 BPM、拍號與調性，按下下載按鈕取得固定或變速的 MIDI Tempo 檔案。
+2. 拖入音訊，等待波形顯示；預設選取整首，也可用滑桿或秒數調整起點與終點。
+3. 按播放按鈕試聽選取範圍，再按「分析選取範圍」。首次分析會下載模型。
+4. 查看 BPM、拍號與調性，按下下載按鈕取得固定或變速的 MIDI Tempo 檔案。
+
+選取範圍至少需 1 秒，S-KEY 調性分析至少需 3 秒；較短片段仍可嘗試 BPM 分析。修改範圍會清除舊結果與下載，避免誤用上一段的分析。按「整首音訊」可恢復完整範圍。
+
+片段的 MIDI 時間軸從選取起點算起，並保留片段內第一拍的偏移；請與裁切片段使用相同起點。若在原音訊時間軸使用，需對齊所選起點，例如選取 30–60 秒，就對齊原音訊的第 30 秒。下載檔名會帶上起訖秒數。此工具選取分析範圍，不會另存裁切後的音訊檔案。
+
+Browser ONNX 在瀏覽器解碼整首並快取 PCM，僅將選取取樣交給模型；Local Python 將原檔與範圍傳給本機 FastAPI，由 FFmpeg 解碼後裁切，兩個模型都只分析片段。兩種模式仍受原檔 100 MiB／20 分鐘上限限制。使用片段分析前，請更新本機 Python 專案並重新啟動 FastAPI；舊版服務不支援範圍時，前端會拒絕採用整首結果。若瀏覽器無法解碼或取得長度，可先用 Local Python 分析整首；取得長度後即可選取範圍，但瀏覽器可能仍無法試聽。
 
 線上版不需要安裝 Python 或 Node.js。只有開發、自行建置或使用 Local Python 引擎時，才需要下列環境。
 
@@ -84,7 +92,7 @@ npm run build
 npm run serve
 ```
 
-開啟 [瀏覽器版介面](http://127.0.0.1:8766/)，直接拖入音訊即可分析。之後只需執行 `npm run serve`，macOS 也可雙擊 `start_frontend.command`。
+開啟 [瀏覽器版介面](http://127.0.0.1:8766/)，拖入音訊、選取範圍並按下分析。之後只需執行 `npm run serve`，macOS 也可雙擊 `start_frontend.command`。
 
 若已具備 `assets/onnx/` 中的兩個模型、manifest 與前處理資料，可跳過 Python 安裝及匯出步驟。修改前端後執行 `npm run build` 更新 `dist/`；不要直接修改建置產物。
 
@@ -94,7 +102,7 @@ Local Python 是由 **Uvicorn 啟動的 FastAPI HTTP 服務**，在瀏覽器所�
 
 | 請求 | 用途 |
 | --- | --- |
-| `POST /api/analyze` | 以 `multipart/form-data` 的 `file` 欄位傳送音訊；Python 執行模型後回傳 JSON 分析結果與 `download_url` |
+| `POST /api/analyze` | 以 `multipart/form-data` 的 `file` 欄位傳送音訊，指定片段時另帶 `start_seconds` 與 `end_seconds`；Python 執行模型後回傳 JSON 分析結果與 `download_url` |
 | `GET /api/download/{token}` | 依分析結果中的下載網址取得 MIDI，回應類型為 `audio/midi` |
 
 音訊會送往這台電腦上的 FastAPI 服務，由 FFmpeg／PyTorch 處理，不會送至 Hugging Face。Hugging Face 優先下載與 GitHub 備援的流程適用於 Browser ONNX；Python 使用自身的模型權重載入流程。
@@ -259,6 +267,8 @@ music-detection/
 ├── frontend/
 │   ├── ui/
 │   │   ├── index.html            # 兩種引擎共用的三語頁面
+│   │   ├── audio-source.js      # 瀏覽器解碼、完整波形與取樣裁切
+│   │   ├── range-editor.js      # 範圍滑桿、秒數與驗證
 │   │   ├── app.js                # 檔案、播放、分析狀態與 MIDI 下載
 │   │   ├── engine.js             # Browser ONNX／Local Python 介接
 │   │   ├── messages.js           # 英文、日文、繁體中文翻譯
@@ -345,6 +355,9 @@ npm run test:skey-browser
 
 # 另需啟動本機 Python 服務，驗證引擎切換與跨來源 MIDI 下載
 npm run test:engines-browser
+
+# 選取範圍、試聽、ONNX／Python 片段分析與 MIDI
+npm run test:range-browser
 ```
 
 測試包含固定／平均／變速判定、Python 與 JavaScript 頻譜及拍點比較、S-KEY 分數一致性、MIDI 編碼、模型快取、來源切換、逾時與檔案損壞、下載到期、三語介面與錯誤復原。`TEST_URL` 可指定瀏覽器測試網址；網址附加 `?engine=wasm` 可強制瀏覽器使用 CPU。
@@ -353,6 +366,7 @@ npm run test:engines-browser
 
 | 情境 | 結果 |
 | --- | --- |
+| 本機 Chrome，範圍分析 | 拖放、試聽、ONNX／Python 第 5–20 秒分析均為 68.015 BPM／G 大調，MIDI 長度約 15 秒；恢復整首為 68.007 BPM。三語及 320／390／1440 px 排版通過 |
 | 本機 Chrome，WebGPU／WASM | 固定與變速分析、MIDI 下載、三語切換及錯誤復原通過 |
 | 本機模擬 Hugging Face 故障 | 兩個模型從本機備援完整下載並分析成功；雙來源失敗訊息及重新選檔重試通過 |
 | 正式 GitHub Pages，Hugging Face 正常 | 兩個模型實際下載、BPM／調性分析、MIDI 產生及重新整理後的快取使用通過 |
@@ -363,7 +377,7 @@ npm run test:engines-browser
 
 模型可能判成半速／倍速，漏拍與抖動也會反映在速度圖中；固定或變速是依模型拍點及容差推算，並非原始樂曲的人工標註。每個拍點按四分音符解讀，拍號無法可靠判定時不強行填入。
 
-S-KEY 提供單一全曲大調／小調估計，不定位轉調或辨識和弦；其分數不是經校準的準確率。移植一致性測試驗證的是實作結果相近，不代表模型對所有音樂都能正確辨識。
+S-KEY 對整首或所選片段提供單一大調／小調估計，不定位轉調或辨識和弦；其分數不是經校準的準確率。移植一致性測試驗證的是實作結果相近，不代表模型對所有音樂都能正確辨識。
 
 ## 致謝與引用
 

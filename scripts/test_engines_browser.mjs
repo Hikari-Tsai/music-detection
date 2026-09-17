@@ -16,6 +16,7 @@ try {
   await page.goto(base);
   assert.equal(await page.locator('#engine-select').inputValue(), 'browser');
   await page.locator('#audio-file').setInputFiles('samples/choice.ogg');
+  await page.locator('#analyze-range').click();
   const complete = async () => {
     await page.waitForFunction(
       () =>
@@ -78,6 +79,7 @@ try {
   await localPage.goto(api);
   assert.equal(await localPage.locator('#engine-select').inputValue(), 'browser');
   await localPage.locator('#audio-file').setInputFiles('samples/choice.ogg');
+  await localPage.locator('#analyze-range').click();
   await localPage.waitForFunction(() => !document.querySelector('#download-midi').disabled, null, {
     timeout: 180000
   });

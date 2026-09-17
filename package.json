@@ -9,6 +9,7 @@
     "test:python": ".venv/bin/python -m unittest discover -s tests/python -v",
     "test:browser": "node scripts/test_browser.mjs",
     "test:skey-browser": "node scripts/test_skey_browser.mjs",
+    "test:range-browser": "node scripts/test_range_browser.mjs",
     "test:engines-browser": "node scripts/test_engines_browser.mjs",
     "format": "prettier --write \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\"",
     "format:check": "prettier --check \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\""

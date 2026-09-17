@@ -59,7 +59,7 @@
 
       <section class="engine-controls" aria-labelledby="engine-title">
         <label class="engine-choice" for="engine-select"><span id="engine-title" data-i18n="engineTitle">Analysis engine</span><select id="engine-select" aria-describedby="engine-description"><option value="browser">Browser ONNX</option><option value="python">Local Python</option></select></label>
-        <p id="engine-description" data-i18n="engineBrowserHelp">(Recommended) Analyze on this device without uploading audio. Switching engines reanalyzes the selected file.</p>
+        <p id="engine-description" data-i18n="engineBrowserHelp">(Recommended) Analyze on this device without uploading audio. Switching engines analyzes the selected range.</p>
       </section>
       <details id="python-startup" class="python-setup" hidden>
         <summary data-i18n="pythonGuideTitle">Local Python setup &amp; troubleshooting</summary>
@@ -80,7 +80,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh</code></pre><p data-i18n="python
 test -d .venv || uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python -r requirements.txt</code></pre></details><a href="https://docs.astral.sh/uv/getting-started/installation/" target="_blank" rel="noreferrer">uv / Python ↗</a></section>
             <section><h3 data-i18n="pythonGuideStart">3. Start the local service</h3><p data-i18n="pythonGuideStartText">Run the command for your operating system. On macOS you can also double-click start_ui.command in Finder. You only need to start the service each time; no dependency reinstall or virtual environment activation is required.</p><p class="python-command-label">macOS / Linux</p><pre><code>.venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8765</code></pre><p class="python-command-label">Windows · PowerShell</p><pre><code>.\.venv\Scripts\python.exe -m uvicorn web_app:app --host 127.0.0.1 --port 8765</code></pre><p data-i18n="pythonGuideReady">The service is ready when Terminal shows:</p><pre><code>Uvicorn running on http://127.0.0.1:8765</code></pre><p data-i18n="pythonGuideKeepOpen">Keep that Terminal window open while analyzing. Press Control + C in that window when you want to stop the service.</p></section>
-            <section><h3 data-i18n="pythonGuideUse">4. Return here and analyze</h3><p data-i18n="pythonGuideUseText">Select Local Python, then choose or drop an audio file. Switching engines reanalyzes a file that is already selected. If a previous attempt failed, remove the file and add it again after starting the service.</p><p data-i18n="pythonGuideFirstRun">The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.</p><a href="http://127.0.0.1:8765/" target="_blank" rel="noreferrer" data-i18n="pythonGuideOpen">Open the local service page ↗</a><p data-i18n="pythonGuideDefault">That page also defaults to Browser ONNX. Select Local Python there if you want to use the Python service.</p></section>
+            <section><h3 data-i18n="pythonGuideUse">4. Return here and analyze</h3><p data-i18n="pythonGuideUseText">Select Local Python, add an audio file, choose a range, then press Analyze selected range. Switching engines analyzes the current range. After starting the service, press Analyze again to retry a failed attempt.</p><p data-i18n="pythonGuideFirstRun">The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.</p><a href="http://127.0.0.1:8765/" target="_blank" rel="noreferrer" data-i18n="pythonGuideOpen">Open the local service page ↗</a><p data-i18n="pythonGuideDefault">That page also defaults to Browser ONNX. Select Local Python there if you want to use the Python service.</p></section>
           </div>
           <p data-i18n="pythonGuidePlatformsUntested">The service has been tested locally on macOS. These Windows and Linux setup instructions have not yet been verified end to end on those systems.</p>
           <section class="python-troubleshooting"><h3 data-i18n="pythonGuideTrouble">Still unable to connect?</h3><ul><li data-i18n="pythonGuideConnection">Connection failed: check that the service is running on this computer at port 8765. Open the local service page above. If it does not open, check the Terminal error first. You can switch to Browser ONNX while resolving the issue.</li><li data-i18n="pythonGuideModules">ModuleNotFoundError or a missing .venv: complete step 2. Use .venv/bin/python on macOS/Linux or .\.venv\Scripts\python.exe on Windows. If requirements.txt is missing, return to the project folder in step 1.</li><li data-i18n="pythonGuideFfmpeg">FFmpeg not found: install it using the commands for your OS in step 2, reopen the terminal, and check ffmpeg -version. Address already in use means port 8765 is occupied; use the running service or stop its terminal session with Control + C before restarting.</li></ul></section>
@@ -98,7 +98,7 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
             <p id="drop-copy"><span data-i18n="dropCopy">Let your next idea start with a beat.</span></p>
             <button class="choose-button" id="choose-file" type="button"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="chooseFile">Choose audio file</span></button>
             <span class="formats">WAV · MP3 · FLAC · M4A · OGG · AIFF · AAC</span>
-            <div class="drop-overlay" aria-hidden="true"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="dropRelease">Release to analyze</span></div>
+            <div class="drop-overlay" aria-hidden="true"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="dropRelease">Release to select a range</span></div>
           </div>
 
           <div class="selected-file" id="selected-file" hidden>
@@ -115,8 +115,19 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
               <span class="player-time" id="total-time">0:00</span>
             </div>
             <p id="preview-note" class="preview-note" hidden><span data-i18n="previewPython">Your browser cannot preview this format. Analysis is still available.</span></p>
+            <section class="range-editor" aria-labelledby="range-title">
+              <div class="range-heading"><h3 id="range-title" data-i18n="rangeTitle">Select an analysis range</h3><button id="reset-range" type="button" data-i18n="rangeReset" disabled>Whole track</button></div>
+              <fieldset id="range-fields" disabled><legend class="visually-hidden" data-i18n="rangeTitle">Select an analysis range</legend>
+                <div class="range-row"><label for="clip-start" data-i18n="rangeStart">Start (seconds)</label><input id="clip-start-slider" type="range" min="0" max="0" step="0.001" value="0" aria-label="Selection start" data-i18n-aria-label="rangeStart"><input id="clip-start" type="number" min="0" max="0" step="0.001" value="0" inputmode="decimal"></div>
+                <div class="range-row"><label for="clip-end" data-i18n="rangeEnd">End (seconds)</label><input id="clip-end-slider" type="range" min="0" max="0" step="0.001" value="0" aria-label="Selection end" data-i18n-aria-label="rangeEnd"><input id="clip-end" type="number" min="0" max="0" step="0.001" value="0" inputmode="decimal"></div>
+              </fieldset>
+              <p id="range-summary" class="range-summary" aria-live="polite"></p>
+              <p id="range-help" class="range-help"></p>
+              <button id="analyze-range" class="choose-button analyze-range" type="button" data-i18n="rangeAnalyze" disabled>Analyze selected range</button>
+            </section>
             <audio id="audio-player" preload="metadata"></audio>
           </div>
+          <p id="result-range" class="range-result" aria-live="polite" hidden></p>
           <div class="analysis-status" id="analysis-status" role="status" aria-live="polite" hidden><span class="spinner" id="spinner"></span><span id="status-message"></span><span id="elapsed"></span></div>
           <p class="error-message" id="error-message" role="alert" hidden></p>
           <p class="input-hint"><svg class="icon"><use href="#i-lock"/></svg><span id="privacy-note-text"><span data-i18n="privacyPython">Audio stays off the cloud. Temporary uploads are deleted after analysis.</span></span></p>

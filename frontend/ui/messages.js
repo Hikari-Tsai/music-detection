@@ -1,5 +1,75 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  rangePythonUpdate: {
+    en: 'Local Python did not confirm the selected range. Update the project and restart the service, then try again.',
+    ja: 'Local Python が選択範囲を確認できませんでした。プロジェクトを更新してサービスを再起動し、再試行してください。',
+    'zh-Hant': '本機 Python 未確認選取範圍，請更新專案並重新啟動服務後再試。'
+  },
+  rangeError: {
+    en: 'Invalid selection. Choose at least 1 second within the audio.',
+    ja: '選択範囲が無効です。音声内で1秒以上の範囲を選んでください。',
+    'zh-Hant': '選取範圍無效，請選擇至少 1 秒且不超出音訊的片段。'
+  },
+  rangeTitle: { en: 'Select an analysis range', ja: '解析範囲を選択', 'zh-Hant': '選取分析範圍' },
+  rangeReset: { en: 'Whole track', ja: '曲全体', 'zh-Hant': '整首音訊' },
+  rangeStart: { en: 'Start (seconds)', ja: '開始（秒）', 'zh-Hant': '起點（秒）' },
+  rangeEnd: { en: 'End (seconds)', ja: '終了（秒）', 'zh-Hant': '終點（秒）' },
+  rangeAnalyze: { en: 'Analyze selected range', ja: '選択範囲を解析', 'zh-Hant': '分析選取範圍' },
+  rangeSummary: {
+    en: '{start}–{end} s · {duration} s selected',
+    ja: '{start}〜{end} 秒 · 選択範囲 {duration} 秒',
+    'zh-Hant': '{start}–{end} 秒・已選取 {duration} 秒'
+  },
+  rangeWhole: { en: 'Whole track selected', ja: '曲全体を選択', 'zh-Hant': '已選取整首音訊' },
+  rangeUnavailable: {
+    en: 'Range selection becomes available once the duration is known. If your browser cannot decode this format, Local Python can analyze the whole file first.',
+    ja: '長さを取得すると範囲を選択できます。ブラウザーがデコードできない形式は、まず Local Python でファイル全体を解析できます。',
+    'zh-Hant': '取得音訊長度後即可選取範圍。若瀏覽器無法解碼此格式，可先使用本機 Python 分析整首。'
+  },
+  rangeInvalid: {
+    en: 'Choose a valid range of at least 1 second within the audio.',
+    ja: '音声内で1秒以上の有効な範囲を選んでください。',
+    'zh-Hant': '請選擇至少 1 秒且不超出音訊的有效範圍。'
+  },
+  rangeHelp: {
+    en: 'Adjust the sliders or enter seconds, then press Analyze. Playback previews this range. Minimum 1 second; key detection needs 3 seconds. Your original file is unchanged.',
+    ja: 'スライダーまたは秒数で範囲を指定し、解析を押してください。再生も選択範囲のみです。最低1秒、調の推定には3秒必要です。元のファイルは変更されません。',
+    'zh-Hant':
+      '拖動滑桿或輸入秒數後按下分析；播放按鈕僅試聽這段。範圍至少 1 秒，調性分析需 3 秒。原始檔案不會被修改。'
+  },
+  rangeReady: { en: 'Ready to analyze', ja: '解析の準備完了', 'zh-Hant': '可開始分析' },
+  rangeReading: {
+    en: 'Preparing audio & waveform',
+    ja: '音声と波形を準備中',
+    'zh-Hant': '正在準備音訊與波形'
+  },
+  rangeNoWaveform: {
+    en: 'Waveform preview unavailable',
+    ja: '波形を表示できません',
+    'zh-Hant': '無法預覽波形'
+  },
+  rangeKey: {
+    en: 'Selected range key · S-KEY',
+    ja: '選択範囲の調 · S-KEY',
+    'zh-Hant': '選取範圍調性・S-KEY'
+  },
+  rangeResult: {
+    en: 'Results: {start}–{end} s of the original audio. MIDI starts at 0 s of this clip; align it with the clip, or place it at {start} s in the original timeline.',
+    ja: '解析結果：元の音声の {start}〜{end} 秒。MIDI の0秒はこの範囲の開始位置です。切り出した音声の先頭、または元のタイムラインの {start} 秒に合わせてください。',
+    'zh-Hant':
+      '分析結果：原音訊的 {start}–{end} 秒。MIDI 的 0 秒對應片段起點；請與裁切片段對齊，或放在原時間軸的 {start} 秒處。'
+  },
+  rangeFullResult: {
+    en: 'Results cover the whole track. Align the tempo MIDI with the start of the original audio.',
+    ja: '曲全体の解析結果です。テンポ MIDI は元の音声の先頭に合わせてください。',
+    'zh-Hant': '此結果涵蓋整首音訊，Tempo MIDI 請與原音訊起點對齊。'
+  },
+  rangeVariable: {
+    en: 'Average BPM for the selected range; MIDI tempo changes follow its detected beats. The MIDI timeline starts at the beginning of the selected clip.',
+    ja: '選択範囲の平均 BPM です。MIDI のテンポ変化は検出した拍に従い、時間軸は選択範囲の先頭から始まります。',
+    'zh-Hant': '顯示選取範圍的平均 BPM；MIDI 依片段內拍點寫入變速，時間軸從片段起點開始。'
+  },
+
   compareTitle: {
     en: 'Two ways to analyze your music',
     ja: '音楽を解析する2つの方法',
@@ -206,10 +276,10 @@ export const messages = {
     'zh-Hant': '4. 回到此頁分析音訊'
   },
   pythonGuideUseText: {
-    en: 'Select Local Python, then choose or drop an audio file. Switching engines reanalyzes a file that is already selected. If a previous attempt failed, remove the file and add it again after starting the service.',
-    ja: 'Local Python を選択し、音声ファイルを選ぶかドロップしてください。選択中のファイルがあれば切り替え時に再解析します。接続に失敗した場合は、サービス起動後にファイルを削除して追加し直してください。',
+    en: 'Select Local Python, add an audio file, choose a range, then press Analyze selected range. Switching engines analyzes the current range. After starting the service, press Analyze again to retry a failed attempt.',
+    ja: 'Local Python を選び、音声を追加して範囲を指定し、「選択範囲を解析」を押します。エンジンの切り替えでも現在の範囲を解析します。失敗した場合は、サービス起動後に解析ボタンで再試行できます。',
     'zh-Hant':
-      '選擇 Local Python，再選取或拖入音訊。若已有選取檔案，切換時會重新分析；若先前連線失敗，啟動服務後請移除檔案，再重新加入。'
+      '選擇 Local Python，加入音訊、選取範圍後按「分析選取範圍」。切換引擎也會分析目前範圍；若先前失敗，可在服務啟動後再按分析重試。'
   },
   pythonGuideFirstRun: {
     en: 'The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.',
@@ -269,15 +339,15 @@ export const messages = {
   },
   engineTitle: { 'zh-Hant': '分析引擎', en: 'Analysis engine', ja: '解析エンジン' },
   engineBrowserHelp: {
-    'zh-Hant': '（推薦）在此裝置分析，不上傳音訊。切換引擎會重新分析已選取的檔案。',
-    en: '(Recommended) Analyze on this device without uploading audio. Switching engines reanalyzes the selected file.',
-    ja: '（推奨）音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択中のファイルを再解析します。'
+    'zh-Hant': '（推薦）在此裝置分析，不上傳音訊。切換引擎會分析目前選取的範圍。',
+    en: '(Recommended) Analyze on this device without uploading audio. Switching engines analyzes the selected range.',
+    ja: '（推奨）音声をアップロードせず、この端末で解析します。エンジンを切り替えると選択範囲を解析します。'
   },
   enginePythonHelp: {
-    en: 'Audio is sent over HTTP to the FastAPI service at http://127.0.0.1:8765 on this device. See the setup guide below; switching reanalyzes the selected file.',
-    ja: '音声を HTTP 経由で、この端末の FastAPI サービス http://127.0.0.1:8765 に送信します。下の起動ガイドをご覧ください。切り替えると選択中のファイルを再解析します。',
+    en: 'Audio is sent over HTTP to the FastAPI service at http://127.0.0.1:8765 on this device. See the setup guide below; switching analyzes the selected range.',
+    ja: '音声を HTTP 経由で、この端末の FastAPI サービス http://127.0.0.1:8765 に送信します。下の起動ガイドをご覧ください。切り替えると選択範囲を解析します。',
     'zh-Hant':
-      '音訊透過 HTTP 傳送至本機 FastAPI 服務 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會重新分析已選檔案。'
+      '音訊透過 HTTP 傳送至本機 FastAPI 服務 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會分析目前選取的範圍。'
   },
   pageTitle: {
     'zh-Hant': 'Key & Tempo — BPM、調性分析與 MIDI',
@@ -380,9 +450,9 @@ export const messages = {
     ja: '音声ファイルを選択'
   },
   dropRelease: {
-    'zh-Hant': '放開以開始分析',
-    en: 'Release to analyze',
-    ja: 'ドロップして解析を開始'
+    'zh-Hant': '放開以選取範圍',
+    en: 'Release to select a range',
+    ja: 'ドロップして範囲を選択'
   },
   clearFile: {
     'zh-Hant': '移除音訊，重新選擇',
