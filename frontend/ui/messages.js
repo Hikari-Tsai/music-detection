@@ -1,5 +1,88 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  compareTitle: {
+    en: 'Two ways to analyze your music',
+    ja: '音楽を解析する2つの方法',
+    'zh-Hant': '兩種音樂分析方式'
+  },
+  compareIntro: {
+    en: 'Both use Beat This! and S-KEY, and provide BPM, meter, key and tempo MIDI. Choose how they run on your device.',
+    ja: 'どちらも Beat This! と S-KEY で BPM・拍子・調を推定し、テンポ MIDI を生成します。端末での実行方法を選べます。',
+    'zh-Hant':
+      '兩者皆使用 Beat This! 與 S-KEY，提供 BPM、拍號、調性與 Tempo MIDI，可依需求選擇執行方式。'
+  },
+  compareBrowser: {
+    en: 'Browser ONNX · Recommended',
+    ja: 'Browser ONNX · 推奨',
+    'zh-Hant': '瀏覽器 ONNX・推薦'
+  },
+  comparePython: { en: 'Local Python', ja: 'Local Python', 'zh-Hant': '本機 Python' },
+  compareSetup: { en: 'Getting started', ja: '利用の準備', 'zh-Hant': '使用準備' },
+  compareRuntime: { en: 'How it runs', ja: '実行方法', 'zh-Hant': '執行方式' },
+  comparePrivacy: { en: 'Audio processing', ja: '音声の処理', 'zh-Hant': '音訊處理' },
+  compareSpeed: { en: 'Performance', ja: '処理速度', 'zh-Hant': '效能差異' },
+  compareBestFor: { en: 'When to use it', ja: '用途の目安', 'zh-Hant': '適合情境' },
+  compareBrowserSetup: {
+    en: 'Open this page; no Python installation needed. Models download on first use and are cached when browser storage is available.',
+    ja: 'ページを開くだけで利用でき、Python の導入は不要です。モデルは初回にダウンロードされ、ブラウザーのストレージが利用できる場合はキャッシュされます。',
+    'zh-Hant': '開啟網頁即可使用，無須安裝 Python。首次使用會下載模型，瀏覽器儲存空間可用時會快取。'
+  },
+  comparePythonSetup: {
+    en: 'Install Python dependencies and FFmpeg, then start the local FastAPI service. Model weights download on first use.',
+    ja: 'Python の依存パッケージと FFmpeg を導入し、ローカルの FastAPI サービスを起動します。モデルの重みは初回にダウンロードされます。',
+    'zh-Hant': '需安裝 Python 相依套件與 FFmpeg，並啟動本機 FastAPI 服務；首次使用會下載模型權重。'
+  },
+  compareBrowserRuntime: {
+    en: 'ONNX Runtime Web runs exported models in a Web Worker. Beat This! tries WebGPU, with a WASM fallback; S-KEY uses WASM.',
+    ja: '変換済みモデルを Web Worker 内の ONNX Runtime Web で実行します。Beat This! は WebGPU を試し、利用できなければ WASM に切り替えます。S-KEY は WASM を使用します。',
+    'zh-Hant':
+      '透過 Web Worker 中的 ONNX Runtime Web 執行匯出模型。Beat This! 優先使用 WebGPU，失敗時改用 WASM；S-KEY 使用 WASM。'
+  },
+  comparePythonRuntime: {
+    en: 'PyTorch runs the original models directly. This app currently uses CPU inference, with FFmpeg decoding the audio.',
+    ja: 'PyTorch で元のモデルを直接実行します。このアプリの現在の実装は CPU 推論を使用し、音声は FFmpeg でデコードします。',
+    'zh-Hant': '由 PyTorch 直接執行原始模型。目前此專案使用 CPU 推論，並以 FFmpeg 解碼音訊。'
+  },
+  compareBrowserPrivacy: {
+    en: 'Audio is decoded and analyzed in your browser. It is not uploaded to an analysis server.',
+    ja: '音声のデコードと解析はブラウザー内で完結し、解析サーバーにはアップロードされません。',
+    'zh-Hant': '音訊在瀏覽器內解碼與分析，不會上傳至分析伺服器。'
+  },
+  comparePythonPrivacy: {
+    en: 'The browser sends audio over HTTP to FastAPI on this computer (127.0.0.1:8765), which returns results and a MIDI download.',
+    ja: 'ブラウザーから同じ端末の FastAPI（127.0.0.1:8765）へ HTTP で音声を送り、解析結果と MIDI のダウンロード先を受け取ります。',
+    'zh-Hant':
+      '瀏覽器透過 HTTP 將音訊傳至同一台電腦的 FastAPI（127.0.0.1:8765），再取得分析結果與 MIDI 下載。'
+  },
+  compareBrowserSpeed: {
+    en: 'Speed depends on browser, GPU support and available memory. ONNX is not always faster; the first run also includes model downloads.',
+    ja: '速度はブラウザー、GPU 対応、使用可能なメモリーに依存します。ONNX が常に高速とは限らず、初回はモデルのダウンロード時間も必要です。',
+    'zh-Hant':
+      '速度取決於瀏覽器、GPU 支援與可用記憶體。ONNX 不一定較快，首次使用還需加上模型下載時間。'
+  },
+  comparePythonSpeed: {
+    en: 'Speed depends on your CPU and available memory. It avoids browser runtime constraints but needs a running local service.',
+    ja: '速度は CPU と使用可能なメモリーに依存します。ブラウザーの実行環境による制約は受けませんが、ローカルサービスの起動が必要です。',
+    'zh-Hant': '速度取決於 CPU 與可用記憶體，不受瀏覽器執行環境限制，但需持續執行本機服務。'
+  },
+  compareBrowserBestFor: {
+    en: 'Quick analysis with no installation, including the GitHub Pages version.',
+    ja: 'インストールせずにすぐ解析したい場合。GitHub Pages 版でも利用できます。',
+    'zh-Hant': '不想安裝環境、希望直接在網頁分析，包含 GitHub Pages 版本。'
+  },
+  comparePythonBestFor: {
+    en: 'A local Python workflow, or an alternative when browser inference cannot run. See the setup guide in the engine selector above.',
+    ja: 'ローカルの Python 環境を使いたい場合や、ブラウザー推論が動作しない場合。上のエンジン選択欄に起動手順があります。',
+    'zh-Hant':
+      '已有 Python 工作環境，或瀏覽器無法完成推論時使用。啟動步驟請見上方引擎選擇區的教學。'
+  },
+  compareAccuracy: {
+    en: 'Same trained models, different runtimes: ONNX export converts the computation graph and weights without retraining. Export checks compare model outputs with PyTorch, but audio decoding and numerical differences can still affect the final results. Neither engine is guaranteed to be more accurate.',
+    ja: '学習済みモデルは共通で、実行環境が異なります。ONNX への変換は計算グラフと重みを書き出すもので、再学習は行いません。変換時に PyTorch の出力と比較していますが、音声のデコードや数値計算の違いで最終結果に差が出ることがあります。どちらかが常に高精度とは限りません。',
+    'zh-Hant':
+      '相同的已訓練模型，不同的執行環境：ONNX 匯出會轉換計算圖與權重，不會重新訓練。匯出時已比對 PyTorch 的模型輸出，但音訊解碼與數值運算的差異仍可能影響最終結果，不能保證某個引擎一定較準。'
+  },
+
   githubStar: {
     en: 'Star on GitHub',
     ja: 'スターで応援',
