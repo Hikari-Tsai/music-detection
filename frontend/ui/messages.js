@@ -1,5 +1,37 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  exportErrorTitle: {
+    en: 'ONNX export error · maximum absolute difference',
+    ja: 'ONNX 変換誤差 · 最大絶対差',
+    'zh-Hant': 'ONNX 匯出誤差・最大絕對差'
+  },
+  exportBeatError: {
+    en: 'Beat/downbeat logits, tested at 63, 128, 1,264 and 1,500 spectrogram frames.',
+    ja: '拍・小節頭の logits を、スペクトログラムの長さ 63・128・1,264・1,500 フレームで比較。',
+    'zh-Hant': '節拍／小節首拍原始輸出（logits）；測試 63、128、1,264 與 1,500 幀頻譜。'
+  },
+  exportKeyError: {
+    en: '24 key scores, tested on clips of 3, about 25 and about 75 seconds.',
+    ja: '24種類の調のスコアを、3秒・約25秒・約75秒の音声で比較。',
+    'zh-Hant': '24 個調性分數；測試 3 秒、約 25 秒與約 75 秒音訊。'
+  },
+  exportErrorScope: {
+    en: 'These are the recorded maxima for the pinned Hugging Face exports, comparing PyTorch with ONNX Runtime on CPU using identical inputs. They are not BPM errors, accuracy percentages or guaranteed bounds for other audio, exports or browser/GPU runtimes.',
+    ja: '固定バージョンの Hugging Face モデルの変換時に、同じ入力で PyTorch と CPU 上の ONNX Runtime を比較した最大値です。BPM の誤差や正解率ではなく、別の音声・変換環境・ブラウザー／GPU での誤差の上限を保証するものでもありません。',
+    'zh-Hant':
+      '以上為目前固定版本 Hugging Face 模型的匯出驗證最大值，以相同輸入比較 PyTorch 與 CPU 上的 ONNX Runtime。不是 BPM 誤差或準確率百分比，也不代表其他音訊、匯出環境或瀏覽器／GPU 的誤差上限。'
+  },
+  exportErrorRecord: { en: 'Validation record', ja: '検証記録', 'zh-Hant': '驗證紀錄' },
+  exportBeatRecordAria: {
+    en: 'Beat This! export validation record (opens in a new tab)',
+    ja: 'Beat This! の変換検証記録（新しいタブで開く）',
+    'zh-Hant': 'Beat This! 匯出驗證紀錄（在新分頁開啟）'
+  },
+  exportKeyRecordAria: {
+    en: 'S-KEY export validation record (opens in a new tab)',
+    ja: 'S-KEY の変換検証記録（新しいタブで開く）',
+    'zh-Hant': 'S-KEY 匯出驗證紀錄（在新分頁開啟）'
+  },
   comparePrecision: {
     en: 'Model weights: FP32',
     ja: 'モデルの重み：FP32',

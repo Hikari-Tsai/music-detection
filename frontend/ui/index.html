@@ -185,6 +185,14 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
         <aside class="accuracy-note" aria-labelledby="accuracy-title">
           <div class="accuracy-heading"><h3 id="accuracy-title" data-i18n="compareAccuracyTitle">Recognition accuracy</h3><span class="precision-badge" data-i18n="comparePrecision">Model weights: FP32</span></div>
           <p data-i18n="compareAccuracy">ONNX export preserves the trained weights without retraining or quantization, and its model outputs are checked against PyTorch. FP32 describes numerical precision, not recognition accuracy. We have not benchmarked the two engines against labeled music to establish an accuracy advantage; audio decoding and numerical differences can still affect results.</p>
+          <div class="export-errors" aria-labelledby="export-error-title">
+            <h4 id="export-error-title"><span data-i18n="exportErrorTitle">ONNX export error · maximum absolute difference</span></h4>
+            <div class="export-error-grid">
+              <div class="export-error-card"><strong>Beat This!</strong><span class="export-error-value">≈ 6.1393 × 10⁻⁶</span><p><span data-i18n="exportBeatError">Beat/downbeat logits, tested at 63, 128, 1,264 and 1,500 spectrogram frames.</span></p><a href="https://huggingface.co/aaatmy/beat-this-onnx/blob/e2c0d4376fac8141905a8312c1b327849751d59c/manifest.json" target="_blank" rel="noopener noreferrer" aria-label="Beat This! export validation record (opens in a new tab)" data-i18n-aria-label="exportBeatRecordAria"><span data-i18n="exportErrorRecord">Validation record</span> <span aria-hidden="true">↗</span></a></div>
+              <div class="export-error-card"><strong>S-KEY</strong><span class="export-error-value">≈ 3.7551 × 10⁻⁶</span><p><span data-i18n="exportKeyError">24 key scores, tested on clips of 3, about 25 and about 75 seconds.</span></p><a href="https://huggingface.co/aaatmy/skey-onnx/blob/c04b6a2bc1d82e50b46d8669560d056f3a2344ab/manifest.json" target="_blank" rel="noopener noreferrer" aria-label="S-KEY export validation record (opens in a new tab)" data-i18n-aria-label="exportKeyRecordAria"><span data-i18n="exportErrorRecord">Validation record</span> <span aria-hidden="true">↗</span></a></div>
+            </div>
+            <p class="export-error-scope"><span data-i18n="exportErrorScope">These are the recorded maxima for the pinned Hugging Face exports, comparing PyTorch with ONNX Runtime on CPU using identical inputs. They are not BPM errors, accuracy percentages or guaranteed bounds for other audio, exports or browser/GPU runtimes.</span></p>
+          </div>
         </aside>
         <div class="model-info-grid">
           <article class="model-card engine-card" aria-labelledby="compare-browser-title"><h3 id="compare-browser-title"><span data-i18n="compareBrowser">Browser ONNX · Recommended</span></h3><dl>

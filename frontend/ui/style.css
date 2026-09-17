@@ -160,3 +160,14 @@ footer > span { margin-right: auto; }
 .accuracy-heading h3 { margin: 0; font-size: 14px; font-weight: 500; color: var(--accent); }
 .precision-badge { padding: 4px 8px; border: 1px solid #425336; border-radius: 4px; font-size: 11px; color: #c4d3b6; }
 .accuracy-note p { margin: 12px 0 0; color: #b1b8b8; font-size: 12px; line-height: 1.95; }
+
+.export-errors { margin-top: 18px; padding-top: 16px; border-top: 1px solid #425336; }
+.export-errors h4 { margin: 0 0 14px; font-size: 12px; font-weight: 500; color: var(--text); line-height: 1.8; }
+.export-error-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.export-error-card { padding: 16px; border-radius: 6px; background: #121a14; border: 1px solid #34432d; }
+.export-error-card strong { display: block; font-size: 13px; font-weight: 500; }
+.export-error-value { display: block; margin-top: 12px; font: 18px/1.6 var(--mono); color: var(--accent); }
+.export-error-card p { margin: 8px 0 12px; font-size: 11px; }
+.export-error-card a { font-size: 11px; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.accuracy-note .export-error-scope { font-size: 11px; color: #a4b29b; }
+@media(max-width:760px) { .export-error-grid { grid-template-columns: 1fr; gap: 12px; } }
