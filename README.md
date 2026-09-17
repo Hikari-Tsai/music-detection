@@ -26,6 +26,10 @@
 
 瀏覽器模式的 Beat This! 優先使用 WebGPU，必要時退回 WASM CPU；S-KEY 使用 WASM CPU。模型載入會驗證 SHA-256，並在可用時使用瀏覽器快取。首次載入需要下載模型及執行引擎；純靜態部署不需要持續運行 Python 或 Node.js。
 
+兩個 ONNX 模型優先從 Hugging Face 的固定版本下載：[Beat This!](https://huggingface.co/aaatmy/beat-this-onnx)、[S-KEY](https://huggingface.co/aaatmy/skey-onnx)。只有來源連線失敗、連續 30 秒未收到資料、設定格式錯誤或模型驗證失敗時，才改從同一網站的 `models/` 下載（正式網站為 GitHub Pages，本機預覽為本機伺服器）。切換會重新取得該來源的 manifest、前處理設定與模型，避免混用不同匯出版本。
+
+下載進度會依目前語言顯示來源、百分比、驗證狀態；切換後也會保留失敗原因與備援來源。通過驗證的模型會依 SHA-256 快取，下次可略過模型檔下載；仍需取得設定檔，因此不保證完全離線使用。若兩個來源都失敗，可重新選檔重試；S-KEY 失敗仍可取得 BPM 與 Tempo MIDI。
+
 Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型。MIDI 暫存在服務記憶體中，最多保留一小時、100 筆；服務停止或重新啟動後，原下載即失效。
 
 切換引擎會重新分析已選取的檔案，分析與下載期間會鎖住切換控制。ONNX 失敗不會自動上傳音訊給 Python；每次重新整理仍預設 Browser ONNX。
@@ -139,7 +143,8 @@ music-detection/
 │       ├── client.js             # 瀏覽器音訊解碼與 Worker 通訊
 │       ├── worker.js             # Beat This! 推論與分析流程
 │       ├── dsp.js                # 頻譜前處理與拍點後處理
-│       ├── model-assets.js       # 模型下載、雜湊驗證與快取
+│       ├── model-assets.js       # 來源切換、下載進度、雜湊驗證與快取
+│       ├── model-sources.js      # Hugging Face 固定版本下載網址
 │       ├── key-engine.js / key.js # S-KEY 推論與類別解讀
 │       └── tempo.js              # BPM 判定與 MIDI 二進位編碼
 ├── backend/

@@ -6,12 +6,16 @@ import { createKeyEngine } from './key-engine.js';
 ort.env.wasm.numThreads = 1; // Works on GitHub Pages without COOP/COEP headers.
 ort.env.wasm.wasmPaths = new URL('./ort/', import.meta.url).href;
 import { createModelAssets } from './model-assets.js';
+import { HUGGING_FACE_MODELS } from './model-sources.js';
 
 let session = null,
   engine = null,
   constants = null;
 const progress = (text) => self.postMessage({ type: 'progress', text });
-const assets = createModelAssets(new URL('./models/', import.meta.url), progress);
+const assets = createModelAssets(new URL('./models/', import.meta.url), progress, {
+  primaryBaseURL: HUGGING_FACE_MODELS.beat,
+  includeFrontend: true
+});
 const analyzeKey = createKeyEngine(progress);
 async function init(forceWasm = false) {
   constants = await assets.frontend();

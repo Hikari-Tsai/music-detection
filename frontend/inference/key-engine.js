@@ -1,12 +1,15 @@
 import * as ort from 'onnxruntime-web/webgpu';
 import { createModelAssets } from './model-assets.js';
+import { HUGGING_FACE_MODELS } from './model-sources.js';
 import { KEY_MIN_SECONDS, summarizeKey } from './key.js';
 
 // This small convolution model uses WASM CPU. Sharing the worker's runtime
 // avoids a second runtime download and works without WebGPU or isolation headers.
 export function createKeyEngine(progress) {
-  const assets = createModelAssets(new URL('./models/skey/', import.meta.url), (text) =>
-    progress(['S-KEY: ', text])
+  const assets = createModelAssets(
+    new URL('./models/skey/', import.meta.url),
+    (text) => progress(['S-KEY: ', text]),
+    { primaryBaseURL: HUGGING_FACE_MODELS.key }
   );
   let session = null;
   return async function analyzeKey(audio) {

@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
+import { HUGGING_FACE_MODELS } from '../frontend/inference/model-sources.js';
 const base = process.env.TEST_URL || 'http://127.0.0.1:8766/';
 const browser = await chromium.launch({
   channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome',
@@ -20,7 +21,11 @@ try {
     )
       consoleErrors.push(m.text());
   });
-  page.context().on('request', (r) => requests.push({ url: r.url(), method: r.method() }));
+  page.context().on('request', (r) => {
+    let original = r;
+    while (original.redirectedFrom()) original = original.redirectedFrom();
+    requests.push({ url: r.url(), method: r.method(), source: original.url() });
+  });
   await page.goto(base);
   assert.match(await page.title(), /Tempo/);
   assert.equal(await page.locator('html').getAttribute('data-engine'), 'browser');
@@ -149,13 +154,20 @@ try {
   assert.deepEqual(logs, []);
   assert.deepEqual(consoleErrors, []);
   assert.equal(
-    requests.filter((r) => r.method === 'POST' || new URL(r.url).pathname.startsWith('/api/'))
-      .length,
+    requests.filter(
+      (r) =>
+        r.method === 'POST' ||
+        (new URL(r.url).origin === new URL(base).origin &&
+          new URL(r.url).pathname.startsWith('/api/'))
+    ).length,
     0
   );
   assert.ok(
     requests.every(
-      (r) => new URL(r.url).origin === new URL(base).origin || r.url.startsWith('blob:')
+      (r) =>
+        new URL(r.url).origin === new URL(base).origin ||
+        r.url.startsWith('blob:') ||
+        Object.values(HUGGING_FACE_MODELS).some((source) => r.source.startsWith(source))
     )
   );
   results.push({

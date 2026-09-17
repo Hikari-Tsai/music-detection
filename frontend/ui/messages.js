@@ -758,6 +758,56 @@ export const messages = {
     en: 'Reading the cached model',
     ja: 'キャッシュ済みのモデルを読み込み中'
   },
+  modelSourceConnecting: {
+    'zh-Hant': '正在讀取模型設定',
+    en: 'Loading model settings',
+    ja: 'モデル設定を読み込み中'
+  },
+  modelSourceDownload: {
+    'zh-Hant': '正在下載模型（{size} MB）',
+    en: 'Downloading model ({size} MB)',
+    ja: 'モデルをダウンロード中（{size} MB）'
+  },
+  modelSourceVerifying: {
+    'zh-Hant': '下載完成，正在驗證模型',
+    en: 'Download complete; verifying model',
+    ja: 'ダウンロード完了、モデルを検証中'
+  },
+  modelSourceFallback: {
+    'zh-Hant': '{from} 無法使用，改從 {to} 載入。原因：',
+    en: '{from} unavailable; switching to {to}. Reason: ',
+    ja: '{from} を利用できないため、{to} に切り替えます。理由：'
+  },
+  modelSourceTimeout: {
+    'zh-Hant': '連線或資料傳輸逾時',
+    en: 'Connection or data transfer timed out',
+    ja: '接続またはデータ転送がタイムアウトしました'
+  },
+  modelSourceHttp: {
+    'zh-Hant': '伺服器回應錯誤',
+    en: 'Server returned an error',
+    ja: 'サーバーがエラーを返しました'
+  },
+  modelSourceNetwork: {
+    'zh-Hant': '連線失敗或下載中斷',
+    en: 'Connection failed or download interrupted',
+    ja: '接続に失敗したか、ダウンロードが中断されました'
+  },
+  modelSourceConfig: {
+    'zh-Hant': '模型設定格式不正確',
+    en: 'Invalid model settings',
+    ja: 'モデル設定の形式が正しくありません'
+  },
+  modelSourceIntegrity: {
+    'zh-Hant': '模型檔案大小或雜湊驗證失敗',
+    en: 'Model size or checksum verification failed',
+    ja: 'モデルのサイズまたはチェックサムの検証に失敗しました'
+  },
+  modelSourcesFailed: {
+    'zh-Hant': 'Hugging Face 與備援來源皆無法載入模型，請檢查網路後重試。',
+    en: 'Hugging Face and the fallback source could not load the model. Check your connection and try again.',
+    ja: 'Hugging Face と予備の配信元の両方でモデルを読み込めませんでした。接続を確認して再試行してください。'
+  },
   modelDownload: {
     'zh-Hant': '首次使用：正在下載模型（約 {size} MB）',
     en: 'First run: downloading model (about {size} MB)',

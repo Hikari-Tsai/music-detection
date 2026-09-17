@@ -21,11 +21,30 @@ npm run build
 npm run serve
 ```
 
-將 `dist/` 的內容放上靜態網站即可。所有資源使用相對路徑，支援 GitHub Pages 的 `/repository-name/` 子路徑。原始 ONNX 與 runtime 二進位檔不必提交 Git：`assets/onnx/`、`dist/` 均由建置產生並已忽略。
+將 `dist/` 的內容放上靜態網站即可。網頁、runtime 與備援模型使用相對路徑，支援 GitHub Pages 的 `/repository-name/` 子路徑；主要模型使用固定版本的 Hugging Face 網址。原始 ONNX 與 runtime 二進位檔不必提交 Git：`assets/onnx/`、`dist/` 均由建置產生並已忽略。
 
-GitHub Pages 已附手動部署工作流程 `.github/workflows/pages.yml`。將專案推到自己的 repository 後，在 Settings → Pages 將 Source 設成 GitHub Actions，再手動執行 **Build and deploy browser ONNX app**。流程下載固定版本的 Python 套件、匯出／驗證模型、建置靜態檔案後發布。尚未替你推送或發布至 GitHub，也尚未在 GitHub runner 實跑此工作流程。
+GitHub Pages 已附自動部署工作流程 `.github/workflows/pages.yml`，推送至 `main` 即觸發，也支援手動執行 **Build and deploy browser ONNX app**。Settings → Pages 的 Source 須設為 GitHub Actions。流程下載固定版本的 Python 套件、匯出／驗證模型、建置靜態檔案後發布。正式網站為 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)。
 
 瀏覽器會在首次有聲音訊分析時下載約 **82 MB 的 FP32 ONNX 模型**，另需下載 WASM 分析引擎。模型以 SHA-256 驗證，成功後嘗試存入 Cache Storage；快取被瀏覽器清除或不允許儲存時仍可使用，但下次可能重新下載。這不是完整離線 PWA，網頁及 runtime 仍需可載入。
+
+### 模型下載來源與備援
+
+`frontend/inference/model-sources.js` 固定 Hugging Face 的版本：
+
+| 模型 | Hugging Face repository | Revision | 同網站備援目錄 |
+| --- | --- | --- | --- |
+| Beat This! | [aaatmy/beat-this-onnx](https://huggingface.co/aaatmy/beat-this-onnx) | `e2c0d4376fac8141905a8312c1b327849751d59c` | `./models/` |
+| S-KEY | [aaatmy/skey-onnx](https://huggingface.co/aaatmy/skey-onnx) | `c04b6a2bc1d82e50b46d8669560d056f3a2344ab` | `./models/skey/` |
+
+每個模型先從 Hugging Face 取得 manifest 與必要設定，再使用通過雜湊驗證的快取或下載模型。只有來源失敗才依序嘗試同網站備援；正式部署即為 GitHub Pages。本機開發則從本機伺服器備援，進度會顯示 `Local server`。
+
+HTTP 錯誤、網路中斷、設定格式錯誤、SHA-256／檔案大小不符，或連續 30 秒沒有收到資料，皆會觸發切換。30 秒是等待回應或下一段資料的上限，不是整個模型的下載期限；持續有進度的慢速下載不會因此中斷。下載提示以英文、日文、繁體中文顯示來源、百分比及驗證狀態，備援期間保留失敗原因。
+
+切換時整組重取 manifest、前處理資料與模型。不同平台重新匯出的 ONNX 位元組與 SHA-256 可能不同，不可用 Hugging Face 的 manifest 驗證 GitHub Pages 的模型。快取沿用同網站 URL 與 `tempo-model-{sha256}` 名稱，既有且符合目前來源版本的快取仍可使用；快取存取失敗不會觸發來源切換。兩來源都失敗時停止該模型載入，重新選檔可從 Hugging Face 重試。
+
+更新模型時須先上傳完整配套檔案，再更新固定 revision；部署仍保留 `dist/models/` 作為備援。
+
+### 調性分析與限制
 
 調性使用獨立的 **S-KEY FP32 ONNX（324,536 bytes，約 0.325 MB）**，前處理包含在模型內，共用 ONNX Runtime 的 WASM CPU 引擎。至少 3 秒有聲音訊才執行，全曲一次推論，顯示 24 種大調／小調之一。這是全曲估計，不是和弦或轉調時間軸；原模型分數不是經校準的準確率，因此 UI 不顯示信心百分比。調性模型載入或推論失敗仍保留 BPM 與 MIDI，重新選檔可重試。Tempo MIDI 內容維持速度與拍號。模型來源、匯出及比對見 [S-KEY 驗證](skey.md)。
 
@@ -35,6 +54,7 @@ GitHub Pages 已附手動部署工作流程 `.github/workflows/pages.yml`。將�
 
 - `scripts/export_onnx.py`：opset 17、FP32、動態時間長度；停用 rotary embedding 快取後匯出原模型，驗證 63／128／1264／1500 frames 與 PyTorch 的分數差異。
 - `frontend/inference/dsp.js`：22,050 Hz PCM → 1024 點週期 Hann、441 hop、reflect padding、幅度頻譜正規化、128 維 Slaney Log-Mel。窗函數與濾波器直接從 torchaudio 匯出。
+- `frontend/inference/model-assets.js`：依序載入 Hugging Face／同網站配套資源、逾時與驗證、來源進度與可選快取；來源版本在 `model-sources.js` 管理。
 - `frontend/inference/worker.js`：1500-frame 分段、6-frame 邊界、keep-first 合併，與官方流程一致；模型分數轉拍點，再生成結果。
 - `frontend/inference/key-engine.js`：快取獨立 S-KEY session，22,050 Hz 單聲道 PCM 直接推論，調性失敗隔離；`key.js` 使用共用官方類別表。
 - `frontend/inference/tempo.js`：固定／平均／變速判定、純 JavaScript MIDI meta event 編碼。變速圖對齊的是模型拍點，抖動或漏拍也會反映在檔案中。
@@ -56,4 +76,6 @@ npm run test:skey-browser
 
 本機驗證結果：JavaScript 核心測試與 Python 回歸測試通過。Chrome 桌面 1440×1050／手機尺寸 390×844、GitHub Pages 子路徑模擬、GPU 初始化失敗自動轉 CPU 均已驗證。25 秒與約 75 秒測試音訊的 GPU／CPU 拍點及小節首拍與 Python 完全一致；JS 頻譜最大誤差約 0.000024。75 秒音訊下載的 MIDI 含 42 個速度事件。瀏覽器執行記錄確認沒有音訊 POST 或 `/api/` 請求。ONNX Runtime 的形狀運算分配至 CPU 提示屬正常訊息；未發現應用程式例外。
 
-目前未在實體手機、Safari、Firefox 或 GitHub 線上 Pages 驗證；手機尺寸測試代表排版，不代表實體手機效能。測試音訊也不構成節拍辨識準確率 benchmark。
+下載來源驗證：Chrome 已實際從 Hugging Face 下載兩個模型，完成 BPM／調性分析與 MIDI 產生；來源正常時沒有請求本站備援模型，重新整理後使用雜湊快取。來源切換的單元測試涵蓋 HTTP／設定錯誤、逾時、損壞或不完整模型、不同來源雜湊、快取與失敗重試。
+
+目前未在實體手機、Safari、Firefox 驗證；手機尺寸測試代表排版，不代表實體手機效能。測試音訊也不構成節拍辨識準確率 benchmark。
