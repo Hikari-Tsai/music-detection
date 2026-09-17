@@ -1,5 +1,23 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  reportTitle: {
+    en: 'Found a problem?',
+    ja: '問題が見つかりましたか？',
+    'zh-Hant': '遇到問題了嗎？'
+  },
+  reportDescription: {
+    en: 'Report bugs or share suggestions on GitHub Issues. Include your browser, operating system and analysis engine to help us investigate.',
+    ja: '不具合の報告や改善の提案は GitHub Issues へ。調査のため、ブラウザー・OS・解析エンジンを添えてください。',
+    'zh-Hant':
+      '歡迎透過 GitHub Issues 回報問題或提供建議，並附上瀏覽器、作業系統與使用的分析引擎，方便我們查找原因。'
+  },
+  reportLink: { en: 'Report an issue', ja: '問題を報告', 'zh-Hant': '回報問題' },
+  reportLinkAria: {
+    en: 'Report an issue on GitHub (opens in a new tab)',
+    ja: 'GitHub で問題を報告（新しいタブで開く）',
+    'zh-Hant': '前往 GitHub 回報問題（在新分頁開啟）'
+  },
+
   rangePythonUpdate: {
     en: 'Local Python did not confirm the selected range. Update the project and restart the service, then try again.',
     ja: 'Local Python が選択範囲を確認できませんでした。プロジェクトを更新してサービスを再起動し、再試行してください。',

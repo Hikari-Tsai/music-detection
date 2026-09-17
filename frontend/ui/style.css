@@ -132,3 +132,10 @@ footer > span { margin-right: auto; }
 .analyze-range:disabled { opacity: .45; }
 .workspace { align-items: start; }
 @media(max-width:760px) { .range-row { grid-template-columns: 75px minmax(0,1fr) 82px; gap: 7px; } }
+
+.report-issue { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin-top: 30px; padding: 24px; border: 1px solid var(--line); border-radius: 10px; background: #151a1c; }
+.report-issue h2 { margin: 0 0 9px; font-size: 18px; font-weight: 500; }
+.report-issue p { max-width: 680px; margin: 0; font-size: 12px; line-height: 1.9; color: var(--muted); }
+.report-link { display: inline-flex; align-items: center; justify-content: center; gap: 10px; flex-shrink: 0; min-height: 44px; padding: 10px 16px; border: 1px solid #566b40; border-radius: 7px; color: var(--accent); font-size: 12px; }
+.report-link:hover { background: #222d1d; border-color: var(--accent); }
+@media(max-width:760px) { .report-issue { align-items: stretch; flex-direction: column; gap: 18px; padding: 22px; } }
