@@ -6,6 +6,22 @@
   <meta name="theme-color" content="#101316">
   <title data-i18n="pageTitle">Key &amp; Tempo — BPM, Key Detection &amp; MIDI</title>
   <meta name="description" content="Drop in music to analyze BPM, time signature and key locally, then download a constant or variable MIDI tempo map." data-i18n-content="metaDescription">
+  <!-- Static English sharing metadata is readable without JavaScript. The build sets the public URL for each deployment. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Key &amp; Tempo">
+  <meta property="og:title" content="Key &amp; Tempo — BPM, Key Detection &amp; MIDI">
+  <meta property="og:description" content="Discover the BPM, meter and key of your music. Analyze locally and download a MIDI tempo map.">
+  <meta property="og:url" content="https://hikari-tsai.github.io/music-detection/">
+  <meta property="og:image" content="https://hikari-tsai.github.io/music-detection/og-image.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Key &amp; Tempo: BPM, key and MIDI tempo maps. Lime music waveform on a dark background.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Key &amp; Tempo — BPM, Key Detection &amp; MIDI">
+  <meta name="twitter:description" content="Discover the BPM, meter and key of your music. Analyze locally and download a MIDI tempo map.">
+  <meta name="twitter:image" content="https://hikari-tsai.github.io/music-detection/og-image.jpg">
+  <meta name="twitter:image:alt" content="Key &amp; Tempo: BPM, key and MIDI tempo maps. Lime music waveform on a dark background.">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="/static/banner.css">
@@ -91,13 +107,13 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
       <div class="workspace">
         <section class="input-panel" aria-labelledby="input-title">
           <div class="panel-heading"><h2 id="input-title"><span class="step-number">01</span><span data-i18n="inputTitle">Your audio</span></h2><span class="file-limit"><span data-i18n="fileLimit">Up to 20 min · 100 MB</span></span></div>
-          <input type="file" id="audio-file" accept=".wav,.mp3,.flac,.m4a,.ogg,.aif,.aiff,.aac" class="visually-hidden" tabindex="-1">
+          <input type="file" id="audio-file" accept=".wav,.mp3,.flac,.m4a,.ogg,.aif,.aiff,.aac,.mp4,.mov" class="visually-hidden" tabindex="-1">
           <div class="dropzone" id="dropzone">
             <div class="drop-art" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
             <h3 id="drop-title"><span data-i18n="dropTitle">Drop your music here</span></h3>
-            <p id="drop-copy"><span data-i18n="dropCopy">Let your next idea start with a beat.</span></p>
-            <button class="choose-button" id="choose-file" type="button"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="chooseFile">Choose audio file</span></button>
-            <span class="formats">WAV · MP3 · FLAC · M4A · OGG · AIFF · AAC</span>
+            <p id="drop-copy"><span data-i18n="dropCopy">Audio files or MP4/MOV video soundtracks.</span></p>
+            <button class="choose-button" id="choose-file" type="button"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="chooseFile">Choose audio or video</span></button>
+            <span class="formats">WAV · MP3 · FLAC · M4A · OGG · AIFF · AAC · MP4 · MOV</span>
             <div class="drop-overlay" aria-hidden="true"><svg class="icon"><use href="#i-upload"/></svg><span data-i18n="dropRelease">Release to analyze the whole track</span></div>
           </div>
 

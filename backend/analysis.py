@@ -24,7 +24,7 @@ def decode_audio(source):
     try:
         process = subprocess.run(
             ["ffmpeg", "-nostdin", "-v", "error", "-y", "-protocol_whitelist", "file,pipe", "-i", str(source),
-             "-vn", "-t", str(MAX_SECONDS + 1), "-ac", "1", "-ar", "22050",
+             "-map", "0:a:0", "-vn", "-t", str(MAX_SECONDS + 1), "-ac", "1", "-ar", "22050",
              "-c:a", "pcm_f32le", str(decoded)],
             capture_output=True, timeout=120,
         )
@@ -33,6 +33,8 @@ def decode_audio(source):
     except subprocess.TimeoutExpired as error:
         raise AnalysisError(400, "音訊解碼逾時，請換一個檔案或縮短音訊。") from error
     if process.returncode:
+        if b"matches no streams" in process.stderr:
+            raise AnalysisError(400, "檔案沒有音軌，請選擇含有音訊的檔案。")
         raise AnalysisError(400, "無法讀取這個音訊檔，請確認檔案沒有損壞。")
     audio, sr = sf.read(decoded, dtype="float32")
     duration = len(audio) / sr

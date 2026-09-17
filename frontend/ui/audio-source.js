@@ -40,6 +40,10 @@ export async function decodeSource(file) {
   try {
     decoded = await new OfflineAudioContext(1, 1, 22050).decodeAudioData(await file.arrayBuffer());
   } catch {
+    if (/\.(mp4|mov)$/i.test(file.name))
+      throw new Error(
+        '影片沒有可解碼的音軌，或瀏覽器不支援其音訊編碼。請確認影片含有音訊，改用本機 Python，或先匯出 WAV／MP3。'
+      );
     throw new Error('瀏覽器無法解碼這個音訊，請轉成 WAV 或 MP3 後再試。');
   }
   if (decoded.duration > 1200) throw new Error('音訊超過 20 分鐘，請先截取較短片段。');

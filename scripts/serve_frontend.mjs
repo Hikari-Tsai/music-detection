@@ -12,6 +12,7 @@ const mime = {
   '.json': 'application/json',
   '.css': 'text/css',
   '.svg': 'image/svg+xml',
+  '.jpg': 'image/jpeg',
   '.wasm': 'application/wasm',
   '.onnx': 'application/octet-stream'
 };

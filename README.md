@@ -1,10 +1,17 @@
+[繁體中文](README.md) · [English](README.en.md)
+
 ![Key & Tempo 系統架構圖：共用網頁介面、瀏覽器 ONNX 推論與選用的本機 Python 服務](docs/diagrams/key-tempo-system.webp)
 
 # Key & Tempo — 音樂 BPM、調性與 MIDI 速度圖
 
 拖入音訊即自動分析全曲，也可選取指定範圍分析 BPM、拍號與調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
 
-[線上使用](https://hikari-tsai.github.io/music-detection/) · [GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
+[![Main 正式版](docs/buttons/main.svg)](https://hikari-tsai.github.io/music-detection/)
+[![Staging 預覽版](docs/buttons/staging.svg)](https://hikari-tsai.github.io/music-detection/staging/)
+
+日常使用請選 Main；若要試用尚未合併至 main 的變更，請選 Staging。
+
+[GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
 
 ## 功能
 
@@ -16,7 +23,9 @@
 - **兩種分析引擎**：Browser ONNX 與 Local Python 共用檔案拖放、播放、結果與下載介面。
 - **三語介面**：英文、日文、繁體中文共用同一份 HTML，由前端切換；依瀏覽器語言自動選擇，其餘語言使用英文，手動選擇優先並儲存。
 
-支援 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC，單檔上限 100 MiB、20 分鐘。瀏覽器實際可解碼的格式與可處理的長度，仍取決於裝置和記憶體；S-KEY 至少需要 3 秒音訊。
+支援 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC、MP4、MOV，單檔上限 100 MiB、20 分鐘。瀏覽器實際可解碼的格式與可處理的長度，仍取決於裝置和記憶體；S-KEY 至少需要 3 秒音訊。
+
+MP4／MOV 僅分析影片內的音軌，不分析影像。含 AAC 音軌的 MP4／MOV，以及含 PCM 音軌的 MOV，均已在本機 Chrome 測試；瀏覽器支援仍取決於內部音訊編碼，副檔名不保證可解碼。無法解碼時，可明確切換至 Local Python 以 FFmpeg 擷取音訊，或先匯出 WAV／MP3；影片若沒有音軌，則無法分析。Local Python 使用第一條音軌，目前不提供多音軌選擇。影片同樣計入 100 MiB 檔案限制，音訊長度最多 20 分鐘。
 
 ## 系統架構
 
@@ -62,7 +71,7 @@ Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型�
 
 ### 直接使用線上版
 
-1. 開啟 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)，維持預設的 **Browser ONNX**。
+1. 開啟 [Main 正式版](https://hikari-tsai.github.io/music-detection/) 或 [Staging 預覽版](https://hikari-tsai.github.io/music-detection/staging/)，維持預設的 **Browser ONNX**。
 2. 拖入音訊後會自動分析全曲；首次分析會下載模型。
 3. 若只想分析片段，使用雙把手或秒數調整範圍，試聽後按「分析選取範圍」。
 4. 查看 BPM、拍號與調性，按下下載按鈕取得固定或變速的 MIDI Tempo 檔案。
@@ -215,6 +224,8 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 工作流程以同一個 concurrency group 排程，避免兩次部署互相覆蓋。執行中的工作不會因後續推送而取消；等候中的工作可能被更新的推送取代，下一次執行會重新取得兩個分支的最新 commit。兩個分支都須保留此雙版本部署工作流程，避免舊的單版本工作流程重新覆蓋整站。
 
+分享預覽使用 [`frontend/ui/og-image.jpg`](frontend/ui/og-image.jpg)（1200 × 630），並在 HTML 中提供 Open Graph 與 X／Twitter 大圖卡片標籤，不需要執行 JavaScript。圖片與分享文案統一使用英文。Actions 依建置分支設定 `SITE_URL`，讓 main 與 staging 各自使用正確的頁面與圖片絕對網址；本機建置預設正式站網址，部署至其他網址時可透過 `SITE_URL` 環境變數覆寫。
+
 ### 設定與手動部署
 
 1. 在 **Settings → Pages** 將來源設為 **GitHub Actions**。
@@ -267,6 +278,7 @@ music-detection/
 ├── frontend/
 │   ├── ui/
 │   │   ├── index.html            # 兩種引擎共用的三語頁面
+│   │   ├── og-image.jpg          # 1200 × 630 社群分享縮圖
 │   │   ├── audio-source.js      # 瀏覽器解碼、完整波形與取樣裁切
 │   │   ├── range-editor.js      # 範圍滑桿、秒數與驗證
 │   │   ├── app.js                # 檔案、播放、分析狀態與 MIDI 下載
@@ -323,6 +335,8 @@ music-detection/
 ├── requirements-onnx.txt        # 額外的 ONNX 匯出與驗證依賴
 ├── requirements-frozen.txt      # 初次 Python 環境版本快照
 ├── package.json / package-lock.json # 前端依賴、版本鎖定與工作指令
+├── README.md                   # 繁體中文說明
+├── README.en.md                # 英文說明
 └── LICENSE                     # 本專案 MIT 授權
 ```
 
@@ -358,6 +372,9 @@ npm run test:engines-browser
 
 # 選取範圍、試聽、ONNX／Python 片段分析與 MIDI
 npm run test:range-browser
+
+# MP4／MOV 音軌、範圍分析與無音軌錯誤（另需 FFmpeg）
+npm run test:video-browser
 ```
 
 測試包含固定／平均／變速判定、Python 與 JavaScript 頻譜及拍點比較、S-KEY 分數一致性、MIDI 編碼、模型快取、來源切換、逾時與檔案損壞、下載到期、三語介面與錯誤復原。`TEST_URL` 可指定瀏覽器測試網址；網址附加 `?engine=wasm` 可強制瀏覽器使用 CPU。
@@ -390,49 +407,12 @@ S-KEY 對整首或所選片段提供單一大調／小調估計，不定位轉�
 3. **nnAudio** — K. W. Cheuk 等人，*nnAudio: An on-the-Fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks*，IEEE Access，2020。[論文 DOI](https://doi.org/10.1109/ACCESS.2020.3019084) · [官方程式](https://github.com/KinWaiCheuk/nnAudio)。用於 S-KEY 的頻譜前處理。
 4. **ConvNeXt** — Zhuang Liu 等人，*A ConvNet for the 2020s*，CVPR 2022。[論文](https://arxiv.org/abs/2201.03545) · [官方程式](https://github.com/facebookresearch/ConvNeXt)。S-KEY 所含的 ConvNeXt 實作註明源自 Meta FAIR，本專案保留相應授權。
 
-### 依官方 README 引用與署名
+### 致謝
 
-以下於 2026-09-17 核對兩個上游 README，並與本專案固定版本比對；其引用與授權段落一致。Beat This! 提供 **Citation** 格式；S-KEY 在 **Reference** 段落明確請研究使用者引用論文。下列 BibTeX 保留官方欄位與引用鍵，僅整理空白。
+本專案使用了以下兩個 Repo 提供的程式碼與模型資源，感謝作者與維護者的分享：
 
-#### Beat This! 官方引用
-
-來源：[官方 README 的 Citation](https://github.com/CPJKU/beat_this/blob/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c/README.md#citation)。
-
-```bibtex
-@inproceedings{foscarin2024beatthis,
-    author = {Francesco Foscarin and Jan Schl{\"u}ter and Gerhard Widmer},
-    title = {Beat this! Accurate beat tracking without {DBN} postprocessing},
-    year = 2024,
-    month = nov,
-    booktitle = {Proceedings of the 25th International Society for Music Information Retrieval Conference (ISMIR)},
-    address = {San Francisco, CA, United States},
-}
-```
-
-#### S-KEY 官方引用
-
-來源：[官方 README 的 Reference](https://github.com/deezer/skey/blob/918b83d273568d5041569bb8068843d19a335726/README.md#-reference)。
-
-```bibtex
-@INPROCEEDINGS{kongskey2025,
-  author={Kong, Yuexuan and Meseguer-Brocal, Gabriel and Lostanlen, Vincent and Lagrange, Mathieu and Hennequin, Romain},
-  booktitle={ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
-  title={S-KEY: Self-supervised Learning of Major and Minor Keys from Audio},
-  year={2025},
-  pages={1-5},
-  doi={10.1109/ICASSP49660.2025.10890222}}
-```
-
-#### 版權署名與授權保留
-
-| 上游專案 | 保留的原始版權署名 | 官方授權說明與本專案保存位置 |
-| --- | --- | --- |
-| Beat This! | Copyright (c) 2024 Institute of Computational Perception, JKU Linz, Austria | [官方 README](https://github.com/CPJKU/beat_this/blob/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c/README.md#license) 明確將程式碼與發布的模型權重列為 MIT；完整聲明保存於 [Beat-This-LICENSE](third_party/Beat-This-LICENSE) |
-| S-KEY | Copyright (c) 2019-present, Deezer SA. | [官方 README](https://github.com/deezer/skey/blob/918b83d273568d5041569bb8068843d19a335726/README.md#-license) 明列程式碼為 MIT，該段未另行說明權重授權；完整聲明保存於 [S-KEY-LICENSE](third_party/S-KEY-LICENSE) 與 [模型原始碼 LICENSE](backend/models/skey/LICENSE) |
-
-兩份 MIT LICENSE 都要求在軟體副本或重要部分中保留原始版權與授權聲明。上表與論文引用不取代完整 LICENSE；靜態建置會將上游授權一併放入 `dist/licenses/`。本專案的 MIT LICENSE 不覆蓋上游的版權署名。
-
-本次核對的兩個 README 未另列必須展示的徽章、Logo 或固定網頁署名文字。Beat This! 另提醒部分訓練音訊有獨立版權或受限的 Creative Commons 授權，不能因程式與權重採 MIT 就將訓練資料視為 MIT。
+- [CPJKU/beat_this](https://github.com/CPJKU/beat_this)：用於節拍與小節首拍偵測。
+- [deezer/skey](https://github.com/deezer/skey)：用於音樂調性辨識。
 
 ### 使用的套件與工具
 

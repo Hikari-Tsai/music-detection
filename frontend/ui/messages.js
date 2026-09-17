@@ -1,5 +1,16 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  noAudioTrack: {
+    en: 'This file has no audio track. Choose a file that contains audio.',
+    ja: 'このファイルには音声トラックがありません。音声を含むファイルを選択してください。',
+    'zh-Hant': '檔案沒有音軌，請選擇含有音訊的檔案。'
+  },
+  videoDecodeFailed: {
+    en: 'This video has no decodable audio track, or its audio codec is unsupported by your browser. Check that it contains audio, use Local Python, or export WAV/MP3 first.',
+    ja: 'この動画にはデコード可能な音声トラックがないか、ブラウザーが音声コーデックに対応していません。音声が含まれることを確認し、Local Python を使うか、WAV／MP3 に書き出してください。',
+    'zh-Hant':
+      '影片沒有可解碼的音軌，或瀏覽器不支援其音訊編碼。請確認影片含有音訊，改用本機 Python，或先匯出 WAV／MP3。'
+  },
   exportErrorTitle: {
     en: 'ONNX export error · maximum absolute difference',
     ja: 'ONNX 変換誤差 · 最大絶対差',
@@ -496,14 +507,14 @@ export const messages = {
     ja: 'ここに音楽をドロップ'
   },
   dropCopy: {
-    'zh-Hant': '讓下一個靈感，從節奏開始。',
-    en: 'Let your next idea start with a beat.',
-    ja: '次のひらめきは、リズムから。'
+    en: 'Audio files or MP4/MOV video soundtracks.',
+    ja: '音声ファイル・MP4／MOV の音声を解析。',
+    'zh-Hant': '支援音訊檔，MP4／MOV 影片只分析音軌。'
   },
   chooseFile: {
-    'zh-Hant': '選擇音訊檔案',
-    en: 'Choose audio file',
-    ja: '音声ファイルを選択'
+    en: 'Choose audio or video',
+    ja: '音声・動画ファイルを選択',
+    'zh-Hant': '選擇音訊或影片'
   },
   dropRelease: {
     'zh-Hant': '放開以分析全曲',
@@ -746,9 +757,9 @@ export const messages = {
     ja: '音声ファイルは 1 つずつ追加してください。'
   },
   unsupported: {
-    'zh-Hant': '不支援這個格式，請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF 或 AAC。',
-    en: 'Unsupported format. Choose WAV, MP3, FLAC, M4A, OGG, AIFF or AAC.',
-    ja: '未対応の形式です。WAV・MP3・FLAC・M4A・OGG・AIFF・AAC を選択してください。'
+    en: 'Unsupported format. Choose WAV, MP3, FLAC, M4A, OGG, AIFF, AAC, MP4 or MOV.',
+    ja: '未対応の形式です。WAV・MP3・FLAC・M4A・OGG・AIFF・AAC・MP4・MOV を選択してください。',
+    'zh-Hant': '不支援這個格式，請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC、MP4 或 MOV。'
   },
   empty: {
     'zh-Hant': '檔案是空的，請重新選擇。',
@@ -1106,9 +1117,9 @@ export const messages = {
     ja: 'アップロードサイズを読み取れません。'
   },
   apiUnsupported: {
-    'zh-Hant': '請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF 或 AAC 音訊。',
-    en: 'Choose WAV, MP3, FLAC, M4A, OGG, AIFF or AAC audio.',
-    ja: 'WAV・MP3・FLAC・M4A・OGG・AIFF・AAC の音声を選択してください。'
+    en: 'Choose a WAV, MP3, FLAC, M4A, OGG, AIFF, AAC, MP4 or MOV file.',
+    ja: 'WAV・MP3・FLAC・M4A・OGG・AIFF・AAC・MP4・MOV のファイルを選択してください。',
+    'zh-Hant': '請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC、MP4 或 MOV 檔案。'
   },
   apiEmpty: {
     'zh-Hant': '檔案是空的，請重新選擇音訊。',
