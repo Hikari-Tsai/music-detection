@@ -1,20 +1,48 @@
 name: Build and deploy browser ONNX app
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 permissions:
   contents: read
-  pages: write
-  id-token: write
+# One Pages deployment publishes both snapshots. Serialize the entire workflow
+# so an older build cannot overwrite a newer deployment from either branch.
 concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
-  build:
+  resolve:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
+    outputs:
+      main: ${{ steps.refs.outputs.main }}
+      staging: ${{ steps.refs.outputs.staging }}
+    steps:
+      - name: Resolve current branch revisions
+        id: refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for branch in main staging; do
+            revision=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$branch" --jq .object.sha)
+            [[ "$revision" =~ ^[0-9a-f]{40}$ ]]
+            echo "$branch=$revision" >> "$GITHUB_OUTPUT"
+          done
+  build:
+    needs: resolve
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: main
+            revision: ${{ needs.resolve.outputs.main }}
+          - branch: staging
+            revision: ${{ needs.resolve.outputs.staging }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.revision }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -31,7 +59,7 @@ jobs:
           python -m pip install torch==2.8.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -r requirements-onnx.txt
           npm ci
-      - name: Export and verify model, build static app
+      - name: Export and verify models, build static app
         run: |
           python scripts/export_onnx.py
           python scripts/export_skey_onnx.py
@@ -39,17 +67,74 @@ jobs:
           npm test
           npm run format:check
           npm run build
+      - name: Record published revision
+        env:
+          SOURCE_BRANCH: ${{ matrix.branch }}
+          SOURCE_COMMIT: ${{ matrix.revision }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('dist/deployment.json').write_text(json.dumps({
+              'branch': os.environ['SOURCE_BRANCH'],
+              'commit': os.environ['SOURCE_COMMIT'],
+          }) + '\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ matrix.branch }}
+          path: dist/
+          include-hidden-files: true
+          retention-days: 1
+          if-no-files-found: error
+  assemble:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: site-*
+          path: builds
+      - name: Assemble main at root and staging in its own directory
+        run: |
+          python - <<'PY'
+          import json, shutil
+          from pathlib import Path
+          for branch in ('main', 'staging'):
+              root = Path('builds') / f'site-{branch}'
+              for required in ('index.html', 'browser-client.js', 'analysis-worker.js',
+                               'models/manifest.json', 'models/skey/manifest.json',
+                               'ort', 'deployment.json'):
+                  if not (root / required).exists():
+                      raise SystemExit(f'Missing {branch} build asset: {required}')
+              if json.loads((root / 'deployment.json').read_text())['branch'] != branch:
+                  raise SystemExit(f'Incorrect branch artifact: {branch}')
+          if Path('builds/site-main/staging').exists():
+              raise SystemExit('main build must not occupy the reserved staging directory')
+          shutil.copytree('builds/site-main', 'site')
+          shutil.copytree('builds/site-staging', 'site/staging')
+          Path('site/.nojekyll').touch()
+          PY
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
   deploy:
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: assemble
     steps:
       - uses: actions/configure-pages@v5
-      - name: Deploy
+      - name: Deploy both versions
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Publish version links
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          echo "- Main: ${PAGE_URL%/}/" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Staging: ${PAGE_URL%/}/staging/" >> "$GITHUB_STEP_SUMMARY"

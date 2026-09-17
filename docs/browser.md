@@ -23,7 +23,9 @@ npm run serve
 
 將 `dist/` 的內容放上靜態網站即可。網頁、runtime 與備援模型使用相對路徑，支援 GitHub Pages 的 `/repository-name/` 子路徑；主要模型使用固定版本的 Hugging Face 網址。原始 ONNX 與 runtime 二進位檔不必提交 Git：`assets/onnx/`、`dist/` 均由建置產生並已忽略。
 
-GitHub Pages 已附自動部署工作流程 `.github/workflows/pages.yml`，推送至 `main` 即觸發，也支援手動執行 **Build and deploy browser ONNX app**。Settings → Pages 的 Source 須設為 GitHub Actions。流程下載固定版本的 Python 套件、匯出／驗證模型、建置靜態檔案後發布。正式網站為 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)。
+GitHub Pages 使用 `.github/workflows/pages.yml`，推送至 `main` 或 `staging` 都會觸發。每次執行固定兩個分支當下的 commit，分別匯出／驗證模型與建置，再將 `main` 放在網站根目錄、`staging` 放在 `staging/`，合併成一次 Pages 部署。兩份建置都成功才發布；整個工作流程共用 concurrency group，避免部署互相覆蓋。每個版本保留自己的 `models/` 與 `ort/`，前端相對路徑可直接支援子目錄。
+
+正式網址：[Key & Tempo](https://hikari-tsai.github.io/music-detection/)；預覽網址：[Staging](https://hikari-tsai.github.io/music-detection/staging/)。各自的 `deployment.json` 記錄發布分支與 commit。手動執行可選擇 `main` 或 `staging`，兩者都會發布兩個版本；其他分支會略過。Pages 的來源設為 GitHub Actions，`github-pages` environment 須允許這兩個部署分支。完整操作見 [README](../README.md)。
 
 瀏覽器會在首次有聲音訊分析時下載約 **82 MB 的 FP32 ONNX 模型**，另需下載 WASM 分析引擎。模型以 SHA-256 驗證，成功後嘗試存入 Cache Storage；快取被瀏覽器清除或不允許儲存時仍可使用，但下次可能重新下載。這不是完整離線 PWA，網頁及 runtime 仍需可載入。
 
