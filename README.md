@@ -85,11 +85,13 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 ## GitHub Pages 靜態部署
 
-儲存庫已包含手動觸發的 [GitHub Actions 工作流程](.github/workflows/pages.yml)，會安裝依賴、匯出兩個 ONNX 模型、執行工作流程內的檢查，再建置與部署 `dist/`。
+儲存庫已包含 [GitHub Actions 工作流程](.github/workflows/pages.yml)，每次推送到 `main` 都會自動安裝依賴、匯出兩個 ONNX 模型、執行工作流程內的檢查，再建置與部署 `dist/`。也保留手動觸發，供重新部署使用。
 
 1. 在儲存庫 **Settings → Pages** 將來源設為 **GitHub Actions**。
-2. 到 **Actions** 選擇 `Build and deploy browser ONNX app`，執行 **Run workflow**。
+2. 推送變更到 `main`；若要手動重部署，到 **Actions** 選擇 `Build and deploy browser ONNX app`，執行 **Run workflow**。
 3. 部署完成後使用工作流程顯示的 Pages 網址。
+
+儲存庫必須具備 GitHub Pages 使用資格。若啟用時回報 `Your current plan does not support GitHub Pages for this repository`，需使用公開儲存庫，或先升級至支援私人儲存庫 Pages 的方案；僅加入工作流程不會解除此限制。建置與部署為不同工作，只有建置成功才會進入部署。
 
 若從 Pages 網站使用 Local Python，仍須在使用者電腦上啟動服務，並明確允許網站來源。先停止既有服務，再執行：
 
