@@ -26,7 +26,7 @@ function updateEngineCopy() {
 updateEngineCopy();
 const input = $('audio-file');
 const audio = $('audio-player');
-const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac']);
+const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac', 'mp4', 'mov']);
 let busy = false;
 let objectUrl = null;
 let downloadUrl = null;
@@ -152,7 +152,7 @@ function selectFiles(files) {
 async function prepareFile(file) {
   const extension = file.name.split('.').pop().toLowerCase();
   if (!accepted.has(extension)) {
-    errorMessage('不支援這個格式，請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF 或 AAC。');
+    errorMessage('不支援這個格式，請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC、MP4 或 MOV。');
     input.value = '';
     return;
   }

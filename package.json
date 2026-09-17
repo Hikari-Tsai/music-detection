@@ -12,7 +12,8 @@
     "test:range-browser": "node scripts/test_range_browser.mjs",
     "test:engines-browser": "node scripts/test_engines_browser.mjs",
     "format": "prettier --write \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\"",
-    "format:check": "prettier --check \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\""
+    "format:check": "prettier --check \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\"",
+    "test:video-browser": "node scripts/test_video_browser.mjs"
   },
   "keywords": [],
   "author": "",

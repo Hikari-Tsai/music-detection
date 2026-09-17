@@ -171,3 +171,5 @@ footer > span { margin-right: auto; }
 .export-error-card a { font-size: 11px; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .accuracy-note .export-error-scope { font-size: 11px; color: #a4b29b; }
 @media(max-width:760px) { .export-error-grid { grid-template-columns: 1fr; gap: 12px; } }
+
+.formats { max-width: 100%; padding: 0 16px; text-align: center; line-height: 1.8; }

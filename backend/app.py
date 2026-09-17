@@ -43,7 +43,7 @@ async def analyze(file: UploadFile, start_seconds: float | None = Form(None), en
     extension = Path(filename).suffix.lower()
     try:
         if extension not in EXTENSIONS:
-            raise HTTPException(415, "請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF 或 AAC 音訊。")
+            raise HTTPException(415, "請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC、MP4 或 MOV 檔案。")
         with tempfile.TemporaryDirectory(prefix="tempo-") as folder:
             source = Path(folder) / ("input" + extension)
             size = 0

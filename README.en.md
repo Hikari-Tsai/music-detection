@@ -18,7 +18,9 @@ Drop in audio to analyze the whole track automatically, or select a range to det
 - **Two analysis engines:** Browser ONNX and Local Python share the same file drop, playback, results and download interface.
 - **Three UI languages:** English, Japanese and Traditional Chinese share one HTML file. The browser language selects the initial language, with English as the fallback. Manual choices take priority and are saved.
 
-Supported formats: WAV, MP3, FLAC, M4A, OGG, AIFF and AAC. Files are limited to 100 MiB and 20 minutes. Actual browser decoding support and usable audio length depend on the device and available memory. S-KEY requires at least 3 seconds of audio.
+Supported formats: WAV, MP3, FLAC, M4A, OGG, AIFF, AAC, MP4 and MOV. Files are limited to 100 MiB and 20 minutes. Actual browser decoding support and usable audio length depend on the device and available memory. S-KEY requires at least 3 seconds of audio.
+
+MP4/MOV support analyzes the video's audio track, not its images. MP4 and MOV with AAC audio, and MOV with PCM audio, have been tested in local Chrome. Browser support depends on the audio codec inside the container; an accepted extension does not guarantee decoding. If decoding fails, explicitly switch to Local Python to extract audio with FFmpeg, or export WAV/MP3 first. Videos without an audio track cannot be analyzed. Local Python uses the first audio track; there is no multi-track selector. Video files also count toward the 100 MiB file limit, and audio is limited to 20 minutes.
 
 ## System architecture
 
@@ -362,6 +364,9 @@ npm run test:engines-browser
 
 # Range selection, playback, ONNX/Python clip analysis and MIDI
 npm run test:range-browser
+
+# MP4/MOV audio tracks, range analysis and missing-audio errors (also requires FFmpeg)
+npm run test:video-browser
 ```
 
 Tests cover constant/average/variable tempo classification, Python/JavaScript spectrogram and beat comparisons, S-KEY score parity, MIDI encoding, model caching, source fallback, timeouts, corrupt files, download expiry, translations and error recovery. Set `TEST_URL` to override the browser test URL. Append `?engine=wasm` to force the browser CPU path.

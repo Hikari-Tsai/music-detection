@@ -18,7 +18,9 @@
 - **兩種分析引擎**：Browser ONNX 與 Local Python 共用檔案拖放、播放、結果與下載介面。
 - **三語介面**：英文、日文、繁體中文共用同一份 HTML，由前端切換；依瀏覽器語言自動選擇，其餘語言使用英文，手動選擇優先並儲存。
 
-支援 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC，單檔上限 100 MiB、20 分鐘。瀏覽器實際可解碼的格式與可處理的長度，仍取決於裝置和記憶體；S-KEY 至少需要 3 秒音訊。
+支援 WAV、MP3、FLAC、M4A、OGG、AIFF、AAC、MP4、MOV，單檔上限 100 MiB、20 分鐘。瀏覽器實際可解碼的格式與可處理的長度，仍取決於裝置和記憶體；S-KEY 至少需要 3 秒音訊。
+
+MP4／MOV 僅分析影片內的音軌，不分析影像。含 AAC 音軌的 MP4／MOV，以及含 PCM 音軌的 MOV，均已在本機 Chrome 測試；瀏覽器支援仍取決於內部音訊編碼，副檔名不保證可解碼。無法解碼時，可明確切換至 Local Python 以 FFmpeg 擷取音訊，或先匯出 WAV／MP3；影片若沒有音軌，則無法分析。Local Python 使用第一條音軌，目前不提供多音軌選擇。影片同樣計入 100 MiB 檔案限制，音訊長度最多 20 分鐘。
 
 ## 系統架構
 
@@ -362,6 +364,9 @@ npm run test:engines-browser
 
 # 選取範圍、試聽、ONNX／Python 片段分析與 MIDI
 npm run test:range-browser
+
+# MP4／MOV 音軌、範圍分析與無音軌錯誤（另需 FFmpeg）
+npm run test:video-browser
 ```
 
 測試包含固定／平均／變速判定、Python 與 JavaScript 頻譜及拍點比較、S-KEY 分數一致性、MIDI 編碼、模型快取、來源切換、逾時與檔案損壞、下載到期、三語介面與錯誤復原。`TEST_URL` 可指定瀏覽器測試網址；網址附加 `?engine=wasm` 可強制瀏覽器使用 CPU。
