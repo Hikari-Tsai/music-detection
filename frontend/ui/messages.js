@@ -50,10 +50,10 @@ export const messages = {
     'zh-Hant': '請選擇至少 1 秒且不超出音訊的有效範圍。'
   },
   rangeHelp: {
-    en: 'Adjust the sliders or enter seconds, then press Analyze. Playback previews this range. Minimum 1 second; key detection needs 3 seconds. Your original file is unchanged.',
-    ja: 'スライダーまたは秒数で範囲を指定し、解析を押してください。再生も選択範囲のみです。最低1秒、調の推定には3秒必要です。元のファイルは変更されません。',
+    en: 'Drag either handle on the range bar or enter seconds, then press Analyze. Playback previews this range. Minimum 1 second; key detection needs 3 seconds. Your original file is unchanged.',
+    ja: '1本のバーの両端をドラッグするか、秒数で範囲を指定して解析を押してください。再生も選択範囲のみです。最低1秒、調の推定には3秒必要です。元のファイルは変更されません。',
     'zh-Hant':
-      '拖動滑桿或輸入秒數後按下分析；播放按鈕僅試聽這段。範圍至少 1 秒，調性分析需 3 秒。原始檔案不會被修改。'
+      '拖動同一條滑桿上的起點、終點把手，或輸入秒數後按下分析；播放按鈕僅試聽這段。範圍至少 1 秒，調性分析需 3 秒。原始檔案不會被修改。'
   },
   rangeReady: { en: 'Ready to analyze', ja: '解析の準備完了', 'zh-Hant': '可開始分析' },
   rangeReading: {

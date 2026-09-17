@@ -21,6 +21,10 @@ export function createRangeEditor(onChange) {
       $(`clip-${edge}`).max = duration;
       $(`clip-${edge}-slider`).value = Number.isFinite(value) ? value : 0;
     }
+    const percent = (value) =>
+      duration && Number.isFinite(value) ? Math.min(100, Math.max(0, (value / duration) * 100)) : 0;
+    $('range-bar').style.setProperty('--range-start', `${percent(start)}%`);
+    $('range-bar').style.setProperty('--range-end', `${percent(end)}%`);
     $('range-fields').disabled = busy || !duration;
     $('reset-range').disabled = busy || !duration || full();
     setText(
@@ -53,7 +57,17 @@ export function createRangeEditor(onChange) {
   for (const edge of ['start', 'end']) {
     for (const suffix of ['', '-slider']) {
       $(`clip-${edge}${suffix}`).addEventListener('input', (event) => {
-        const value = event.target.value === '' ? NaN : Number(event.target.value);
+        let value = event.target.value === '' ? NaN : Number(event.target.value);
+        // Keep a one-second minimum while dragging; numeric inputs still allow
+        // intermediate invalid values so either endpoint can be edited freely.
+        if (suffix) {
+          const limit =
+            edge === 'start'
+              ? Math.max(0, (Number.isFinite(end) ? end : duration) - 1)
+              : Math.min(duration, (Number.isFinite(start) ? start : 0) + 1);
+          value = edge === 'start' ? Math.min(value, limit) : Math.max(value, limit);
+          value = Math.min(duration, Math.max(0, Math.round(value * 1000) / 1000));
+        }
         if (edge === 'start') start = value;
         else end = value;
         if (suffix) $(`clip-${edge}`).value = value;

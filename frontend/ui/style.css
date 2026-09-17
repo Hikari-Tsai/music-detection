@@ -120,9 +120,24 @@ footer > span { margin-right: auto; }
 .range-heading button { color: var(--accent); background: transparent; font-size: 11px; padding: 8px 0 8px 8px; }
 .range-heading button:disabled { opacity: .4; }
 .range-editor fieldset { margin: 14px 0 0; padding: 0; border: 0; min-width: 0; }
-.range-row { display: grid; grid-template-columns: 100px minmax(0,1fr) 88px; align-items: center; gap: 10px; margin-top: 10px; }
+.range-times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.range-row { display: grid; grid-template-columns: minmax(0,1fr) 88px; align-items: center; gap: 10px; }
 .range-row label { color: var(--muted); font-size: 11px; line-height: 1.5; }
-.range-row input[type=range] { width: 100%; min-width: 0; accent-color: var(--accent); height: 32px; }
+/* Both native, keyboard-accessible handles share one visible track. */
+.range-bar { position: relative; height: 44px; margin: 0 0 12px; --range-start: 0%; --range-end: 100%; }
+.range-track { position: absolute; top: 19px; height: 6px; left: 10px; right: 10px; background: #343e41; border-radius: 3px; overflow: hidden; }
+.range-fill { position: absolute; top: 0; bottom: 0; left: var(--range-start); right: calc(100% - var(--range-end)); background: var(--accent); }
+.range-bar input[type=range] { appearance: none; -webkit-appearance: none; position: absolute; inset: 0; width: 100%; height: 44px; margin: 0; padding: 0; background: transparent; pointer-events: none; }
+.range-bar input[type=range]::-webkit-slider-runnable-track { height: 6px; background: transparent; }
+.range-bar input[type=range]::-moz-range-track { height: 6px; background: transparent; }
+.range-bar input[type=range]::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; margin-top: -7px; border: 2px solid #101518; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px #8cb35e; cursor: ew-resize; pointer-events: auto; }
+.range-bar input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: 2px solid #101518; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px #8cb35e; cursor: ew-resize; pointer-events: auto; }
+.range-bar input[type=range]:focus-visible { outline: none; z-index: 2; }
+.range-bar input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--text); outline-offset: 3px; }
+.range-bar input[type=range]:focus-visible::-moz-range-thumb { outline: 2px solid var(--text); outline-offset: 3px; }
+.range-editor fieldset:disabled .range-bar { opacity: .4; }
+.range-editor fieldset:disabled .range-bar input::-webkit-slider-thumb { pointer-events: none; }
+.range-editor fieldset:disabled .range-bar input::-moz-range-thumb { pointer-events: none; }
 .range-row input[type=number] { width: 100%; min-width: 0; padding: 9px 6px; border: 1px solid var(--line); border-radius: 6px; background: #101518; color: var(--text); font: 12px var(--mono); }
 .range-row input:disabled { opacity: .4; }
 .range-summary { font: 11px/1.8 var(--mono); color: var(--accent); overflow-wrap: anywhere; margin: 15px 0 8px; }
@@ -131,7 +146,7 @@ footer > span { margin-right: auto; }
 .analyze-range { margin-top: 12px; width: 100%; justify-content: center; }
 .analyze-range:disabled { opacity: .45; }
 .workspace { align-items: start; }
-@media(max-width:760px) { .range-row { grid-template-columns: 75px minmax(0,1fr) 82px; gap: 7px; } }
+@media(max-width:760px) { .range-times { gap: 14px; } .range-row { grid-template-columns: minmax(0,1fr); gap: 7px; } }
 
 .report-issue { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin-top: 30px; padding: 24px; border: 1px solid var(--line); border-radius: 10px; background: #151a1c; }
 .report-issue h2 { margin: 0 0 9px; font-size: 18px; font-weight: 500; }
