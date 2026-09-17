@@ -4,7 +4,7 @@
 
 拖入音訊，即可分析 BPM、拍號與全曲調性，並下載可匯入音樂製作軟體的 MIDI Tempo 檔案。預設直接在瀏覽器執行 ONNX 模型，也能在同一頁切換至本機 Python 服務。
 
-[架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
+[線上使用](https://hikari-tsai.github.io/music-detection/) · [GitHub 儲存庫](https://github.com/Hikari-Tsai/music-detection) · [架構圖原圖](docs/diagrams/key-tempo-system.webp) · [互動架構圖原始檔](docs/diagrams/key-tempo-architecture.html) · [MIT 授權](LICENSE)
 
 ## 功能
 
@@ -26,19 +26,50 @@
 
 瀏覽器模式的 Beat This! 優先使用 WebGPU，必要時退回 WASM CPU；S-KEY 使用 WASM CPU。模型載入會驗證 SHA-256，並在可用時使用瀏覽器快取。首次載入需要下載模型及執行引擎；純靜態部署不需要持續運行 Python 或 Node.js。
 
-兩個 ONNX 模型優先從 Hugging Face 的固定版本下載：[Beat This!](https://huggingface.co/aaatmy/beat-this-onnx)、[S-KEY](https://huggingface.co/aaatmy/skey-onnx)。只有來源連線失敗、連續 30 秒未收到資料、設定格式錯誤或模型驗證失敗時，才改從同一網站的 `models/` 下載（正式網站為 GitHub Pages，本機預覽為本機伺服器）。切換會重新取得該來源的 manifest、前處理設定與模型，避免混用不同匯出版本。
-
-下載進度會依目前語言顯示來源、百分比、驗證狀態；切換後也會保留失敗原因與備援來源。通過驗證的模型會依 SHA-256 快取，下次可略過模型檔下載；仍需取得設定檔，因此不保證完全離線使用。若兩個來源都失敗，可重新選檔重試；S-KEY 失敗仍可取得 BPM 與 Tempo MIDI。
-
 Python 服務固定使用 `http://127.0.0.1:8765`，目前以 CPU 執行模型。MIDI 暫存在服務記憶體中，最多保留一小時、100 筆；服務停止或重新啟動後，原下載即失效。
 
 切換引擎會重新分析已選取的檔案，分析與下載期間會鎖住切換控制。ONNX 失敗不會自動上傳音訊給 Python；每次重新整理仍預設 Browser ONNX。
 
+## 模型下載、備援與快取
+
+瀏覽器 ONNX 模式優先從 Hugging Face 下載兩個模型，只有該來源失敗才切換到網站提供的備援模型。音訊仍留在使用者裝置，Hugging Face 僅提供模型與設定檔。
+
+| 模型 | 用途 | ONNX 檔案大小 | 主要來源 | 正式網站備援路徑 |
+| --- | --- | --- | --- | --- |
+| Beat This! `final0` | 拍點、小節首拍 | 約 82.1 MB | [aaatmy/beat-this-onnx](https://huggingface.co/aaatmy/beat-this-onnx) | `models/beat-this-final0.onnx` |
+| S-KEY | 全曲大調／小調 | 約 0.325 MB | [aaatmy/skey-onnx](https://huggingface.co/aaatmy/skey-onnx) | `models/skey/skey.onnx` |
+
+下載網址固定至 Hugging Face 的特定 revision，由 [model-sources.js](frontend/inference/model-sources.js) 管理。正式網站的備援來源為 GitHub Pages；本機預覽則使用本機伺服器，進度顯示 `Local server`。ONNX Runtime 的 JavaScript／WASM 檔案仍由網站提供，首次載入的總流量會大於上表中的模型大小。Python 模式維持原有的 PyTorch 權重下載流程。
+
+### 下載進度與失敗處理
+
+- 依目前選擇的英文、日文或繁體中文，顯示來源、下載百分比及模型驗證狀態。
+- 連線失敗、HTTP 錯誤、設定格式錯誤、檔案大小或 SHA-256 不符時，切換至備援來源，並在後續下載進度中保留切換原因。
+- 等待回應或下一段資料超過 **30 秒** 時視為逾時；這不是整個檔案的下載期限，持續收到資料的慢速下載會繼續。
+- 切換時重新取得備援來源的 manifest、必要前處理設定與模型。不同平台匯出的 ONNX 雜湊可能不同，不能混用兩個來源的檔案。
+- 兩個來源都失敗時會提示檢查網路並重新選檔。S-KEY 載入失敗仍保留已完成的 BPM 分析與 Tempo MIDI。
+
+例如：`Hugging Face 無法使用，改從 GitHub Pages 載入。原因：伺服器回應錯誤 · GitHub Pages: 首次下載模型 42%`。
+
+### 快取與再次使用
+
+模型通過驗證後會嘗試存入瀏覽器 Cache Storage，依 SHA-256 區分版本。再次使用時，符合目前版本的有效快取可略過模型檔下載；快取無法使用或被清除時會重新下載。設定檔、網頁及 runtime 仍需可載入，因此不保證完全離線使用。
+
+來源版本、更新模型的方式與技術細節見 [瀏覽器 ONNX 文件](docs/browser.md)。
+
 ## 快速開始
+
+### 直接使用線上版
+
+1. 開啟 [Key & Tempo](https://hikari-tsai.github.io/music-detection/)，維持預設的 **Browser ONNX**。
+2. 拖入音訊，等待模型下載與自動分析。
+3. 查看 BPM、拍號與調性，按下下載按鈕取得固定或變速的 MIDI Tempo 檔案。
+
+線上版不需要安裝 Python 或 Node.js。只有開發、自行建置或使用 Local Python 引擎時，才需要下列環境。
 
 以下終端機指令皆在**專案根目錄**執行。macOS 可在終端機輸入 `cd `（含空格），拖入專案資料夾，再按 Enter。首次安裝與匯出需要網路連線下載依賴及模型權重。
 
-### 瀏覽器 ONNX 版
+### 自行建置瀏覽器 ONNX 版
 
 從原始碼首次建置，需要 Node.js 22、Python 3.12、uv 與 Git。Python 用於匯出模型；建置完成後，使用網頁的人不必安裝 Python。
 
@@ -87,15 +118,24 @@ uv pip install --python .venv/bin/python -r requirements.txt
 | 找不到 FFmpeg | 執行 `brew install ffmpeg`，再以 `ffmpeg -version` 確認 |
 | `Address already in use` | 8765 已被使用；若是既有服務可直接使用，或在原終端機停止後重啟 |
 
-## GitHub Pages 靜態部署
+## 分支與 GitHub Pages 部署
+
+| 分支 | 用途 | 推送後的行為 |
+| --- | --- | --- |
+| [`main`](https://github.com/Hikari-Tsai/music-detection/tree/main) | 正式網站版本 | 自動建置並部署 GitHub Pages |
+| [`staging`](https://github.com/Hikari-Tsai/music-detection/tree/staging) | 整理與驗證待發布變更 | 不觸發 Pages 自動部署，目前沒有獨立預覽網址 |
+
+`staging` 的變更經確認後，可透過 PR 合併至 `main` 發布。正式網址為 [https://hikari-tsai.github.io/music-detection/](https://hikari-tsai.github.io/music-detection/)。
+
+### 自動與手動部署
 
 儲存庫已包含 [GitHub Actions 工作流程](.github/workflows/pages.yml)，每次推送到 `main` 都會自動安裝依賴、匯出兩個 ONNX 模型、執行工作流程內的檢查，再建置與部署 `dist/`。也保留手動觸發，供重新部署使用。
 
 1. 在儲存庫 **Settings → Pages** 將來源設為 **GitHub Actions**。
-2. 推送變更到 `main`；若要手動重部署，到 **Actions** 選擇 `Build and deploy browser ONNX app`，執行 **Run workflow**。
+2. 推送變更到 `main`；若要手動重部署，到 **Actions** 選擇 `Build and deploy browser ONNX app`，選擇 `main` 後執行 **Run workflow**。
 3. 部署完成後使用工作流程顯示的 Pages 網址。
 
-儲存庫必須具備 GitHub Pages 使用資格。若啟用時回報 `Your current plan does not support GitHub Pages for this repository`，需使用公開儲存庫，或先升級至支援私人儲存庫 Pages 的方案；僅加入工作流程不會解除此限制。建置與部署為不同工作，只有建置成功才會進入部署。
+本儲存庫已公開並啟用 GitHub Pages。建置與部署為不同工作，只有建置成功才會進入部署。手動觸發若選擇其他分支，仍會部署至同一個正式 Pages 網站，並不會建立該分支的獨立預覽站。
 
 若從 Pages 網站使用 Local Python，仍須在使用者電腦上啟動服務，並明確允許網站來源。先停止既有服務，再執行：
 
@@ -220,9 +260,21 @@ npm run test:skey-browser
 npm run test:engines-browser
 ```
 
-測試包含固定／平均／變速判定、Python 與 JavaScript 頻譜及拍點比較、S-KEY 分數一致性、MIDI 編碼、模型快取、下載到期、三語介面與錯誤復原。`TEST_URL` 可指定瀏覽器測試網址；網址附加 `?engine=wasm` 可強制瀏覽器使用 CPU。
+測試包含固定／平均／變速判定、Python 與 JavaScript 頻譜及拍點比較、S-KEY 分數一致性、MIDI 編碼、模型快取、來源切換、逾時與檔案損壞、下載到期、三語介面與錯誤復原。`TEST_URL` 可指定瀏覽器測試網址；網址附加 `?engine=wasm` 可強制瀏覽器使用 CPU。
 
-目前已在本機 Chrome 驗證。手機尺寸測試僅代表排版，Safari、Firefox、實體手機與線上 GitHub Pages 仍待驗證。模型可能判成半速／倍速，漏拍與抖動也會反映在速度圖中；固定或變速是依模型拍點及容差推算，並非原始樂曲的人工標註。每個拍點按四分音符解讀，拍號無法可靠判定時不強行填入。
+目前驗證範圍（2026-09-17）：
+
+| 情境 | 結果 |
+| --- | --- |
+| 本機 Chrome，WebGPU／WASM | 固定與變速分析、MIDI 下載、三語切換及錯誤復原通過 |
+| 本機模擬 Hugging Face 故障 | 兩個模型從本機備援完整下載並分析成功；雙來源失敗訊息及重新選檔重試通過 |
+| 正式 GitHub Pages，Hugging Face 正常 | 兩個模型實際下載、BPM／調性分析、MIDI 產生及重新整理後的快取使用通過 |
+| 正式 GitHub Pages，S-KEY 主要來源故障 | GitHub Pages 備援模型下載、驗證及調性分析通過 |
+| 正式 GitHub Pages，Beat This! 主要來源故障 | 來源切換與三語進度顯示正確；完整下載超過該次 120 秒測試等待上限，尚未完成此情境的線上端到端驗證 |
+
+上述 120 秒是瀏覽器測試的等待上限，與程式的 30 秒「無資料傳輸」逾時不同。手機尺寸測試僅代表排版，Safari、Firefox 與實體手機仍待驗證。
+
+模型可能判成半速／倍速，漏拍與抖動也會反映在速度圖中；固定或變速是依模型拍點及容差推算，並非原始樂曲的人工標註。每個拍點按四分音符解讀，拍號無法可靠判定時不強行填入。
 
 S-KEY 提供單一全曲大調／小調估計，不定位轉調或辨識和弦；其分數不是經校準的準確率。移植一致性測試驗證的是實作結果相近，不代表模型對所有音樂都能正確辨識。
 
