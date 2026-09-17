@@ -406,49 +406,12 @@ Thank you to the researchers and open-source maintainers whose models, tools and
 3. **nnAudio** — K. W. Cheuk et al., *nnAudio: An on-the-Fly GPU Audio to Spectrogram Conversion Toolbox Using 1D Convolutional Neural Networks*, IEEE Access, 2020. [DOI](https://doi.org/10.1109/ACCESS.2020.3019084) · [Official code](https://github.com/KinWaiCheuk/nnAudio). Used for S-KEY spectrogram preprocessing.
 4. **ConvNeXt** — Zhuang Liu et al., *A ConvNet for the 2020s*, CVPR 2022. [Paper](https://arxiv.org/abs/2201.03545) · [Official code](https://github.com/facebookresearch/ConvNeXt). S-KEY's ConvNeXt implementation credits Meta FAIR; this project retains the corresponding license.
 
-### Upstream README citation and attribution requirements
+### Acknowledgements
 
-Both upstream READMEs were checked on 2026-09-17 and compared with this project's pinned versions; their citation and license sections matched. Beat This! provides a **Citation** entry. S-KEY explicitly asks research users to cite its paper in the **Reference** section. The BibTeX below preserves the upstream fields and citation keys, with only whitespace reformatted.
+This project uses code and model resources from the following two repositories. Thank you to their authors and maintainers for sharing their work:
 
-#### Official Beat This! citation
-
-Source: [Citation in the upstream README](https://github.com/CPJKU/beat_this/blob/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c/README.md#citation).
-
-```bibtex
-@inproceedings{foscarin2024beatthis,
-    author = {Francesco Foscarin and Jan Schl{\"u}ter and Gerhard Widmer},
-    title = {Beat this! Accurate beat tracking without {DBN} postprocessing},
-    year = 2024,
-    month = nov,
-    booktitle = {Proceedings of the 25th International Society for Music Information Retrieval Conference (ISMIR)},
-    address = {San Francisco, CA, United States},
-}
-```
-
-#### Official S-KEY citation
-
-Source: [Reference in the upstream README](https://github.com/deezer/skey/blob/918b83d273568d5041569bb8068843d19a335726/README.md#-reference).
-
-```bibtex
-@INPROCEEDINGS{kongskey2025,
-  author={Kong, Yuexuan and Meseguer-Brocal, Gabriel and Lostanlen, Vincent and Lagrange, Mathieu and Hennequin, Romain},
-  booktitle={ICASSP 2025 - 2025 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
-  title={S-KEY: Self-supervised Learning of Major and Minor Keys from Audio},
-  year={2025},
-  pages={1-5},
-  doi={10.1109/ICASSP49660.2025.10890222}}
-```
-
-#### Retained copyright notices and licenses
-
-| Upstream project | Original copyright notice | Upstream license statement and retained copy |
-| --- | --- | --- |
-| Beat This! | Copyright (c) 2024 Institute of Computational Perception, JKU Linz, Austria | The [upstream README](https://github.com/CPJKU/beat_this/blob/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c/README.md#license) explicitly licenses the code and released model weights under MIT; the complete notice is retained in [Beat-This-LICENSE](third_party/Beat-This-LICENSE) |
-| S-KEY | Copyright (c) 2019-present, Deezer SA. | The [upstream README](https://github.com/deezer/skey/blob/918b83d273568d5041569bb8068843d19a335726/README.md#-license) explicitly identifies the code as MIT, but that section does not separately specify the weight license; complete notices are retained in [S-KEY-LICENSE](third_party/S-KEY-LICENSE) and the [model source LICENSE](backend/models/skey/LICENSE) |
-
-Both MIT licenses require retaining the original copyright and permission notices in copies or substantial portions of the software. The table and paper citations do not replace the complete licenses. Static builds include upstream licenses under `dist/licenses/`. This project's MIT License does not replace upstream copyright notices.
-
-Neither of the checked READMEs specifies an additional mandatory badge, logo or fixed website attribution text. Beat This! also notes that some training audio has separate copyright or restricted Creative Commons terms. MIT licensing of code and weights does not make the training data MIT-licensed.
+- [CPJKU/beat_this](https://github.com/CPJKU/beat_this): beat and downbeat detection.
+- [deezer/skey](https://github.com/deezer/skey): musical key detection.
 
 ### Packages and tools
 
