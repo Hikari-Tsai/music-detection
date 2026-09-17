@@ -219,6 +219,8 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 工作流程以同一個 concurrency group 排程，避免兩次部署互相覆蓋。執行中的工作不會因後續推送而取消；等候中的工作可能被更新的推送取代，下一次執行會重新取得兩個分支的最新 commit。兩個分支都須保留此雙版本部署工作流程，避免舊的單版本工作流程重新覆蓋整站。
 
+分享預覽使用 [`frontend/ui/og-image.jpg`](frontend/ui/og-image.jpg)（1200 × 630），並在 HTML 中提供 Open Graph 與 X／Twitter 大圖卡片標籤，不需要執行 JavaScript。圖片與分享文案統一使用英文。Actions 依建置分支設定 `SITE_URL`，讓 main 與 staging 各自使用正確的頁面與圖片絕對網址；本機建置預設正式站網址，部署至其他網址時可透過 `SITE_URL` 環境變數覆寫。
+
 ### 設定與手動部署
 
 1. 在 **Settings → Pages** 將來源設為 **GitHub Actions**。
@@ -271,6 +273,7 @@ music-detection/
 ├── frontend/
 │   ├── ui/
 │   │   ├── index.html            # 兩種引擎共用的三語頁面
+│   │   ├── og-image.jpg          # 1200 × 630 社群分享縮圖
 │   │   ├── audio-source.js      # 瀏覽器解碼、完整波形與取樣裁切
 │   │   ├── range-editor.js      # 範圍滑桿、秒數與驗證
 │   │   ├── app.js                # 檔案、播放、分析狀態與 MIDI 下載

@@ -219,6 +219,8 @@ The two builds are assembled into one Pages artifact: `main` at the site root an
 
 A shared concurrency group prevents overlapping deployments from overwriting one another. A running workflow is not canceled by a later push. Pending runs can be replaced by newer pushes; the next run resolves both branches' latest commits again. Both branches must retain this dual-version workflow so an older single-version workflow cannot overwrite the whole site.
 
+The sharing preview uses [`frontend/ui/og-image.jpg`](frontend/ui/og-image.jpg) (1200 × 630), with Open Graph and X/Twitter large-image card tags in the HTML, requiring no JavaScript. The image and sharing copy use English. Actions sets `SITE_URL` for each build branch so main and staging have their own absolute page and image URLs. Local builds default to the production URL; override the `SITE_URL` environment variable when deploying elsewhere.
+
 ### Configuration and manual deployment
 
 1. Set **Settings → Pages → Source** to **GitHub Actions**.
@@ -271,6 +273,7 @@ music-detection/
 ├── frontend/
 │   ├── ui/
 │   │   ├── index.html            # Shared three-language page for both engines
+│   │   ├── og-image.jpg          # 1200 × 630 social sharing image
 │   │   ├── audio-source.js       # Browser decoding, full waveform and sample slicing
 │   │   ├── range-editor.js       # Range handles, time fields and validation
 │   │   ├── app.js                # Files, playback, analysis state and MIDI downloads

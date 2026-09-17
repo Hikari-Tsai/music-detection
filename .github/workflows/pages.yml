@@ -60,6 +60,8 @@ jobs:
           python -m pip install -r requirements-onnx.txt
           npm ci
       - name: Export and verify models, build static app
+        env:
+          SITE_URL: https://hikari-tsai.github.io/music-detection/${{ matrix.branch == 'staging' && 'staging/' || '' }}
         run: |
           python scripts/export_onnx.py
           python scripts/export_skey_onnx.py

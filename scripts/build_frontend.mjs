@@ -3,6 +3,11 @@ import { mkdir, cp, readFile, writeFile, access, readdir, rm } from 'node:fs/pro
 import path from 'node:path';
 const root = path.resolve(import.meta.dirname, '..');
 process.chdir(root);
+const defaultSiteUrl = 'https://hikari-tsai.github.io/music-detection/';
+const siteUrl = new URL(process.env.SITE_URL || defaultSiteUrl);
+if (!['https:', 'http:'].includes(siteUrl.protocol) || siteUrl.search || siteUrl.hash)
+  throw new Error('SITE_URL must be an HTTP(S) site URL without query or fragment.');
+if (!siteUrl.pathname.endsWith('/')) siteUrl.pathname += '/';
 await access('assets/onnx/manifest.json').catch(() => {
   throw new Error('Run .venv/bin/python scripts/export_onnx.py first.');
 });
@@ -19,7 +24,8 @@ if (!html.includes('data-runtime-base="/runtime/"'))
 html = html
   .replace('data-runtime-base="/runtime/"', 'data-runtime-base="./"')
   .replaceAll('/static/', './')
-  .replace('href="/"', 'href="./"');
+  .replace('href="/"', 'href="./"')
+  .replaceAll(defaultSiteUrl, siteUrl.href);
 await writeFile('dist/index.html', html);
 await writeFile('dist/.nojekyll', '');
 await cp('assets/onnx', 'dist/models', { recursive: true });
