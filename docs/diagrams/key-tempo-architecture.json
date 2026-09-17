@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Key & Tempo \u2014 System Architecture",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1390,
+      720
+    ]
+  },
+  "components": [
+    {
+      "id": "shared-ui",
+      "type": "frontend",
+      "label": "Shared Web UI",
+      "sublabel": "Audio / player / results",
+      "tag": "EN \u00b7 JA \u00b7 zh-Hant",
+      "pos": [
+        45,
+        250
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "static-files",
+      "type": "cloud",
+      "label": "Static hosting",
+      "sublabel": "dist/ \u00b7 Pages-ready",
+      "pos": [
+        375,
+        65
+      ],
+      "size": [
+        210,
+        74
+      ]
+    },
+    {
+      "id": "model-cache",
+      "type": "database",
+      "label": "Model loader + cache",
+      "sublabel": "SHA-256 / Cache Storage",
+      "pos": [
+        745,
+        65
+      ],
+      "size": [
+        230,
+        74
+      ]
+    },
+    {
+      "id": "browser-client",
+      "type": "frontend",
+      "label": "Browser audio client",
+      "sublabel": "Web Audio \u00b7 22,050 Hz mono",
+      "pos": [
+        375,
+        250
+      ],
+      "size": [
+        230,
+        78
+      ]
+    },
+    {
+      "id": "onnx-worker",
+      "type": "backend",
+      "label": "ONNX Web Worker",
+      "sublabel": "Beat This! + S-KEY",
+      "tag": "WebGPU / WASM",
+      "pos": [
+        745,
+        250
+      ],
+      "size": [
+        230,
+        78
+      ]
+    },
+    {
+      "id": "browser-output",
+      "type": "frontend",
+      "label": "Results + MIDI Blob",
+      "sublabel": "BPM / meter / global key",
+      "pos": [
+        1090,
+        250
+      ],
+      "size": [
+        235,
+        78
+      ]
+    },
+    {
+      "id": "local-api",
+      "type": "backend",
+      "label": "Local FastAPI",
+      "sublabel": "127.0.0.1:8765",
+      "pos": [
+        375,
+        555
+      ],
+      "size": [
+        230,
+        78
+      ]
+    },
+    {
+      "id": "native-analysis",
+      "type": "backend",
+      "label": "FFmpeg + PyTorch",
+      "sublabel": "Beat This! + S-KEY",
+      "tag": "Cached models / locks",
+      "pos": [
+        745,
+        555
+      ],
+      "size": [
+        230,
+        78
+      ]
+    },
+    {
+      "id": "local-download",
+      "type": "database",
+      "label": "MIDI download store",
+      "sublabel": "1 hour \u00b7 100 entries",
+      "pos": [
+        1090,
+        555
+      ],
+      "size": [
+        235,
+        78
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Browser mode \u00b7 audio stays on device",
+      "wraps": [
+        "browser-client",
+        "onnx-worker",
+        "browser-output"
+      ],
+      "pad": 25
+    },
+    {
+      "kind": "region",
+      "label": "Optional Python mode \u00b7 local service",
+      "wraps": [
+        "local-api",
+        "native-analysis",
+        "local-download"
+      ],
+      "pad": 25
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-to-browser",
+      "from": "shared-ui",
+      "to": "browser-client",
+      "label": "File",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pcm-to-worker",
+      "from": "browser-client",
+      "to": "onnx-worker",
+      "label": "Transfer PCM",
+      "variant": "emphasis"
+    },
+    {
+      "id": "worker-to-result",
+      "from": "onnx-worker",
+      "to": "browser-output",
+      "label": "Result + MIDI buffer",
+      "variant": "emphasis"
+    },
+    {
+      "id": "fetch-models",
+      "from": "static-files",
+      "to": "model-cache",
+      "label": "HTTP GET",
+      "variant": "dashed"
+    },
+    {
+      "id": "load-models",
+      "from": "model-cache",
+      "to": "onnx-worker",
+      "label": "Verified models",
+      "labelDy": 24
+    },
+    {
+      "id": "ui-to-python",
+      "from": "shared-ui",
+      "to": "local-api",
+      "label": "POST /api/analyze",
+      "variant": "dashed"
+    },
+    {
+      "id": "api-to-models",
+      "from": "local-api",
+      "to": "native-analysis",
+      "label": "analyze_file()"
+    },
+    {
+      "id": "native-midi-store",
+      "from": "native-analysis",
+      "to": "local-download",
+      "label": "MIDI bytes via API"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Browser inference",
+      "items": [
+        "Beat This!: WebGPU, with WASM fallback.",
+        "S-KEY: WASM CPU; no audio upload."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Local API contract",
+      "items": [
+        "POST returns JSON results + download URL.",
+        "GET /api/download/{token} returns MIDI."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Shared result semantics",
+      "items": [
+        "Constant, variable or average tempo; global key.",
+        "Key errors do not block tempo / MIDI output."
+      ]
+    }
+  ]
+}

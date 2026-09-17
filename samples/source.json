@@ -1,0 +1,9 @@
+{
+  "title": "Choice (drum+bass excerpt)",
+  "artist": "Admiral Bob feat. Snowflake",
+  "provider": "librosa example audio",
+  "audio_url": "https://librosa.org/data/audio/admiralbob77_-_Choice_-_Drum-bass.ogg",
+  "license_notice_url": "https://librosa.org/data/audio/admiralbob77_-_Choice_-_Drum-bass.txt",
+  "sha256": "ac644f9645e7c15174e4a4f8561e4d1448d7f6e59ff6b0556b310ebbced879bc",
+  "purpose": "Demonstrate model output; no verified beat/downbeat ground-truth annotations supplied."
+}

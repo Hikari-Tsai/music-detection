@@ -1,0 +1,366 @@
+import { setText } from './i18n.js';
+import { createEngine } from './engine.js';
+const $ = (id) => document.getElementById(id);
+function makeEngine(kind) {
+  return createEngine(kind, {
+    browserModuleURL: new URL(
+      'browser-client.js',
+      new URL(document.documentElement.dataset.runtimeBase, location.href)
+    ).href
+  });
+}
+let engine = makeEngine('browser');
+function updateEngineCopy() {
+  document.documentElement.dataset.engine = engine.kind;
+  $('engine-select').value = engine.kind;
+  $('python-startup').hidden = engine.kind !== 'python';
+  setText($('local-note-text'), engine.localNote);
+  setText($('privacy-note-text'), engine.privacyNote);
+  setText($('preview-note'), engine.previewNote);
+  setText('engine-description', {
+    key: engine.kind === 'browser' ? 'engineBrowserHelp' : 'enginePythonHelp'
+  });
+}
+updateEngineCopy();
+const input = $('audio-file');
+const audio = $('audio-player');
+const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac']);
+let busy = false;
+let objectUrl = null;
+let downloadUrl = null;
+let downloadName = null;
+let waveform = [];
+let elapsedTimer = null;
+let lastFile = null;
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return '0:00';
+  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+}
+
+function errorMessage(text) {
+  setText($('error-message'), text);
+  $('error-message').hidden = !text;
+}
+
+function status(text, state = '') {
+  setText($('result-status-text'), text);
+  $('result-panel').className = `result-panel ${state}`;
+}
+
+function resetResult() {
+  if (downloadUrl?.startsWith('blob:')) URL.revokeObjectURL(downloadUrl);
+  downloadUrl = null;
+  downloadName = null;
+  $('download-midi').disabled = true;
+  setText($('bpm-value'), '—');
+  $('bpm-value').classList.remove('has-value');
+  setText($('signature-value'), '—');
+  setText($('key-value'), '—');
+  setText($('key-description'), '全曲調性估計 · S-KEY');
+  $('signature-denominator').hidden = true;
+  setText($('tempo-label'), 'TEMPO');
+  setText($('download-label'), '下載 MIDI Tempo');
+  setText($('result-description'), '自動分析 BPM；偵測到變速時，顯示平均值並匯出變速 MIDI。');
+  setText($('midi-hint'), '僅含速度與拍號，不含音符');
+  status('等候音訊');
+}
+
+function setBusy(value) {
+  busy = value;
+  $('choose-file').disabled = value;
+  $('clear-file').disabled = value;
+  input.disabled = value;
+  $('engine-select').disabled = value;
+  $('result-panel').setAttribute('aria-busy', String(value));
+}
+
+function drawWaveform() {
+  const canvas = $('wave-canvas');
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width) return;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(ratio, ratio);
+  if (!waveform.length) return;
+  const count = Math.min(waveform.length, Math.floor(rect.width / 4));
+  const step = rect.width / count;
+  const progress =
+    Number.isFinite(audio.duration) && audio.duration > 0 ? audio.currentTime / audio.duration : 0;
+  for (let i = 0; i < count; i++) {
+    const start = Math.floor((i * waveform.length) / count);
+    const end = Math.max(start + 1, Math.floor(((i + 1) * waveform.length) / count));
+    const amplitude = Math.max(...waveform.slice(start, end));
+    const height = Math.max(2, amplitude * rect.height * 0.78);
+    ctx.fillStyle = i / count < progress ? '#c6f68a' : '#657c53';
+    ctx.fillRect(i * step, (rect.height - height) / 2, Math.max(1, step - 2), height);
+  }
+}
+
+function clearFile() {
+  if (busy) return;
+  audio.pause();
+  audio.removeAttribute('src');
+  audio.load();
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+  objectUrl = null;
+  lastFile = null;
+  input.value = '';
+  waveform = [];
+  $('dropzone').hidden = false;
+  $('selected-file').hidden = true;
+  $('analysis-status').hidden = true;
+  errorMessage('');
+  resetResult();
+  $('choose-file').focus();
+}
+
+function selectFiles(files) {
+  if (busy || !files.length) return;
+  if (files.length !== 1) {
+    errorMessage('請一次加入一個音訊檔案。');
+    return;
+  }
+  analyze(files[0]);
+}
+
+async function analyze(file) {
+  const extension = file.name.split('.').pop().toLowerCase();
+  if (!accepted.has(extension)) {
+    errorMessage('不支援這個格式，請選擇 WAV、MP3、FLAC、M4A、OGG、AIFF 或 AAC。');
+    input.value = '';
+    return;
+  }
+  if (file.size === 0 || file.size > 100 * 1024 * 1024) {
+    errorMessage(
+      file.size === 0 ? '檔案是空的，請重新選擇。' : '檔案超過 100 MB，請選擇較小的音訊。'
+    );
+    input.value = '';
+    return;
+  }
+  resetResult();
+  errorMessage('');
+  audio.pause();
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+  objectUrl = URL.createObjectURL(file);
+  audio.src = objectUrl;
+  lastFile = file;
+  waveform = [];
+  $('filename').textContent = file.name;
+  $('file-meta').textContent =
+    `${extension.toUpperCase()} / ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+  $('selected-file').hidden = false;
+  $('dropzone').hidden = true;
+  $('play-button').disabled = true;
+  $('seek').disabled = true;
+  $('seek').value = 0;
+  setText($('current-time'), '0:00');
+  setText($('total-time'), '0:00');
+  $('preview-note').hidden = true;
+  $('wave-placeholder').hidden = false;
+  setText($('wave-placeholder'), '正在辨識音訊與拍點');
+  $('analysis-status').hidden = false;
+  $('spinner').hidden = false;
+  setText($('status-message'), '正在分析節拍，請稍候');
+  setText($('elapsed'), { key: 'elapsed', args: { seconds: 0 } });
+  setText($('key-description'), '等候調性分析');
+  status('分析中', 'loading');
+  setBusy(true);
+  drawWaveform();
+  const started = performance.now();
+  elapsedTimer = setInterval(() => {
+    const seconds = Math.floor((performance.now() - started) / 1000);
+    setText($('elapsed'), { key: 'elapsed', args: { seconds } });
+    if (seconds >= 15 && engine.kind === 'python')
+      setText($('status-message'), '正在處理音訊或等待模型，請稍候');
+  }, 1000);
+  try {
+    const data = await engine.analyze(file, (text) => {
+      setText($('status-message'), text);
+    });
+    if (data.key_status === 'estimated' && data.key) {
+      setText($('key-value'), [data.key.tonic, ' ', { key: data.key.mode }]);
+      setText($('key-description'), '全曲調性估計 · S-KEY');
+    } else {
+      setText($('key-value'), '—');
+      setText(
+        'key-description',
+        data.key_reason === 'too_short'
+          ? '調性分析至少需要 3 秒音訊'
+          : data.key_reason === 'silent'
+            ? '音訊無有效訊號，無法估計調性'
+            : '調性分析未完成，可重新分析'
+      );
+    }
+    waveform = data.waveform;
+    $('wave-placeholder').hidden = true;
+    setText($('total-time'), formatTime(data.duration_seconds));
+    $('file-meta').textContent += ` / ${formatTime(data.duration_seconds)}`;
+    drawWaveform();
+    $('spinner').hidden = true;
+    setText($('status-message'), { key: 'analysisDone', args: { count: data.beat_count } });
+    setText($('elapsed'), { key: 'elapsed', args: { seconds: data.analysis_seconds.toFixed(2) } });
+    $('bpm-value').classList.add('has-value');
+    if (data.result === -1) {
+      setText($('bpm-value'), '-1');
+      setText($('signature-value'), '—');
+      status('拍點不足', 'nonconstant');
+      setText($('result-description'), '找不到足夠的有效拍點，無法計算平均 BPM。');
+      setText($('midi-hint'), '請提供較長或節拍較清楚的音訊');
+    } else {
+      setText($('bpm-value'), Number(data.result.bpm).toFixed(3));
+      const hasSignature = data.result.signature_beats != null;
+      setText($('signature-value'), hasSignature ? data.result.signature_beats : '—');
+      $('signature-denominator').hidden = !hasSignature;
+      if (data.tempo_mode === 'variable') {
+        status('偵測到變速', 'nonconstant');
+        setText($('tempo-label'), 'AVERAGE TEMPO');
+        setText($('download-label'), '下載變速 MIDI Tempo');
+        setText($('result-description'), [
+          '顯示整段平均 BPM；MIDI 依偵測拍點寫入速度變化。匯入時請與原音訊使用相同起點。',
+          hasSignature ? '' : '拍號未確定，僅匯出速度。'
+        ]);
+      } else if (data.tempo_mode === 'average') {
+        status('平均估計', 'nonconstant');
+        setText($('tempo-label'), 'AVERAGE TEMPO');
+        setText($('download-label'), '下載平均 MIDI Tempo');
+        setText($('result-description'), [
+          '資訊不足以確認固定或變速，先以整段拍點計算平均 BPM，MIDI 使用單一速度。',
+          hasSignature ? '' : '拍號未確定，僅匯出速度。'
+        ]);
+      } else {
+        status('固定速度', 'complete');
+        setText($('result-description'), '速度與每小節拍數一致。每拍按四分音符解讀。');
+      }
+      downloadUrl = data.download_url;
+      downloadName = file.name.replace(/\.[^.]+$/, '') + '_tempo.mid';
+      $('download-midi').disabled = false;
+      setText($('midi-hint'), [
+        hasSignature ? '僅含速度與拍號' : '僅含速度，不設定拍號',
+        engine.downloadHint(data)
+      ]);
+    }
+  } catch (error) {
+    setText($('key-description'), '調性分析未完成');
+    status('分析未完成');
+    $('analysis-status').hidden = true;
+    setText($('wave-placeholder'), '無法完成分析');
+    setText($('result-description'), '請移除檔案後重試，或拖入另一個音訊。');
+    errorMessage(engine.errorMessage(error));
+    if (
+      engine.kind === 'python' &&
+      (error instanceof TypeError ||
+        error.name === 'TimeoutError' ||
+        error.message === '無法連線到本機分析服務，請確認服務正在執行。')
+    )
+      $('python-startup').open = true;
+  } finally {
+    clearInterval(elapsedTimer);
+    setBusy(false);
+  }
+}
+
+$('choose-file').addEventListener('click', () => input.click());
+$('engine-select').addEventListener('change', () => {
+  if (busy) {
+    $('engine-select').value = engine.kind;
+    return;
+  }
+  engine = makeEngine($('engine-select').value);
+  updateEngineCopy();
+  if (lastFile) analyze(lastFile);
+  else {
+    errorMessage('');
+    resetResult();
+  }
+});
+input.addEventListener('change', () => selectFiles(input.files));
+$('clear-file').addEventListener('click', clearFile);
+let dragDepth = 0;
+document.addEventListener('dragover', (event) => {
+  event.preventDefault();
+  if (event.dataTransfer) event.dataTransfer.dropEffect = busy ? 'none' : 'copy';
+});
+$('dropzone').addEventListener('dragenter', (event) => {
+  event.preventDefault();
+  dragDepth++;
+  if (!busy) $('dropzone').classList.add('dragging');
+});
+$('dropzone').addEventListener('dragleave', () => {
+  if (--dragDepth <= 0) {
+    dragDepth = 0;
+    $('dropzone').classList.remove('dragging');
+  }
+});
+document.addEventListener('drop', (event) => {
+  event.preventDefault();
+  dragDepth = 0;
+  $('dropzone').classList.remove('dragging');
+  if (event.dataTransfer) selectFiles(event.dataTransfer.files);
+});
+
+audio.addEventListener('loadedmetadata', () => {
+  if (!Number.isFinite(audio.duration)) return;
+  setText($('total-time'), formatTime(audio.duration));
+  $('seek').disabled = false;
+  $('play-button').disabled = false;
+});
+audio.addEventListener('error', () => {
+  if (lastFile) $('preview-note').hidden = false;
+  $('play-button').disabled = true;
+  $('seek').disabled = true;
+});
+function syncPlayButton() {
+  setText('play-button', audio.paused ? '播放音訊' : '暫停音訊', 'aria-label');
+  $('play-button')
+    .querySelector('use')
+    .setAttribute('href', audio.paused ? '#i-play' : '#i-pause');
+}
+audio.addEventListener('play', syncPlayButton);
+audio.addEventListener('pause', syncPlayButton);
+audio.addEventListener('timeupdate', () => {
+  setText($('current-time'), formatTime(audio.currentTime));
+  $('seek').value = Number.isFinite(audio.duration)
+    ? Math.round((audio.currentTime / audio.duration) * 1000)
+    : 0;
+  drawWaveform();
+});
+$('play-button').addEventListener('click', async () => {
+  if (!audio.paused) return audio.pause();
+  try {
+    await audio.play();
+  } catch {
+    $('preview-note').hidden = false;
+  }
+});
+$('seek').addEventListener('input', () => {
+  if (Number.isFinite(audio.duration))
+    audio.currentTime = (Number($('seek').value) / 1000) * audio.duration;
+});
+new ResizeObserver(drawWaveform).observe($('waveform'));
+
+$('download-midi').addEventListener('click', async () => {
+  if (!downloadUrl) return;
+  setBusy(true);
+  $('download-midi').disabled = true;
+  errorMessage('');
+  try {
+    const response = await fetch(downloadUrl);
+    if (!response.ok) throw new Error('下載已失效，請重新分析音訊。');
+    const url = URL.createObjectURL(await response.blob());
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = downloadName;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    errorMessage(engine.errorMessage(error));
+  } finally {
+    $('download-midi').disabled = !downloadUrl;
+    setBusy(false);
+  }
+});

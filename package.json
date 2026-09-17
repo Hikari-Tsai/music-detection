@@ -1,0 +1,30 @@
+{
+  "name": "music-detection",
+  "version": "1.0.0",
+  "description": "Local browser beat and musical key detection with Beat This! and S-KEY ONNX.",
+  "scripts": {
+    "build": "node scripts/build_frontend.mjs",
+    "serve": "node scripts/serve_frontend.mjs",
+    "test": "node --test tests/js/*.test.js",
+    "test:python": ".venv/bin/python -m unittest discover -s tests/python -v",
+    "test:browser": "node scripts/test_browser.mjs",
+    "test:skey-browser": "node scripts/test_skey_browser.mjs",
+    "test:engines-browser": "node scripts/test_engines_browser.mjs",
+    "format": "prettier --write \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\"",
+    "format:check": "prettier --check \"frontend/**/*.js\" \"scripts/*.mjs\" \"tests/js/*.js\""
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "fft.js": "4.0.4",
+    "onnxruntime-web": "1.24.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "playwright": "1.58.2",
+    "prettier": "3.6.2"
+  },
+  "private": true,
+  "type": "module",
+  "license": "MIT"
+}

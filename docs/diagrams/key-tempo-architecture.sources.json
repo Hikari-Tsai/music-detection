@@ -1,0 +1,95 @@
+{
+  "basis": "Local working-tree source files; not a pinned Git revision",
+  "components": {
+    "shared-ui": [
+      {
+        "path": "frontend/ui/app.js",
+        "sha256": "061a98bbc46d0a30c4bfe888c828a60510401171aa9cc6a3b6349b8662b39203"
+      },
+      {
+        "path": "frontend/ui/engine.js",
+        "sha256": "6823628ea77459d9ebc4f338e6c6cd809368234646a8ff38bcd425dba258297b"
+      },
+      {
+        "path": "frontend/ui/i18n.js",
+        "sha256": "10dc19a3924299994793a11eb386a2849c1a8d256038b91e1f80a8de6ec63175"
+      }
+    ],
+    "static-files": [
+      {
+        "path": "scripts/build_frontend.mjs",
+        "sha256": "477f6d7f357cc9f9fc9787f9652b7f043e226b4d9d509770c19e8cb44b257177"
+      },
+      {
+        "path": ".github/workflows/pages.yml",
+        "sha256": "3653e424f33f0363e5efa7561612c3b1a8f440066f4e4761f66f2748d61acac4"
+      }
+    ],
+    "model-cache": [
+      {
+        "path": "frontend/inference/model-assets.js",
+        "sha256": "1587a0107482df3d584409074201d4b6199e6814f38a716aaa8d6d92fa484cfc"
+      }
+    ],
+    "browser-client": [
+      {
+        "path": "frontend/inference/client.js",
+        "sha256": "46bf4863409d672cd90e978abb7186b14deed0bc6145490fb85850753a84da88"
+      }
+    ],
+    "onnx-worker": [
+      {
+        "path": "frontend/inference/worker.js",
+        "sha256": "768b226540b69b9866da0509e3f9b28abce7f48e34402eb1d1774ceb26f79556"
+      },
+      {
+        "path": "frontend/inference/key-engine.js",
+        "sha256": "0a5b721b81870bba942084dbc4e604453ace806822770913d3975777aa00b888"
+      },
+      {
+        "path": "frontend/inference/tempo.js",
+        "sha256": "ba0523da492c809e0a952a86a0b94cec9bde38aed71db05f50c579186d99e664"
+      }
+    ],
+    "browser-output": [
+      {
+        "path": "frontend/inference/client.js",
+        "sha256": "46bf4863409d672cd90e978abb7186b14deed0bc6145490fb85850753a84da88"
+      },
+      {
+        "path": "frontend/ui/app.js",
+        "sha256": "061a98bbc46d0a30c4bfe888c828a60510401171aa9cc6a3b6349b8662b39203"
+      }
+    ],
+    "local-api": [
+      {
+        "path": "backend/app.py",
+        "sha256": "7831c415ba1cb61eeaf16ae6710c64aea78a96c5979d0cea85153f7411ec574d"
+      }
+    ],
+    "native-analysis": [
+      {
+        "path": "backend/analysis.py",
+        "sha256": "7c918f3f1703a45216a5c59a860e3e2d4f0801b264391e25bbeae03acd1c996c"
+      },
+      {
+        "path": "backend/key_analysis.py",
+        "sha256": "7d66286ade2ee0a25186a4c30373e64fdbf3e515269e08c9884a26f824e02b95"
+      },
+      {
+        "path": "backend/tempo.py",
+        "sha256": "9ddc90ee8858fb26594fd2eb2af04d88adcd759b986e815f7d50fde6211d8aae"
+      }
+    ],
+    "local-download": [
+      {
+        "path": "backend/downloads.py",
+        "sha256": "aa178ae2d8082dffae9b809bfd09e4debd672f722fb00699f77efa1623b6f26f"
+      },
+      {
+        "path": "backend/app.py",
+        "sha256": "7831c415ba1cb61eeaf16ae6710c64aea78a96c5979d0cea85153f7411ec574d"
+      }
+    ]
+  }
+}

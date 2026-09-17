@@ -1,0 +1,12 @@
+beat-this @ git+https://github.com/CPJKU/beat_this.git@b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c
+torch==2.8.0
+torchaudio==2.8.0
+numpy==2.5.3
+soundfile==0.14.0
+mido==1.3.3
+tqdm==4.70.1
+fastapi==0.141.1
+uvicorn==0.53.0
+python-multipart==0.0.32
+httpx==0.28.1
+nnAudio==0.3.3

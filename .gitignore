@@ -1,0 +1,10 @@
+.venv/
+vendor/
+.cache/
+__pycache__/
+node_modules/
+dist/
+assets/onnx/
+# Reproducible analysis output; keep samples and their attribution in source control.
+results/
+.DS_Store

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/hikaritsai/Documents/ChatGPT/music-detection/docs/diagrams/key-tempo-architecture.json",
+  "output": "/Users/hikaritsai/Documents/ChatGPT/music-detection/docs/diagrams/key-tempo-architecture.html",
+  "specification": {
+    "sha256": "409e0d9811554288055559e0f9b52a5030463a4244e8660263260fe328f6b99b",
+    "bytes": 4866
+  },
+  "artifact": {
+    "sha256": "03a258bb4379c3a0b589a2cc860d56be7c46a7be09180a633c51dfd77b637643",
+    "bytes": 811234
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}
