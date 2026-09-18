@@ -502,24 +502,24 @@ export const messages = {
     ja: 'テンポ · キー · 音高'
   },
   heroBeat: {
-    'zh-Hant': '聽見節奏。',
-    en: 'Hear the rhythm.',
-    ja: 'リズムを聴く。'
+    'zh-Hant': '那一段旋律，',
+    en: 'That melody.',
+    ja: 'あのメロディー'
   },
   heroNotes: {
-    'zh-Hant': '看見音高。',
-    en: 'See the notes.',
-    ja: '音高を見る。'
+    'zh-Hant': '還想再聽。',
+    en: 'One more time.',
+    ja: 'もう一度。'
   },
   heroIntro: {
-    en: 'Analyze BPM, key and estimated vocal range for a whole track or selected clip.',
-    ja: '曲全体や選んだ区間の BPM・キーを解析し、歌声の音域を推定。',
-    'zh-Hant': '分析 BPM、調性與估計歌聲音域，整首或片段都可以。'
+    en: 'A few beats back, a quiet hum.',
+    ja: 'あの一拍まで戻って、小さく口ずさむ。',
+    'zh-Hant': '倒回那一拍，跟著輕輕哼。'
   },
   heroNext: {
-    'zh-Hant': '試聽拍點與音符，將速度圖與偵測到的音符匯出成同一份 MIDI。',
-    en: 'Preview beats and notes. Export the tempo map and detected notes in one MIDI file.',
-    ja: '拍や音符を試聴し、テンポマップと検出した音符を1つの MIDI ファイルに。'
+    'zh-Hant': '分析整首或片段的 BPM、調性與估計音域，試聽拍點和音符，再匯出 MIDI。',
+    en: 'Find BPM, key and estimated vocal range in a track or clip. Preview beats and notes, then export them as MIDI.',
+    ja: '曲全体や好きな区間の BPM・キー・推定音域を確認。拍や音符を試聴して、MIDI に書き出せます。'
   },
   motionPauseAria: {
     'zh-Hant': '暫停 Banner 動畫',
