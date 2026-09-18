@@ -215,7 +215,8 @@ test('session lifecycle brackets both successful and rejected ONNX initializatio
       new Uint8Array(),
       { executionProviders: ['webgpu'] },
       'GAME / encoder',
-      (p) => events.push(p)
+      (p) => events.push(p),
+      async () => {}
     );
     if (fails) await assert.rejects(pending, /GPU rejected/);
     else assert.equal(await pending, session);
@@ -227,4 +228,31 @@ test('session lifecycle brackets both successful and rejected ONNX initializatio
       ]
     );
   }
+});
+
+test('runtime download finishes before the GPU watchdog starts, even after 60 seconds', async (t) => {
+  const { createTrackedSession } = await import('../../frontend/inference/session.js');
+  const { workers, analyze } = await setup(t);
+  const analysis = analyze();
+  const worker = workers[0];
+  worker.emit({ type: 'started' });
+  let finishDownload;
+  const downloaded = new Promise((resolve) => {
+    finishDownload = resolve;
+  });
+  const session = createTrackedSession(
+    { InferenceSession: { create: async () => ({}) } },
+    new Uint8Array(),
+    { executionProviders: ['webgpu'] },
+    'Beat This!',
+    (message) => worker.emit(message),
+    () => downloaded
+  );
+  t.mock.timers.tick(90000);
+  assert.equal(workers.length, 1, 'a slow runtime download must not trigger CPU fallback');
+  assert.equal(worker.terminated, undefined);
+  finishDownload();
+  await session;
+  result(worker);
+  await analysis;
 });

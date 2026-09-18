@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { HUGGING_FACE_MODELS } from '../frontend/inference/model-sources.js';
+import { DOWNLOAD_SOURCES } from '../frontend/inference/download-sources.js';
 const base = process.env.TEST_URL || 'http://127.0.0.1:8766/';
 const browser = await chromium.launch({
   channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome',
@@ -58,7 +58,7 @@ try {
   await context.route('**/models/skey/**', (route) =>
     route.fulfill({ status: 503, body: 'test unavailable' })
   );
-  await context.route(`${HUGGING_FACE_MODELS.key}**`, (route) =>
+  await context.route(`${DOWNLOAD_SOURCES.key.primaryBaseURL}**`, (route) =>
     route.fulfill({ status: 503, body: 'test unavailable' })
   );
   await failedPage.goto(base);
@@ -75,7 +75,7 @@ try {
   await (await downloadWait).saveAs('/tmp/skey-failed-but-tempo.mid');
   await failedPage.waitForFunction(() => !document.querySelector('#download-midi').disabled);
   await context.unroute('**/models/skey/**');
-  await context.unroute(`${HUGGING_FACE_MODELS.key}**`);
+  await context.unroute(`${DOWNLOAD_SOURCES.key.primaryBaseURL}**`);
   await failedPage.locator('#clear-file').click();
   await failedPage.locator('#audio-file').setInputFiles('samples/choice.ogg');
 

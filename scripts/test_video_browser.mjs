@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { HUGGING_FACE_MODELS } from '../frontend/inference/model-sources.js';
+import { DOWNLOAD_SOURCES } from '../frontend/inference/download-sources.js';
 const base = process.env.TEST_URL || 'http://127.0.0.1:8766/';
 const folder = '.cache/video-fixtures/';
 await mkdir(folder, { recursive: true });
@@ -57,7 +57,7 @@ try {
     viewport: { width: 1440, height: 1100 }
   });
   // Keep network delivery deterministic while running the real exported models.
-  for (const source of Object.values(HUGGING_FACE_MODELS))
+  for (const source of [DOWNLOAD_SOURCES.beat.primaryBaseURL, DOWNLOAD_SOURCES.key.primaryBaseURL])
     await context.route(source + '**', (route) =>
       route.fulfill({ status: 503, body: 'Use local test models' })
     );

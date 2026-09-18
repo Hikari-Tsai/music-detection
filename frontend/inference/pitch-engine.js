@@ -1,23 +1,24 @@
 import * as ort from 'onnxruntime-web/webgpu';
 import manifest from '../../assets/models/game/1.0.3-small/manifest.json';
-import hosting from '../../assets/models/game/huggingface.json';
+import { DOWNLOAD_SOURCES } from './download-sources.js';
 import { createModelAssets, ModelLoadError } from './model-assets.js';
 import { PITCH_RATE, pitchChunks, decodePitchChunk, summarizePitch } from './pitch.js';
 import { createTrackedSession } from './session.js';
 
-const fallback =
-  'https://raw.githubusercontent.com/Hikari-Tsai/music-detection/87b58f6f4d7e4ee90ed6d48d4305876a3f28db2d/assets/models/game/1.0.3-small/';
 export function createPitchEngine(progress) {
   const assets = Object.fromEntries(
     manifest.files
       .filter((f) => f.name.endsWith('.onnx'))
       .map((f) => [
         f.name.replace('.onnx', ''),
-        createModelAssets(fallback, (text) => progress(['GAME / ' + f.name + ': ', text]), {
-          primaryBaseURL: hosting.resolve_base,
-          fallbackName: 'GitHub',
-          manifestOverride: { model_file: f.name, model_bytes: f.bytes, sha256: f.sha256 }
-        })
+        createModelAssets(
+          new URL(DOWNLOAD_SOURCES.game.fallbackBaseURL, import.meta.url),
+          (text) => progress(['GAME / ' + f.name + ': ', text]),
+          {
+            ...DOWNLOAD_SOURCES.game,
+            manifestOverride: { model_file: f.name, model_bytes: f.bytes, sha256: f.sha256 }
+          }
+        )
       ])
   );
 

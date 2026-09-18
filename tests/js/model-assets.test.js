@@ -8,6 +8,28 @@ const manifest = {
   model_bytes: 4,
   sha256: createHash('sha256').update(bytes).digest('hex')
 };
+
+test('a pinned runtime binary uses its CDN label, verifies bytes and falls back on corruption', async () => {
+  const requests = [],
+    notices = [];
+  const assets = createModelAssets('https://example.test/staging/ort/', (m) => notices.push(m), {
+    primaryBaseURL: 'https://unpkg.com/onnxruntime-web@1.24.3/dist/',
+    primaryName: 'unpkg',
+    assetKind: 'runtime',
+    manifestOverride: { ...manifest, model_file: 'ort-wasm-simd-threaded.asyncify.wasm' },
+    cacheStorage: undefined,
+    fetchImpl: async (url) => {
+      requests.push(String(url));
+      return new Response(
+        String(url).startsWith('https://unpkg.com/') ? new Uint8Array([9]) : bytes
+      );
+    }
+  });
+  assert.deepEqual(await assets.model(), bytes);
+  assert.equal(requests.length, 2);
+  assert.ok(requests[1].startsWith('https://example.test/staging/ort/'));
+  assert.ok(notices.some((m) => m.some((p) => p?.args?.from === 'unpkg')));
+});
 function setup(cacheStorage, downloaded = bytes) {
   const calls = [];
   const assets = createModelAssets(new URL('https://example.test/repo/models/'), () => {}, {

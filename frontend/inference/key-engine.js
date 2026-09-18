@@ -1,6 +1,6 @@
 import * as ort from 'onnxruntime-web/webgpu';
 import { createModelAssets } from './model-assets.js';
-import { HUGGING_FACE_MODELS } from './model-sources.js';
+import { DOWNLOAD_SOURCES } from './download-sources.js';
 import { KEY_MIN_SECONDS, summarizeKey } from './key.js';
 import { createTrackedSession } from './session.js';
 
@@ -8,9 +8,9 @@ import { createTrackedSession } from './session.js';
 // avoids a second runtime download and works without WebGPU or isolation headers.
 export function createKeyEngine(progress) {
   const assets = createModelAssets(
-    new URL('./models/skey/', import.meta.url),
+    new URL(DOWNLOAD_SOURCES.key.fallbackBaseURL, import.meta.url),
     (text) => progress(['S-KEY: ', text]),
-    { primaryBaseURL: HUGGING_FACE_MODELS.key }
+    DOWNLOAD_SOURCES.key
   );
   let session = null;
   return async function analyzeKey(audio) {

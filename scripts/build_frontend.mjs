@@ -1,8 +1,23 @@
 import { build } from 'esbuild';
 import { mkdir, cp, readFile, writeFile, access, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { DOWNLOAD_SOURCES } from '../frontend/inference/download-sources.js';
+const RUNTIME = DOWNLOAD_SOURCES.runtime.manifest;
 const root = path.resolve(import.meta.dirname, '..');
 process.chdir(root);
+const installedRuntime = JSON.parse(
+  await readFile('node_modules/onnxruntime-web/package.json', 'utf8')
+);
+const runtimeBytes = await readFile(`node_modules/onnxruntime-web/dist/${RUNTIME.model_file}`);
+if (
+  installedRuntime.version !== RUNTIME.version ||
+  runtimeBytes.length !== RUNTIME.model_bytes ||
+  createHash('sha256').update(runtimeBytes).digest('hex') !== RUNTIME.sha256
+)
+  throw new Error(
+    'ONNX Runtime version/hash mismatch. Update download-sources.js for the installed WebGPU build.'
+  );
 const defaultSiteUrl = 'https://hikari-tsai.github.io/music-detection/';
 const siteUrl = new URL(process.env.SITE_URL || defaultSiteUrl);
 if (!['https:', 'http:'].includes(siteUrl.protocol) || siteUrl.search || siteUrl.hash)

@@ -32,6 +32,10 @@ Supports **WAV, MP3, FLAC, M4A, OGG, AIFF, AAC, MP4 and MOV**, up to **100 MiB a
 
 Browser mode needs no Python installation and does not upload audio. First-use models total about 134 MB, excluding the runtime. Hugging Face is primary; Beat This!/S-KEY fall back to GitHub Pages, while GAME falls back to a pinned GitHub repository copy. Files are SHA-256 verified and cached when possible.
 
+The ONNX Runtime binary downloads separately from **unpkg CDN**, with GitHub Pages as fallback. The WASM is about 27.2 MB uncompressed and is also verified and cached. Progress distinguishes runtime download from GPU/CPU initialization; download time does not count toward initialization timeouts.
+
+All model/runtime primary and fallback download URLs are managed in [`frontend/inference/download-sources.js`](frontend/inference/download-sources.js). Rebuild after changing this configuration.
+
 Selections must be at least 1 second; key analysis needs at least 3 seconds. MIDI time zero corresponds to the clip's start, so align it with that position when using the original track. When notes are available, a Type 1 MIDI contains a `Tempo` track with tempo/meter and a `Lead Vocal` track with GAME notes. Seconds are converted against the exported tempo map at 480 ticks per quarter note. Pitches are rounded to the nearest MIDI semitone, with fixed velocity 90 and a default piano program; no pitch bends, lyrics or chords are exported. Missing/failed GAME results preserve the tempo-only download; unavailable BPM still means no MIDI export.
 
 ## Analysis engines

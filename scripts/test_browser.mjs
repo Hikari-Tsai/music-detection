@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
-import { HUGGING_FACE_MODELS } from '../frontend/inference/model-sources.js';
+import { DOWNLOAD_SOURCES } from '../frontend/inference/download-sources.js';
 const base = process.env.TEST_URL || 'http://127.0.0.1:8766/';
 const browser = await chromium.launch({
   channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome',
@@ -170,7 +170,11 @@ try {
       (r) =>
         new URL(r.url).origin === new URL(base).origin ||
         r.url.startsWith('blob:') ||
-        Object.values(HUGGING_FACE_MODELS).some((source) => r.source.startsWith(source))
+        Object.values(DOWNLOAD_SOURCES).some(
+          ({ primaryBaseURL, fallbackBaseURL }) =>
+            r.source.startsWith(primaryBaseURL) ||
+            r.source.startsWith(new URL(fallbackBaseURL, base).href)
+        )
     )
   );
   results.push({

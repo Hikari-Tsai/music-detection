@@ -6,18 +6,18 @@ import { createPitchEngine } from './pitch-engine.js';
 import { createTrackedSession } from './session.js';
 
 ort.env.wasm.numThreads = 1; // Works on GitHub Pages without COOP/COEP headers.
-ort.env.wasm.wasmPaths = new URL('./ort/', import.meta.url).href;
 import { createModelAssets, ModelLoadError } from './model-assets.js';
-import { HUGGING_FACE_MODELS } from './model-sources.js';
+import { DOWNLOAD_SOURCES } from './download-sources.js';
 
 let session = null,
   engine = null,
   constants = null;
 const progress = (text) => self.postMessage({ type: 'progress', text });
-const assets = createModelAssets(new URL('./models/', import.meta.url), progress, {
-  primaryBaseURL: HUGGING_FACE_MODELS.beat,
-  includeFrontend: true
-});
+const assets = createModelAssets(
+  new URL(DOWNLOAD_SOURCES.beat.fallbackBaseURL, import.meta.url),
+  progress,
+  { ...DOWNLOAD_SOURCES.beat, includeFrontend: true }
+);
 const analyzeKey = createKeyEngine(progress);
 const analyzePitch = createPitchEngine(progress);
 async function init(forceWasm = false) {
@@ -42,6 +42,7 @@ async function init(forceWasm = false) {
       engine = 'webgpu';
       return;
     } catch (error) {
+      if (error instanceof ModelLoadError) throw error;
       console.warn('WebGPU initialization unavailable; using WASM.', String(error));
     }
   }
