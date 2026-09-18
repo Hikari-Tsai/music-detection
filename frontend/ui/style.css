@@ -206,3 +206,9 @@ footer > span { margin-right: auto; }
 .pitch-controls .icon{width:14px;height:14px}
 .pitch-controls input{width:100%;min-width:0;accent-color:var(--accent)}
 .pitch-play-error{font-size:11px;color:#ffc4a8;line-height:1.6}
+
+.tempo-click-button{display:inline-flex;align-items:center;gap:7px;margin-top:12px;min-height:34px;padding:6px 12px;background:#263321;border:1px solid #57713e;border-radius:6px;color:var(--accent);font:inherit;font-size:12px}
+.tempo-click-button .icon{width:14px;height:14px}
+.tempo-click-button[aria-pressed="true"]{background:#c6f68a;color:#182016}
+.tempo-click-button:disabled{opacity:.4;cursor:not-allowed}
+.tempo-click-hint{margin:8px 0 0;font-size:11px;line-height:1.65;color:#a2afa4}

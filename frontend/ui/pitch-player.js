@@ -1,8 +1,9 @@
-// Web Audio transport for GAME note events; no MIDI parser or remote soundfont needed.
+// Web Audio transport for timed note events and short metronome clicks.
 export function createPitchPlayer({
   createContext = () => new (globalThis.AudioContext || globalThis.webkitAudioContext)(),
   setTimer = (fn) => setInterval(fn, 25),
   clearTimer = (id) => clearInterval(id),
+  waveform = 'triangle',
   onChange = () => {}
 } = {}) {
   let context,
@@ -25,7 +26,7 @@ export function createPitchPlayer({
   function tone(midi, start, length) {
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
-    oscillator.type = 'triangle';
+    oscillator.type = waveform;
     oscillator.frequency.value = 440 * 2 ** ((midi - 69) / 12);
     oscillator.connect(envelope);
     envelope.connect(context.destination);

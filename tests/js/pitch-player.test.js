@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPitchPlayer } from '../../frontend/ui/pitch-player.js';
 
-function harness(resume = async () => {}) {
+function harness(resume = async () => {}, options = {}) {
   const voices = [];
   const param = () => ({
     value: 0,
@@ -36,6 +36,7 @@ function harness(resume = async () => {}) {
   };
   let tick;
   const player = createPitchPlayer({
+    ...options,
     createContext: () => context,
     setTimer: (f) => {
       tick = f;
@@ -126,4 +127,26 @@ test('a new audition cancels old tones and normal playback can replay after the 
   assert.equal(h.player.state.position, 0);
   assert.equal(h.player.state.playing, true);
   h.player.reset();
+});
+
+test('metronome uses short sine pulses at exact beat times without filling rests', async () => {
+  const h = harness(async () => {}, { waveform: 'sine' });
+  h.player.load(
+    [
+      { start_seconds: 0.02, end_seconds: 0.065, midi: 93 },
+      { start_seconds: 0.32, end_seconds: 0.365, midi: 81 }
+    ],
+    0.8
+  );
+  await h.player.play();
+  assert.equal(h.voices.length, 1);
+  assert.equal(h.voices[0].type, 'sine');
+  assert.equal(h.voices[0].frequency.value, 1760);
+  assert.equal(h.voices[0].started, 0.02);
+  assert.ok(Math.abs(h.voices[0].stopped - 0.07) < 1e-8);
+  h.advance(0.2);
+  assert.equal(h.voices[1].frequency.value, 880);
+  assert.equal(h.voices[1].started, 0.32);
+  h.advance(0.8);
+  assert.equal(h.player.state.playing, false);
 });

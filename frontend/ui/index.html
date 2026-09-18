@@ -158,7 +158,11 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
 
         <section class="result-panel" id="result-panel" aria-labelledby="result-title" aria-busy="false">
           <div class="panel-heading"><h2 id="result-title"><span class="step-number">02</span><span data-i18n="resultTitle">Analysis results</span></h2><span class="result-status" id="result-status"><span class="status-dot"></span><span id="result-status-text"><span data-i18n="waitingAudio">Awaiting audio</span></span></span></div>
-          <div class="tempo-metric"><span class="metric-label" id="tempo-label">TEMPO</span><div class="bpm-line"><output id="bpm-value" aria-label="BPM">—</output><span>BPM</span></div></div>
+          <div class="tempo-metric"><span class="metric-label" id="tempo-label">TEMPO</span><div class="bpm-line"><output id="bpm-value" aria-label="BPM">—</output><span>BPM</span></div>
+            <button id="tempo-click" class="tempo-click-button" type="button" disabled aria-pressed="false" aria-describedby="tempo-click-hint"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span id="tempo-click-label" data-i18n="clickPlay">Play click</span></button>
+            <p id="tempo-click-hint" class="tempo-click-hint" data-i18n="clickHint">Follows detected beat timing; a higher click marks each detected downbeat.</p>
+            <p id="tempo-click-error" class="pitch-play-error" role="alert" hidden data-i18n="clickError">Could not start click playback. Please try again.</p>
+          </div>
           <div class="signature-metric"><div><span class="metric-label">TIME SIGNATURE</span><p><span data-i18n="beatsPerBar">Beats per bar</span></p></div><div class="signature-value"><output id="signature-value" aria-label="Beats per bar" data-i18n-aria-label="beatsPerBar">—</output><span id="signature-denominator" hidden>/ 4</span></div></div>
           <div class="key-metric" aria-live="polite"><div><span class="metric-label">MUSICAL KEY</span><p id="key-description"><span data-i18n="keyEstimate">Global key estimate · S-KEY</span></p></div><output id="key-value" aria-label="Musical key" data-i18n-aria-label="keyAria">—</output></div>
           <section class="pitch-metric" aria-labelledby="pitch-title">

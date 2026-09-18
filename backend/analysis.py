@@ -110,6 +110,8 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
         "analysis_seconds": round(time.perf_counter() - start, 2),
         "beat_count": len(beats),
         "downbeat_count": len(downbeats),
+        "beats": [float(value) for value in beats],
+        "downbeats": [float(value) for value in downbeats],
         "result": result,
         "tempo_mode": tempo["tempo_mode"] if tempo != -1 else "unavailable",
         "midi": midi,

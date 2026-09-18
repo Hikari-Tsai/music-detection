@@ -1,5 +1,22 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  clickError: {
+    en: 'Could not start click playback. Please try again.',
+    ja: 'クリック音を再生できませんでした。もう一度お試しください。',
+    'zh-Hant': '無法啟動 click 播放，請再試一次。'
+  },
+  clickMissing: {
+    en: 'No beat timestamps available. Reanalyze; for Local Python, update the project and restart FastAPI.',
+    ja: '拍の時刻情報がありません。再解析してください。Local Python はプロジェクトを更新して FastAPI を再起動してください。',
+    'zh-Hant': '尚無拍點時間，請重新分析；Local Python 請更新專案並重啟 FastAPI。'
+  },
+  clickHint: {
+    en: 'Follows detected beat timing; a higher click marks each detected downbeat.',
+    ja: '検出した拍のタイミングで再生します。小節の先頭は高い音で示します。',
+    'zh-Hant': '依偵測拍點播放；小節首拍以較高的 click 聲標示。'
+  },
+  clickStop: { en: 'Stop click', ja: 'クリック音を停止', 'zh-Hant': '停止 CLICK' },
+  clickPlay: { en: 'Play click', ja: 'クリック音を再生', 'zh-Hant': '播放 CLICK' },
   pitchSynthError: {
     en: 'Could not start the synthesizer. Try pressing Play again.',
     ja: 'シンセサイザーを起動できませんでした。再生ボタンをもう一度押してください。',

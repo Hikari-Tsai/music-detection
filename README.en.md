@@ -14,6 +14,7 @@ Use Main for everyday use, or Staging to try changes not yet merged into main.
 ## Features
 
 - Drop in a file to analyze the whole track's BPM, meter, key and pitch automatically.
+- Preview detected beats with a click track; higher clicks mark detected downbeats.
 - View GAME's note timeline, lowest/highest notes and range; play/pause synthesized notes, seek on the chart and audition either extreme as a single tone.
 - Select and preview a clip, then analyze that range without modifying the original file.
 - Export a single tempo for constant timing, or show average BPM and export a variable tempo map when changes are detected.

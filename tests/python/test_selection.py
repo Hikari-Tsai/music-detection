@@ -25,6 +25,8 @@ class SelectionTests(unittest.TestCase):
         self.assertEqual(result['pitch_status'], 'estimated')
         self.assertEqual(result['duration_seconds'], 4)
         self.assertEqual(result['selection_start_seconds'], 2)
+        self.assertEqual(result['beats'], beats.tolist())
+        self.assertEqual(result['downbeats'], beats[::4].tolist())
         self.assertEqual(result['result']['bpm'], 120)
         midi = mido.MidiFile(file=io.BytesIO(result['midi']))
         self.assertAlmostEqual(midi.length, 4, delta=.001)

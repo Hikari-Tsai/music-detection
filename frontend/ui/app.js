@@ -3,6 +3,7 @@ import { createEngine } from './engine.js';
 import { decodeSource } from './audio-source.js';
 import { createRangeEditor } from './range-editor.js';
 import { createPitchView } from './pitch-view.js';
+import { createTempoClickView } from './tempo-click-view.js';
 const $ = (id) => document.getElementById(id);
 function makeEngine(kind) {
   return createEngine(kind, {
@@ -27,7 +28,14 @@ function updateEngineCopy() {
 updateEngineCopy();
 const input = $('audio-file');
 const audio = $('audio-player');
-const pitchView = createPitchView(() => audio.pause());
+const pitchView = createPitchView(() => {
+  audio.pause();
+  tempoClick.stop();
+});
+const tempoClick = createTempoClickView(() => {
+  audio.pause();
+  pitchView.pause();
+});
 const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac', 'mp4', 'mov']);
 let busy = false;
 let objectUrl = null;
@@ -65,6 +73,7 @@ function status(text, state = '') {
 
 function resetResult() {
   pitchView.reset();
+  tempoClick.reset();
   $('result-range').hidden = true;
   if (downloadUrl?.startsWith('blob:')) URL.revokeObjectURL(downloadUrl);
   downloadUrl = null;
@@ -252,6 +261,7 @@ async function analyze() {
       { range, prepared: sourceAudio }
     );
     pitchView.render(data, range?.start || 0);
+    tempoClick.render(data);
     if (data.key_status === 'estimated' && data.key) {
       setText($('key-value'), [data.key.tonic, ' ', { key: data.key.mode }]);
       setText($('key-description'), range ? { key: 'rangeKey' } : '全曲調性估計 · S-KEY');
@@ -330,6 +340,7 @@ async function analyze() {
       ]);
     }
   } catch (error) {
+    tempoClick.reset();
     pitchView.reset();
     setText('pitch-summary', { key: 'pitchInterrupted' });
     setText($('key-description'), '調性分析未完成');
@@ -410,6 +421,7 @@ function syncPlayButton() {
 }
 audio.addEventListener('play', () => {
   pitchView.pause();
+  tempoClick.stop();
   syncPlayButton();
 });
 audio.addEventListener('pause', syncPlayButton);
