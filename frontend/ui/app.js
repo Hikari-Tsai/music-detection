@@ -94,6 +94,7 @@ function resetResult() {
 
 function setBusy(value) {
   busy = value;
+  $('banner-art').dataset.analyzing = String(value);
   $('choose-file').disabled = value;
   $('clear-file').disabled = value;
   input.disabled = value;
