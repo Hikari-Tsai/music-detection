@@ -1,5 +1,35 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  browserWorkerStarting: {
+    en: 'Starting the browser analysis engine',
+    ja: 'ブラウザーの解析エンジンを起動中',
+    'zh-Hant': '正在啟動瀏覽器分析引擎'
+  },
+  engineInitWaiting: {
+    en: 'Initializing {model} · {engine} (up to {seconds} seconds)',
+    ja: '{model} · {engine} を初期化中（最大 {seconds} 秒）',
+    'zh-Hant': '正在初始化 {model} · {engine}（最長 {seconds} 秒）'
+  },
+  gpuInitTimeoutFallback: {
+    en: '{model} GPU initialization exceeded {seconds} seconds; retrying on browser CPU',
+    ja: '{model} の GPU 初期化が {seconds} 秒を超えたため、ブラウザーの CPU で再試行中',
+    'zh-Hant': '{model} GPU 初始化超過 {seconds} 秒，改用瀏覽器 CPU 重試'
+  },
+  gpuDisabledAfterTimeout: {
+    en: 'Using browser CPU after a GPU timeout; reload the page to try GPU again',
+    ja: 'GPU のタイムアウト後はブラウザーの CPU を使用します。GPU を再試行するにはページを再読み込みしてください',
+    'zh-Hant': '先前 GPU 初始化逾時，本頁改用瀏覽器 CPU；重新整理可再嘗試 GPU'
+  },
+  browserCpuInitTimeout: {
+    en: 'CPU analysis engine initialization timed out. Reload the page and try again, or switch to Local Python.',
+    ja: 'CPU 解析エンジンの初期化がタイムアウトしました。ページを再読み込みして再試行するか、Local Python に切り替えてください。',
+    'zh-Hant': 'CPU 分析引擎初始化逾時，請重新整理頁面後重試，或改用本機 Python。'
+  },
+  browserWorkerStartTimeout: {
+    en: 'The browser analysis engine took too long to start. Check your connection and reload the page to try again.',
+    ja: 'ブラウザーの解析エンジンの起動がタイムアウトしました。接続を確認し、ページを再読み込みして再試行してください。',
+    'zh-Hant': '瀏覽器分析引擎啟動逾時，請確認網路連線並重新整理頁面後重試。'
+  },
   midiVocalContents: {
     en: 'Tempo + Lead Vocal tracks; detected meter included when available. Notes are rounded to the nearest MIDI semitone.',
     ja: 'Tempo と Lead Vocal の2トラック。判定できた拍子も含み、音高は最も近い MIDI 半音に丸めます。',

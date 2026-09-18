@@ -3,6 +3,7 @@ import { logMel, chunkStarts, makeChunk, aggregateChunk, postprocess, waveform }
 import { estimateTempo, tempoMidi } from './tempo.js';
 import { createKeyEngine } from './key-engine.js';
 import { createPitchEngine } from './pitch-engine.js';
+import { createTrackedSession } from './session.js';
 
 ort.env.wasm.numThreads = 1; // Works on GitHub Pages without COOP/COEP headers.
 ort.env.wasm.wasmPaths = new URL('./ort/', import.meta.url).href;
@@ -29,22 +30,30 @@ async function init(forceWasm = false) {
   const bytes = await assets.model();
   if (!forceWasm && self.navigator.gpu) {
     try {
-      progress('正在初始化 GPU 分析引擎');
-      session = await ort.InferenceSession.create(bytes, {
-        executionProviders: ['webgpu'],
-        graphOptimizationLevel: 'all'
-      });
+      session = await createTrackedSession(
+        ort,
+        bytes,
+        {
+          executionProviders: ['webgpu'],
+          graphOptimizationLevel: 'all'
+        },
+        'Beat This!'
+      );
       engine = 'webgpu';
       return;
     } catch (error) {
       console.warn('WebGPU initialization unavailable; using WASM.', String(error));
     }
   }
-  progress('正在初始化 CPU 分析引擎');
-  session = await ort.InferenceSession.create(bytes, {
-    executionProviders: ['wasm'],
-    graphOptimizationLevel: 'all'
-  });
+  session = await createTrackedSession(
+    ort,
+    bytes,
+    {
+      executionProviders: ['wasm'],
+      graphOptimizationLevel: 'all'
+    },
+    'Beat This!'
+  );
   engine = 'wasm';
 }
 async function predict(spect) {
@@ -79,6 +88,7 @@ async function predict(spect) {
   return postprocess(beat, downbeat);
 }
 self.onmessage = async ({ data }) => {
+  self.postMessage({ type: 'started' });
   const started = performance.now();
   try {
     const audio = new Float32Array(data.audio);

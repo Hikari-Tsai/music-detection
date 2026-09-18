@@ -2,6 +2,7 @@ import * as ort from 'onnxruntime-web/webgpu';
 import { createModelAssets } from './model-assets.js';
 import { HUGGING_FACE_MODELS } from './model-sources.js';
 import { KEY_MIN_SECONDS, summarizeKey } from './key.js';
+import { createTrackedSession } from './session.js';
 
 // This small convolution model uses WASM CPU. Sharing the worker's runtime
 // avoids a second runtime download and works without WebGPU or isolation headers.
@@ -23,11 +24,15 @@ export function createKeyEngine(progress) {
     try {
       if (!session) {
         const bytes = await assets.model();
-        progress('正在初始化 S-KEY 調性分析');
-        session = await ort.InferenceSession.create(bytes, {
-          executionProviders: ['wasm'],
-          graphOptimizationLevel: 'all'
-        });
+        session = await createTrackedSession(
+          ort,
+          bytes,
+          {
+            executionProviders: ['wasm'],
+            graphOptimizationLevel: 'all'
+          },
+          'S-KEY'
+        );
       }
       progress('正在分析全曲調性（S-KEY）');
       input = new ort.Tensor('float32', audio, [1, audio.length]);
