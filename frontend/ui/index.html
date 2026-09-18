@@ -164,11 +164,16 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
           <section class="pitch-metric" aria-labelledby="pitch-title">
             <div class="pitch-heading"><h3 id="pitch-title" data-i18n="pitchTitle">Detected vocal range</h3><span id="pitch-runtime" class="precision-badge">GAME Small</span></div>
             <div class="pitch-extremes">
-              <button id="pitch-lowest" class="pitch-note" type="button" disabled aria-label="Preview lowest detected note" data-i18n-aria-label="pitchLowestAria"><span data-i18n="pitchLowest">Lowest note</span><strong id="pitch-lowest-value">—</strong><small id="pitch-lowest-detail">—</small></button>
-              <button id="pitch-highest" class="pitch-note" type="button" disabled aria-label="Preview highest detected note" data-i18n-aria-label="pitchHighestAria"><span data-i18n="pitchHighest">Highest note</span><strong id="pitch-highest-value">—</strong><small id="pitch-highest-detail">—</small></button>
+              <button id="pitch-lowest" class="pitch-note" type="button" disabled aria-label="Play lowest detected note on synthesizer" data-i18n-aria-label="pitchLowestAria"><span data-i18n="pitchLowest">Lowest note</span><strong id="pitch-lowest-value">—</strong><small id="pitch-lowest-detail">—</small></button>
+              <button id="pitch-highest" class="pitch-note" type="button" disabled aria-label="Play highest detected note on synthesizer" data-i18n-aria-label="pitchHighestAria"><span data-i18n="pitchHighest">Highest note</span><strong id="pitch-highest-value">—</strong><small id="pitch-highest-detail">—</small></button>
             </div>
             <p id="pitch-summary" class="pitch-summary" aria-live="polite" data-i18n="pitchInitial">Note estimates for this track or selection.</p>
-            <figure id="pitch-chart" class="pitch-chart" hidden><canvas id="pitch-canvas" role="img" aria-label="Estimated note pitches over the selected audio timeline" data-i18n-aria-label="pitchChartAria"></canvas><figcaption data-i18n="pitchPreviewHint">Select an extreme or click a note to preview its position in the original audio.</figcaption></figure>
+            <div id="pitch-transport" class="pitch-transport" hidden>
+              <div class="pitch-transport-heading"><span data-i18n="pitchSynthTitle">Synthesizer preview</span><span class="pitch-clock"><span id="pitch-current">0:00.00</span> / <span id="pitch-total">0:00.00</span></span></div>
+              <div class="pitch-controls"><button id="pitch-play" type="button" aria-pressed="false" disabled><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span id="pitch-play-label" data-i18n="pitchSynthPlay">Play notes</span></button><input id="pitch-seek" type="range" min="0" max="1" step="0.01" value="0" disabled aria-label="Synthesizer playback position" data-i18n-aria-label="pitchSeekAria"></div>
+            </div>
+            <p id="pitch-play-error" class="pitch-play-error" role="alert" hidden data-i18n="pitchSynthError">Could not start the synthesizer. Try pressing Play again.</p>
+            <figure id="pitch-chart" class="pitch-chart" hidden><canvas id="pitch-canvas" role="img" aria-label="Estimated note pitches over the selected audio timeline" data-i18n-aria-label="pitchChartAria"></canvas><figcaption data-i18n="pitchPreviewHint">Click the chart to play from that position. Lowest/highest buttons play a single synthesized tone; the audio player previews the original recording.</figcaption></figure>
             <p class="pitch-caution" data-i18n="pitchCaution">Estimated from this recording, not the singer’s full vocal range. Harmony and instruments may be included; confirm by listening.</p>
           </section>
           <p class="result-description" id="result-description"><span data-i18n="initialDescription">Detect BPM automatically. For variable tempo, see the average and export a tempo map.</span></p>

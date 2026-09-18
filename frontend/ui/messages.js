@@ -1,5 +1,18 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  pitchSynthError: {
+    en: 'Could not start the synthesizer. Try pressing Play again.',
+    ja: 'シンセサイザーを起動できませんでした。再生ボタンをもう一度押してください。',
+    'zh-Hant': '無法啟動合成器，請再次按下播放鍵。'
+  },
+  pitchSeekAria: {
+    en: 'Synthesizer playback position',
+    ja: 'シンセサイザーの再生位置',
+    'zh-Hant': '合成器播放位置'
+  },
+  pitchSynthPause: { en: 'Pause', ja: '一時停止', 'zh-Hant': '暫停' },
+  pitchSynthPlay: { en: 'Play notes', ja: '音符を再生', 'zh-Hant': '播放音符' },
+  pitchSynthTitle: { en: 'Synthesizer preview', ja: 'シンセサイザー試聴', 'zh-Hant': '合成器試聽' },
   noAudioTrack: {
     en: 'This file has no audio track. Choose a file that contains audio.',
     ja: 'このファイルには音声トラックがありません。音声を含むファイルを選択してください。',
@@ -1182,14 +1195,14 @@ export const messages = {
     'zh-Hant': '最高音'
   },
   pitchLowestAria: {
-    en: 'Preview lowest detected note',
-    ja: '検出された最低音の位置を試聴',
-    'zh-Hant': '試聽最低音所在位置'
+    en: 'Play lowest detected note on synthesizer',
+    ja: '検出された最低音をシンセサイザーで試聴',
+    'zh-Hant': '以合成器播放最低音'
   },
   pitchHighestAria: {
-    en: 'Preview highest detected note',
-    ja: '検出された最高音の位置を試聴',
-    'zh-Hant': '試聽最高音所在位置'
+    en: 'Play highest detected note on synthesizer',
+    ja: '検出された最高音をシンセサイザーで試聴',
+    'zh-Hant': '以合成器播放最高音'
   },
   pitchChartAria: {
     en: 'Estimated note pitches over the selected audio timeline',
@@ -1217,9 +1230,10 @@ export const messages = {
     'zh-Hant': '這是此錄音的估計音域，不代表歌手完整音域。可能包含和聲或樂器，請搭配試聽確認。'
   },
   pitchPreviewHint: {
-    en: 'Select an extreme or click a note to preview its position in the original audio.',
-    ja: '最高音・最低音のボタンやグラフをクリックすると、元の音声の該当位置を試聴できます。',
-    'zh-Hant': '點選最高／最低音或圖中的音符，試聽原音訊的對應位置。'
+    en: 'Click the chart to play from that position. Lowest/highest buttons play a single synthesized tone; the audio player previews the original recording.',
+    ja: 'グラフをクリックすると、その位置から合成音で再生します。最低音・最高音のボタンは単音を試聴できます。元の録音は音声プレーヤーで再生してください。',
+    'zh-Hant':
+      '點選音符圖可從該處開始合成器播放；最低／最高音按鈕會單獨試聽該音高。原曲請使用音訊播放器試聽。'
   },
   pitchFailed: {
     en: 'Pitch analysis failed. Tempo/key results remain available; check the model source or update Local Python and retry.',

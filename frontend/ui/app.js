@@ -27,16 +27,7 @@ function updateEngineCopy() {
 updateEngineCopy();
 const input = $('audio-file');
 const audio = $('audio-player');
-const pitchView = createPitchView(async (seconds) => {
-  if (busy || !lastFile) return;
-  try {
-    audio.currentTime = seconds;
-    await audio.play();
-    $('preview-note').hidden = true;
-  } catch (error) {
-    if (error.name !== 'AbortError') $('preview-note').hidden = false;
-  }
-});
+const pitchView = createPitchView(() => audio.pause());
 const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac', 'mp4', 'mov']);
 let busy = false;
 let objectUrl = null;
@@ -417,7 +408,10 @@ function syncPlayButton() {
     .querySelector('use')
     .setAttribute('href', audio.paused ? '#i-play' : '#i-pause');
 }
-audio.addEventListener('play', syncPlayButton);
+audio.addEventListener('play', () => {
+  pitchView.pause();
+  syncPlayButton();
+});
 audio.addEventListener('pause', syncPlayButton);
 audio.addEventListener('timeupdate', () => {
   const bounds = selection.bounds;

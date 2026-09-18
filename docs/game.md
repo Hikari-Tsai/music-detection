@@ -24,7 +24,7 @@ Beat This!／S-KEY 保留既有 22,050 Hz 解碼流程。GAME 從原檔獨立解
 - 使用官方 encoder → dur2bd → segmenter（8 次，`t=i/8`）→ bd2dur → estimator；語言 ID `0`（通用）、邊界與有聲 threshold `0.2`、radius `2`。UI 語言不等於歌曲語言，因此不據此修改模型語言 ID。
 - 依 `maskN`、`presence` 篩除填補與無聲音符。檢查數值有效性、MIDI 0–127，排除裁切後短於 80 ms 的片段。無聲區間仍累加時間。
 - `scores` 是 MIDI 半音音高，**不是信心分數**。音名以最近的半音標示（C4 = MIDI 60），Hz 以原始浮點音高換算（A4 = 440 Hz）；跨度使用浮點音高差。
-- 最高／最低音及時間圖均為模型估計。點擊最高／最低音或圖中音符會跳到原音訊位置試聽；結果使用片段相對時間，UI 加回選取起點。
+- 最高／最低音及時間圖均為模型估計。音符圖支援 Web Audio 合成器播放／暫停、游標及進度列；點圖中位置會從該秒數繼續播放，最高／最低音按鈕則播放 0.75 秒的單音。保留模型浮點音高、片段時長與休止，使用三角波及淡入淡出，無需額外音源下載。結果使用片段相對時間，UI 加回選取起點；原音訊可由原有播放器比對，兩種播放互斥。更換檔案、範圍、引擎、重新分析或切到背景時停止合成器。
 - API 新增 `pitch_status`（`estimated`／`unavailable`／`error`）、`pitch_reason`、`pitch_engine` 與 `pitch`。有結果時 `pitch` 包含 `lowest`、`highest`、`semitones`、`note_count`、`notes`；每段包含 `start_seconds`、`end_seconds`、`midi`、`note`、`hz`。`note_count` 是通過篩選的片段數，跨分段的長音可能被拆開。
 - GAME 失敗與無法判定皆不阻止 Tempo MIDI；MIDI 仍只有速度與拍號，**沒有新增音符 MIDI 匯出**。
 
@@ -40,6 +40,6 @@ GAME 的迭代取樣含隨機性，重跑與切換引擎可能改變邊界及極
 
 GAME uses identical official, unquantized FP32 ONNX graphs in the browser and Python. The browser downloads from a pinned Hugging Face revision, falls back to a pinned GitHub copy, verifies every file and optionally caches it. FastAPI uses the tracked local bundle with ONNX Runtime CPU; Beat This! and S-KEY retain PyTorch in Python.
 
-Audio is decoded separately at 44.1 kHz for GAME while retaining the original 22.05 kHz beat/key path. Overlapping inputs are capped at 10 seconds with 8-second output ownership. Voicing/padding masks, finite MIDI values and an 80 ms minimum retained duration filter notes. The UI presents note ranges, frequencies and original-audio preview; Tempo MIDI remains unchanged.
+Audio is decoded separately at 44.1 kHz for GAME while retaining the original 22.05 kHz beat/key path. Overlapping inputs are capped at 10 seconds with 8-second output ownership. Voicing/padding masks, finite MIDI values and an 80 ms minimum retained duration filter notes. The UI presents note ranges, frequencies and a Web Audio synthesizer with play/pause, timeline seeking and individual extreme-note audition. Original audio remains available in its separate player; Tempo MIDI remains unchanged.
 
 These are recording-specific pitch estimates, not a verified lead-vocal isolation result or the singer's physiological range. Instruments and harmonies can produce false positives, and stochastic sampling can change results. No labeled vocal-range accuracy or GAME PyTorch export-parity benchmark is claimed. Model weights remain **CC BY-NC-SA 4.0**, with upstream attribution and unchanged-file provenance in the linked notice.
