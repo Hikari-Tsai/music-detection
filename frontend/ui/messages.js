@@ -496,25 +496,30 @@ export const messages = {
     en: 'Runs in your browser',
     ja: 'ブラウザー内で処理'
   },
+  heroEyebrow: {
+    'zh-Hant': '拍速 · 調性 · 音高',
+    en: 'TEMPO · KEY · PITCH',
+    ja: 'テンポ · キー · 音高'
+  },
   heroBeat: {
     'zh-Hant': '聽見節奏。',
-    en: 'Hear the beat.',
-    ja: 'リズムを知る。'
+    en: 'Hear the rhythm.',
+    ja: 'リズムを聴く。'
   },
-  heroFind: {
-    'zh-Hant': '看見',
-    en: 'Find the',
-    ja: '見つけよう、'
+  heroNotes: {
+    'zh-Hant': '看見音高。',
+    en: 'See the notes.',
+    ja: '音高を見る。'
   },
   heroIntro: {
-    en: 'Drop in music. Discover its tempo, key and vocal range.',
-    ja: '音楽をドロップして、テンポ・キー・歌声の音域を調べよう。',
-    'zh-Hant': '拖入音樂，找到拍速、調性與歌聲音域。'
+    en: 'Analyze BPM, key and estimated vocal range for a whole track or selected clip.',
+    ja: '曲全体や選んだ区間の BPM・キーを解析し、歌声の音域を推定。',
+    'zh-Hant': '分析 BPM、調性與估計歌聲音域，整首或片段都可以。'
   },
   heroNext: {
-    'zh-Hant': '帶走速度與歌聲音符，讓下一段創作接著發生。',
-    en: 'Take tempo and vocal notes into your next creation.',
-    ja: 'テンポと歌声の音符を、次の音楽づくりへ。'
+    'zh-Hant': '試聽拍點與音符，將速度圖與偵測到的音符匯出成同一份 MIDI。',
+    en: 'Preview beats and notes. Export the tempo map and detected notes in one MIDI file.',
+    ja: '拍や音符を試聴し、テンポマップと検出した音符を1つの MIDI ファイルに。'
   },
   motionPauseAria: {
     'zh-Hant': '暫停 Banner 動畫',
