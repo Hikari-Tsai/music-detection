@@ -183,6 +183,7 @@ async function prepareFile(file) {
   objectUrl = URL.createObjectURL(file);
   audio.src = objectUrl;
   lastFile = file;
+  $('range-editor').open = false;
   sourceAudio = null;
   sourceDuration = 0;
   selection.setDuration(0);

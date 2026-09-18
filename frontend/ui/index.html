@@ -131,8 +131,9 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
               <span class="player-time" id="total-time">0:00</span>
             </div>
             <p id="preview-note" class="preview-note" hidden><span data-i18n="previewPython">Your browser cannot preview this format. Analysis is still available.</span></p>
-            <section class="range-editor" aria-labelledby="range-title">
-              <div class="range-heading"><h3 id="range-title" data-i18n="rangeTitle">Select an analysis range</h3><button id="reset-range" type="button" data-i18n="rangeReset" disabled>Whole track</button></div>
+            <details id="range-editor" class="range-editor">
+              <summary><span id="range-title" data-i18n="rangeTitle">Select an analysis range</span></summary>
+              <div class="range-heading"><button id="reset-range" type="button" data-i18n="rangeReset" disabled>Whole track</button></div>
               <fieldset id="range-fields" disabled><legend class="visually-hidden" data-i18n="rangeTitle">Select an analysis range</legend>
                 <div class="range-bar" id="range-bar">
                   <div class="range-track" aria-hidden="true"><span class="range-fill"></span></div>
@@ -147,7 +148,7 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
               <p id="range-summary" class="range-summary" aria-live="polite"></p>
               <p id="range-help" class="range-help"></p>
               <button id="analyze-range" class="choose-button analyze-range" type="button" data-i18n="rangeAnalyze" disabled>Analyze selected range</button>
-            </section>
+            </details>
             <audio id="audio-player" preload="metadata"></audio>
           </div>
           <p id="result-range" class="range-result" aria-live="polite" hidden></p>
