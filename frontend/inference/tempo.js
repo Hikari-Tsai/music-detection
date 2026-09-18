@@ -71,7 +71,7 @@ function vlq(value) {
 function u32(n) {
   return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
 }
-export function tempoMidi(result, duration) {
+export function tempoMidi(result, duration, notes = []) {
   let events = [[0, result.tempo_us]];
   if (result.tempo_mode === 'variable') {
     const beats = result.beat_times;
@@ -82,6 +82,49 @@ export function tempoMidi(result, duration) {
       if (t !== events.at(-1)[1]) events.push([first + (i + 1) * 480, t]);
     });
   }
+  // Convert note seconds against the exact tempo events written to this file,
+  // including tick rounding at the first beat and changes across sustained notes.
+  let segmentSeconds = 0;
+  const segments = events.map(([tick, tempo], i) => {
+    if (i) segmentSeconds += ((tick - events[i - 1][0]) * events[i - 1][1]) / 480e6;
+    return { tick, tempo, seconds: segmentSeconds };
+  });
+  const toTick = (seconds) => {
+    let low = 0,
+      high = segments.length;
+    while (low + 1 < high) {
+      const mid = Math.floor((low + high) / 2);
+      if (segments[mid].seconds <= seconds) low = mid;
+      else high = mid;
+    }
+    const segment = segments[low];
+    return roundEven(segment.tick + ((seconds - segment.seconds) * 480e6) / segment.tempo);
+  };
+  const vocalEvents = [];
+  for (const note of notes) {
+    if (
+      ![note.start_seconds, note.end_seconds, note.midi].every(Number.isFinite) ||
+      note.midi < 0 ||
+      note.midi > 127
+    )
+      continue;
+    const start = Math.max(0, note.start_seconds),
+      end = Math.min(duration, note.end_seconds);
+    if (end <= start) continue;
+    const on = toTick(start),
+      off = Math.max(on + 1, toTick(end));
+    const pitch = Math.floor(note.midi + 0.5);
+    vocalEvents.push([on, 0x90, pitch, 90], [off, 0x80, pitch, 0]);
+  }
+  // End a repeated pitch before starting the next note at the same tick.
+  vocalEvents.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
+  const nameEvent = (name) => [
+    0,
+    0xff,
+    3,
+    name.length,
+    ...Array.from(name, (c) => c.charCodeAt(0))
+  ];
   const track = [];
   let prev = 0,
     elapsed = 0,
@@ -100,6 +143,7 @@ export function tempoMidi(result, duration) {
     );
     if (i === 0 && result.signature_beats !== null)
       track.push(0, 0xff, 0x58, 4, result.signature_beats, 2, 24, 8);
+    if (i === 0 && vocalEvents.length) track.push(...nameEvent('Tempo'));
     prev = tick;
     current = tempo;
   });
@@ -109,6 +153,17 @@ export function tempoMidi(result, duration) {
     0x2f,
     0
   );
+  const tracks = [track];
+  if (vocalEvents.length) {
+    const vocal = [...nameEvent('Lead Vocal'), 0, 0xc0, 0]; // General MIDI piano for audition.
+    let previous = 0;
+    for (const [tick, status, pitch, velocity] of vocalEvents) {
+      vocal.push(...vlq(tick - previous), status, pitch, velocity);
+      previous = tick;
+    }
+    vocal.push(...vlq(Math.max(0, toTick(duration) - previous)), 0xff, 0x2f, 0);
+    tracks.push(vocal);
+  }
   return new Uint8Array([
     77,
     84,
@@ -119,16 +174,11 @@ export function tempoMidi(result, duration) {
     0,
     6,
     0,
+    tracks.length === 2 ? 1 : 0,
     0,
-    0,
-    1,
+    tracks.length,
     1,
     224,
-    77,
-    84,
-    114,
-    107,
-    ...u32(track.length),
-    ...track
+    ...tracks.flatMap((body) => [77, 84, 114, 107, ...u32(body.length), ...body])
   ]);
 }

@@ -1,0 +1,7 @@
+{
+  "repository": "aaatmy/game-small-onnx",
+  "revision": "ea339353ea4a04b4bf3847e1a192854100778be5",
+  "resolve_base": "https://huggingface.co/aaatmy/game-small-onnx/resolve/ea339353ea4a04b4bf3847e1a192854100778be5/",
+  "local_bundle": "1.0.3-small/",
+  "license": "cc-by-nc-sa-4.0"
+}

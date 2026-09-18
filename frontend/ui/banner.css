@@ -1,4 +1,4 @@
-/* Decorative pitch ring; independent of audio analysis and playback. */
+/* Decorative pitch ring; analysis state changes color and speed, not the beat timing. */
 .intro { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 24px; padding: 30px 0 32px; }
 .intro-copy { position: relative; z-index: 1; }
 .intro-eyebrow { display: block; margin-bottom: 16px; color: #a8b79e; font: 10px var(--mono); letter-spacing: 2.4px; }
@@ -35,3 +35,17 @@
   .banner-motion { position: absolute; bottom: 1px; right: 0; margin: 0; font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) { .banner-art * { animation: none !important; } }
+
+/* Read/decode, model downloads and inference share the UI busy lifecycle. */
+.banner-art[data-analyzing="true"] { --accent: #ffad61; }
+.banner-art[data-analyzing="true"] .banner-grid,
+.banner-art[data-analyzing="true"] .banner-bar,
+.banner-art[data-analyzing="true"] .banner-orbit-trail { stroke: var(--accent); }
+.banner-art[data-analyzing="true"] .banner-orbit circle:not(.banner-orbit-trail),
+.banner-art[data-analyzing="true"] .banner-pitch-labels { fill: var(--accent); }
+.banner-art[data-analyzing="true"] #banner-wave-color stop,
+.banner-art[data-analyzing="true"] #banner-halo stop { stop-color: var(--accent); }
+.banner-art[data-analyzing="true"] .banner-bar { animation-duration: .9s; }
+.banner-art[data-analyzing="true"] .banner-orbit { animation-duration: 6s; }
+.banner-art[data-analyzing="true"] .banner-orbit-outer { animation-duration: 9.5s; }
+.banner-art[data-analyzing="true"] .banner-wave { animation-duration: 1.25s; }

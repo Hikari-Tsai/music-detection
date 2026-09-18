@@ -2,6 +2,7 @@ import * as ort from 'onnxruntime-web/webgpu';
 import { logMel, chunkStarts, makeChunk, aggregateChunk, postprocess, waveform } from './dsp.js';
 import { estimateTempo, tempoMidi } from './tempo.js';
 import { createKeyEngine } from './key-engine.js';
+import { createPitchEngine } from './pitch-engine.js';
 
 ort.env.wasm.numThreads = 1; // Works on GitHub Pages without COOP/COEP headers.
 ort.env.wasm.wasmPaths = new URL('./ort/', import.meta.url).href;
@@ -17,6 +18,7 @@ const assets = createModelAssets(new URL('./models/', import.meta.url), progress
   includeFrontend: true
 });
 const analyzeKey = createKeyEngine(progress);
+const analyzePitch = createPitchEngine(progress);
 async function init(forceWasm = false) {
   constants = await assets.frontend();
   if (session && (!forceWasm || engine === 'wasm')) return;
@@ -99,14 +101,24 @@ self.onmessage = async ({ data }) => {
       }
     }
     const keyResult = await analyzeKey(audio);
+    if (session) {
+      await session.release();
+      session = null;
+    }
+    const pitchResult = await analyzePitch(
+      data.pitchAudio ? new Float32Array(data.pitchAudio) : null,
+      data.forceWasm
+    );
     const result = estimateTempo(detected.beats, detected.downbeats);
     const duration = audio.length / 22050;
-    const midi = result === -1 ? null : tempoMidi(result, duration);
+    const midi = result === -1 ? null : tempoMidi(result, duration, pitchResult.pitch?.notes || []);
     const response = {
       ...keyResult,
+      ...pitchResult,
       filename: data.filename,
       duration_seconds: duration,
       analysis_seconds: (performance.now() - started) / 1000,
+      midi_has_vocal: !!midi && !!pitchResult.pitch?.notes?.length,
       beat_count: detected.beats.length,
       downbeat_count: detected.downbeats.length,
       result: result === -1 ? -1 : { bpm: result.bpm, signature_beats: result.signature_beats },

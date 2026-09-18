@@ -9,6 +9,7 @@ from beat_this.inference import Audio2Beats
 from .config import ROOT, MAX_SECONDS
 from .tempo import estimate_tempo, tempo_midi_bytes
 from .key_analysis import analyze_key
+from .pitch_analysis import analyze_pitch
 
 class AnalysisError(Exception):
     def __init__(self, status_code, detail):
@@ -19,12 +20,12 @@ class AnalysisError(Exception):
 MODEL_LOCK = threading.Lock()
 MODEL = None
 
-def decode_audio(source):
-    decoded = source.with_name("decoded.wav")
+def decode_audio(source, sample_rate=22050):
+    decoded = source.with_name(f"decoded-{sample_rate}.wav")
     try:
         process = subprocess.run(
             ["ffmpeg", "-nostdin", "-v", "error", "-y", "-protocol_whitelist", "file,pipe", "-i", str(source),
-             "-map", "0:a:0", "-vn", "-t", str(MAX_SECONDS + 1), "-ac", "1", "-ar", "22050",
+             "-map", "0:a:0", "-vn", "-t", str(MAX_SECONDS + 1), "-ac", "1", "-ar", str(sample_rate),
              "-c:a", "pcm_f32le", str(decoded)],
             capture_output=True, timeout=120,
         )
@@ -78,6 +79,16 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
                 MODEL = Audio2Beats(checkpoint_path="final0", device="cpu", dbn=False)
             beats, downbeats = MODEL(audio, sr)
     key_result = analyze_key(audio)
+    try:
+        # Preserve the original 22.05 kHz beat/key decoding. GAME receives a
+        # separate 44.1 kHz decode of the source, never an upsampled beat input.
+        pitch_audio, pitch_sr, _ = decode_audio(source, sample_rate=44100)
+        pitch_audio, _, _ = select_audio(pitch_audio, pitch_sr, start_seconds, end_seconds)
+        pitch_result = analyze_pitch(pitch_audio, pitch_sr)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("GAME audio preparation failed")
+        pitch_result = {"pitch": None, "pitch_status": "error", "pitch_reason": "analysis_failed"}
     tempo = estimate_tempo(beats, downbeats)
     waveform = [float(np.max(np.abs(chunk))) for chunk in np.array_split(audio, 240)]
     peak = max(waveform)
@@ -85,11 +96,13 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
         waveform = [round(value / peak, 4) for value in waveform]
     midi = None
     result = -1
+    vocal_notes = (pitch_result.get("pitch") or {}).get("notes", [])
     if tempo != -1:
         result = {"bpm": tempo["bpm"], "signature_beats": tempo["signature_beats"]}
-        midi = tempo_midi_bytes(tempo, duration)
+        midi = tempo_midi_bytes(tempo, duration, vocal_notes)
     return {
         **key_result,
+        **pitch_result,
         "filename": filename,
         "source_duration_seconds": round(source_duration, 3),
         "selection_start_seconds": selection_start,
@@ -98,8 +111,11 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
         "analysis_seconds": round(time.perf_counter() - start, 2),
         "beat_count": len(beats),
         "downbeat_count": len(downbeats),
+        "beats": [float(value) for value in beats],
+        "downbeats": [float(value) for value in downbeats],
         "result": result,
         "tempo_mode": tempo["tempo_mode"] if tempo != -1 else "unavailable",
         "midi": midi,
+        "midi_has_vocal": midi is not None and bool(vocal_notes),
         "waveform": waveform,
     }

@@ -54,13 +54,27 @@ class WebAppTests(unittest.TestCase):
         data = response.json()
         self.assertEqual(data["result"], {"bpm": 68.007, "signature_beats": 4})
         self.assertEqual(data["beat_count"], 29)
+        self.assertEqual(len(data["beats"]), data["beat_count"])
+        self.assertEqual(len(data["downbeats"]), data["downbeat_count"])
+        self.assertEqual(data["beats"], sorted(data["beats"]))
+        self.assertTrue(all(0 <= beat < data["duration_seconds"] for beat in data["beats"]))
         self.assertEqual(data["key_status"], "estimated")
         self.assertEqual(data["key"]["label"], "G Major")
+        self.assertIn(data["pitch_status"], ("estimated", "unavailable"))
+        if data["pitch"]:
+            self.assertTrue(all(0 <= n["start_seconds"] < n["end_seconds"] <= data["duration_seconds"] + .001 for n in data["pitch"]["notes"]))
         self.assertGreater(len(data["waveform"]), 0)
         download = self.client.get(data["download_url"])
         self.assertEqual(download.status_code, 200)
         self.assertIn("attachment", download.headers["content-disposition"])
         midi = mido.MidiFile(file=io.BytesIO(download.content))
+        if data["pitch"]:
+            self.assertTrue(data["midi_has_vocal"])
+            self.assertEqual(midi.type, 1)
+            self.assertEqual([track.name for track in midi.tracks], ["Tempo", "Lead Vocal"])
+            self.assertEqual(sum(m.type == "note_on" for m in midi.tracks[1]), len(data["pitch"]["notes"]))
+        else:
+            self.assertFalse(data["midi_has_vocal"])
         self.assertEqual(midi.tracks[0][0].tempo, 882266)
         self.assertEqual((midi.tracks[0][1].numerator, midi.tracks[0][1].denominator), (4, 4))
 

@@ -1,0 +1,50 @@
+{
+  "model": "GAME Small",
+  "onnx_release": "v1.0.3",
+  "weights_release": "v1.0.0",
+  "precision": "float32",
+  "opset": 17,
+  "license": "cc-by-nc-sa-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "upstream_repository": "https://github.com/openvpi/GAME",
+  "upstream_release": "https://github.com/openvpi/GAME/releases/tag/v1.0.3",
+  "weights_license_source": "https://github.com/openvpi/GAME/releases/tag/v1.0.0",
+  "archive": {
+    "url": "https://github.com/openvpi/GAME/releases/download/v1.0.3/GAME-1.0.3-small-onnx.zip",
+    "bytes": 45676364,
+    "sha256": "00ba0c64115b6b874d9ea4afd3e6cf822abda2a04e52569233b0a044fd40e4e8"
+  },
+  "modifications": "None: all ONNX files and config.json are byte-for-byte copies from the official archive. Documentation and checksums were added by the mirror maintainer.",
+  "files": [
+    {
+      "name": "encoder.onnx",
+      "bytes": 10805372,
+      "sha256": "a6868a702d9c88ccc06b19e54f49d88b7f8cba4a68517f20806bd81ef6f94e06"
+    },
+    {
+      "name": "segmenter.onnx",
+      "bytes": 20906659,
+      "sha256": "7724db4ba59a388fff5aba2f08f0ac025d4ca59caef80e7f474053a1455c88e5"
+    },
+    {
+      "name": "estimator.onnx",
+      "bytes": 19335163,
+      "sha256": "a84738b2504472a1f22773cc6b0eccad1353a8f36229ad490b8fea85388bb5e1"
+    },
+    {
+      "name": "dur2bd.onnx",
+      "bytes": 2632,
+      "sha256": "49d10d1ea186e43c51fd2c51cedb01a3852d363f1c7056ae77df50f7e8dd0996"
+    },
+    {
+      "name": "bd2dur.onnx",
+      "bytes": 4569,
+      "sha256": "6672d56b00f27a20e9bfaa92801c15e394bb520e49031d3ed2515b0a6cf27402"
+    },
+    {
+      "name": "config.json",
+      "bytes": 198,
+      "sha256": "60dfe7e7b57db29475604eeea9b2abf5f8cd2a49326f1f4bc0e1c14ed151a55e"
+    }
+  ]
+}

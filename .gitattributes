@@ -1,0 +1,6 @@
+# Preserve the official model bundle byte-for-byte on every platform.
+assets/models/game/1.0.3-small/*.onnx binary
+assets/models/game/1.0.3-small/config.json -text whitespace=cr-at-eol
+# Upstream license text intentionally retains its final blank line.
+assets/models/game/1.0.3-small/LICENSE whitespace=-blank-at-eof
+third_party/GAME-Models-LICENSE whitespace=-blank-at-eof

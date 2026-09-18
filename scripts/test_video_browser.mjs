@@ -108,6 +108,7 @@ try {
       await page.locator('#play-button').click();
       assert.equal(await page.locator('#audio-player').evaluate((a) => a.paused), false);
       await page.locator('#play-button').click();
+      await page.locator('#range-editor > summary').click();
       await page.locator('#clip-start').fill('5');
       await page.locator('#clip-end').fill('20');
       await page.locator('#analyze-range').click();

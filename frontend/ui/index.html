@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101316">
-  <title data-i18n="pageTitle">Key &amp; Tempo — BPM, Key Detection &amp; MIDI</title>
-  <meta name="description" content="Drop in music to analyze BPM, time signature and key locally, then download a constant or variable MIDI tempo map." data-i18n-content="metaDescription">
+  <title data-i18n="pageTitle">Key &amp; Tempo — BPM, Key &amp; Vocal Range</title>
+  <meta name="description" content="Analyze BPM, meter, key and estimated vocal range on your device. Preview detected pitches and download a MIDI tempo map." data-i18n-content="metaDescription">
   <!-- Static English sharing metadata is readable without JavaScript. The build sets the public URL for each deployment. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Key &amp; Tempo">
-  <meta property="og:title" content="Key &amp; Tempo — BPM, Key Detection &amp; MIDI">
-  <meta property="og:description" content="Discover the BPM, meter and key of your music. Analyze locally and download a MIDI tempo map.">
+  <meta property="og:title" content="Key &amp; Tempo — BPM, Key &amp; Vocal Range">
+  <meta property="og:description" content="Discover tempo, key and estimated vocal range. Analyze locally, preview pitches and download a MIDI tempo map.">
   <meta property="og:url" content="https://hikari-tsai.github.io/music-detection/">
   <meta property="og:image" content="https://hikari-tsai.github.io/music-detection/og-image.jpg">
   <meta property="og:image:type" content="image/jpeg">
@@ -18,8 +18,8 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Key &amp; Tempo: BPM, key and MIDI tempo maps. Lime music waveform on a dark background.">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Key &amp; Tempo — BPM, Key Detection &amp; MIDI">
-  <meta name="twitter:description" content="Discover the BPM, meter and key of your music. Analyze locally and download a MIDI tempo map.">
+  <meta name="twitter:title" content="Key &amp; Tempo — BPM, Key &amp; Vocal Range">
+  <meta name="twitter:description" content="Discover tempo, key and estimated vocal range. Analyze locally, preview pitches and download a MIDI tempo map.">
   <meta name="twitter:image" content="https://hikari-tsai.github.io/music-detection/og-image.jpg">
   <meta name="twitter:image:alt" content="Key &amp; Tempo: BPM, key and MIDI tempo maps. Lime music waveform on a dark background.">
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
@@ -52,9 +52,9 @@
         <div class="intro-copy">
           <span class="intro-eyebrow">RHYTHM × HARMONY</span>
           <h1 id="page-title"><span data-i18n="heroBeat">Hear the beat.</span><br><span data-i18n="heroFind">Find the</span> <em>Key.</em></h1>
-          <p><span data-i18n="heroIntro">Drop in music. Discover its BPM, meter and key.</span><br><span data-i18n="heroNext">Take the MIDI tempo map into your next creation.</span></p>
+          <p><span data-i18n="heroIntro">Drop in music. Discover its tempo, key and vocal range.</span><br><span data-i18n="heroNext">Take the MIDI tempo map into your next creation.</span></p>
         </div>
-        <div class="banner-art" id="banner-art" data-paused="false">
+        <div class="banner-art" id="banner-art" data-paused="false" data-analyzing="false">
           <svg class="banner-visual" viewBox="0 0 420 280" aria-hidden="true">
             <defs>
               <linearGradient id="banner-wave-color" x1="0" x2="1"><stop stop-color="#c6f68a" stop-opacity="0"/><stop offset=".3" stop-color="#c6f68a"/><stop offset=".7" stop-color="#e1ffc0"/><stop offset="1" stop-color="#c6f68a" stop-opacity="0"/></lineargradient>
@@ -131,8 +131,9 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
               <span class="player-time" id="total-time">0:00</span>
             </div>
             <p id="preview-note" class="preview-note" hidden><span data-i18n="previewPython">Your browser cannot preview this format. Analysis is still available.</span></p>
-            <section class="range-editor" aria-labelledby="range-title">
-              <div class="range-heading"><h3 id="range-title" data-i18n="rangeTitle">Select an analysis range</h3><button id="reset-range" type="button" data-i18n="rangeReset" disabled>Whole track</button></div>
+            <details id="range-editor" class="range-editor">
+              <summary><span id="range-title" data-i18n="rangeTitle">Select an analysis range</span></summary>
+              <div class="range-heading"><button id="reset-range" type="button" data-i18n="rangeReset" disabled>Whole track</button></div>
               <fieldset id="range-fields" disabled><legend class="visually-hidden" data-i18n="rangeTitle">Select an analysis range</legend>
                 <div class="range-bar" id="range-bar">
                   <div class="range-track" aria-hidden="true"><span class="range-fill"></span></div>
@@ -147,7 +148,7 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
               <p id="range-summary" class="range-summary" aria-live="polite"></p>
               <p id="range-help" class="range-help"></p>
               <button id="analyze-range" class="choose-button analyze-range" type="button" data-i18n="rangeAnalyze" disabled>Analyze selected range</button>
-            </section>
+            </details>
             <audio id="audio-player" preload="metadata"></audio>
           </div>
           <p id="result-range" class="range-result" aria-live="polite" hidden></p>
@@ -158,12 +159,31 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
 
         <section class="result-panel" id="result-panel" aria-labelledby="result-title" aria-busy="false">
           <div class="panel-heading"><h2 id="result-title"><span class="step-number">02</span><span data-i18n="resultTitle">Analysis results</span></h2><span class="result-status" id="result-status"><span class="status-dot"></span><span id="result-status-text"><span data-i18n="waitingAudio">Awaiting audio</span></span></span></div>
-          <div class="tempo-metric"><span class="metric-label" id="tempo-label">TEMPO</span><div class="bpm-line"><output id="bpm-value" aria-label="BPM">—</output><span>BPM</span></div></div>
+          <div class="tempo-metric"><span class="metric-label" id="tempo-label">TEMPO</span><div class="bpm-line"><output id="bpm-value" aria-label="BPM">—</output><span>BPM</span></div>
+            <button id="tempo-click" class="tempo-click-button" type="button" disabled aria-pressed="false" aria-describedby="tempo-click-hint"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span id="tempo-click-label" data-i18n="clickPlay">Play click</span></button>
+            <p id="tempo-click-hint" class="tempo-click-hint" data-i18n="clickHint">Follows detected beat timing; a higher click marks each detected downbeat.</p>
+            <p id="tempo-click-error" class="pitch-play-error" role="alert" hidden data-i18n="clickError">Could not start click playback. Please try again.</p>
+          </div>
           <div class="signature-metric"><div><span class="metric-label">TIME SIGNATURE</span><p><span data-i18n="beatsPerBar">Beats per bar</span></p></div><div class="signature-value"><output id="signature-value" aria-label="Beats per bar" data-i18n-aria-label="beatsPerBar">—</output><span id="signature-denominator" hidden>/ 4</span></div></div>
           <div class="key-metric" aria-live="polite"><div><span class="metric-label">MUSICAL KEY</span><p id="key-description"><span data-i18n="keyEstimate">Global key estimate · S-KEY</span></p></div><output id="key-value" aria-label="Musical key" data-i18n-aria-label="keyAria">—</output></div>
+          <section class="pitch-metric" aria-labelledby="pitch-title">
+            <div class="pitch-heading"><h3 id="pitch-title" data-i18n="pitchTitle">Detected vocal range</h3><span id="pitch-runtime" class="precision-badge">GAME Small</span></div>
+            <div class="pitch-extremes">
+              <button id="pitch-lowest" class="pitch-note" type="button" disabled aria-label="Play lowest detected note on synthesizer" data-i18n-aria-label="pitchLowestAria"><span data-i18n="pitchLowest">Lowest note</span><strong id="pitch-lowest-value">—</strong><small id="pitch-lowest-detail">—</small></button>
+              <button id="pitch-highest" class="pitch-note" type="button" disabled aria-label="Play highest detected note on synthesizer" data-i18n-aria-label="pitchHighestAria"><span data-i18n="pitchHighest">Highest note</span><strong id="pitch-highest-value">—</strong><small id="pitch-highest-detail">—</small></button>
+            </div>
+            <p id="pitch-summary" class="pitch-summary" aria-live="polite" data-i18n="pitchInitial">Note estimates for this track or selection.</p>
+            <div id="pitch-transport" class="pitch-transport" hidden>
+              <div class="pitch-transport-heading"><span data-i18n="pitchSynthTitle">Synthesizer preview</span><span class="pitch-clock"><span id="pitch-current">0:00.00</span> / <span id="pitch-total">0:00.00</span></span></div>
+              <div class="pitch-controls"><button id="pitch-play" type="button" aria-pressed="false" disabled><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span id="pitch-play-label" data-i18n="pitchSynthPlay">Play notes</span></button><input id="pitch-seek" type="range" min="0" max="1" step="0.01" value="0" disabled aria-label="Synthesizer playback position" data-i18n-aria-label="pitchSeekAria"></div>
+            </div>
+            <p id="pitch-play-error" class="pitch-play-error" role="alert" hidden data-i18n="pitchSynthError">Could not start the synthesizer. Try pressing Play again.</p>
+            <figure id="pitch-chart" class="pitch-chart" hidden><canvas id="pitch-canvas" role="img" aria-label="Estimated note pitches over the selected audio timeline" data-i18n-aria-label="pitchChartAria"></canvas><figcaption data-i18n="pitchPreviewHint">Click the chart to play from that position. Lowest/highest buttons play a single synthesized tone; the audio player previews the original recording.</figcaption></figure>
+            <p class="pitch-caution" data-i18n="pitchCaution">Estimated from this recording, not the singer’s full vocal range. Harmony and instruments may be included; confirm by listening.</p>
+          </section>
           <p class="result-description" id="result-description"><span data-i18n="initialDescription">Detect BPM automatically. For variable tempo, see the average and export a tempo map.</span></p>
           <button class="download-button" id="download-midi" type="button" disabled><svg class="icon"><use href="#i-download"/></svg><span id="download-label"><span data-i18n="downloadMidi">Download MIDI Tempo</span></span><span class="extension">.mid</span></button>
-          <p class="midi-hint" id="midi-hint"><span data-i18n="midiOnly">Tempo and time signature only, no notes</span></p>
+          <p class="midi-hint" id="midi-hint"><span data-i18n="midiOnly">Tempo plus Lead Vocal notes when available</span></p>
         </section>
       </div>
 
@@ -175,8 +195,8 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
         <div><span>03 / CREATE</span><h3><span data-i18n="workflowCreate">Back to creating</span></h3><p><span data-i18n="workflowDaw">Download a .mid file for your DAW.</span></p></div>
       </section>
       <section class="model-info" aria-labelledby="models-title">
-        <div class="model-info-heading"><span class="metric-label">BEHIND THE MUSIC</span><h2 id="models-title"><span data-i18n="modelsTitle">Meet the models</span></h2><p><span data-i18n="modelsIntro">Two specialized models for rhythm and harmony. Know what powers your results.</span></p></div>
-        <div class="model-info-grid">
+        <div class="model-info-heading"><span class="metric-label">BEHIND THE MUSIC</span><h2 id="models-title"><span data-i18n="modelsTitle">Meet the models</span></h2><p><span data-i18n="modelsIntro">Three specialized models for rhythm, key and singing pitch.</span></p></div>
+        <div class="model-info-grid music-model-grid">
           <article class="model-card" aria-labelledby="beat-model-title">
             <span class="model-task"><span data-i18n="beatTask">Beats &amp; downbeats</span></span>
             <h3 id="beat-model-title">Beat This!</h3>
@@ -193,14 +213,31 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
             <p class="model-limitation"><span data-i18n="keyLimit">Estimates one global key, not chords or a modulation timeline. Relative keys and key changes can be ambiguous.</span></p>
             <div class="model-links"><a href="https://github.com/deezer/skey" target="_blank" rel="noreferrer" aria-label="S-KEY source code (opens in a new tab)" data-i18n-aria-label="keySourceAria"><span data-i18n="sourceLink">Source code</span> <span aria-hidden="true">↗</span></a><a href="https://arxiv.org/abs/2501.12907" target="_blank" rel="noreferrer" aria-label="S-KEY research paper (opens in a new tab)" data-i18n-aria-label="keyPaperAria"><span data-i18n="paperLink">Research paper</span> <span aria-hidden="true">↗</span></a></div>
           </article>
+          <article class="model-card" aria-labelledby="pitch-model-title">
+            <span class="model-task" data-i18n="pitchTask">Singing pitch &amp; note range</span>
+            <h3 id="pitch-model-title">GAME Small</h3><span class="model-source">openvpi · v1.0.3 · FP32</span>
+            <p data-i18n="pitchDescription">Estimates singing-note boundaries and pitches. The app displays a note timeline and the lowest and highest accepted pitches for the track or selected range.</p>
+            <p class="model-limitation" data-i18n="pitchLimit">Not a lead-vocal separator: harmony, accompaniment and octave errors can affect the range. Notes shorter than 80 ms are excluded. No labeled vocal-range accuracy benchmark has been completed.</p>
+            <p class="model-license" data-i18n="pitchLicense">Weights: CC BY-NC-SA 4.0 (attribution, noncommercial, ShareAlike). Code: MIT. Credit: openvpi/GAME contributors; original model release by yqzhishen.</p>
+            <div class="model-links"><a href="https://github.com/openvpi/GAME" target="_blank" rel="noopener noreferrer"><span data-i18n="sourceLink">Source code</span> ↗</a><a href="https://huggingface.co/aaatmy/game-small-onnx" target="_blank" rel="noopener noreferrer"><span data-i18n="pitchWeights">Model weights</span> ↗</a><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer"><span data-i18n="pitchLicenseLink">Model license</span> ↗</a><a href="https://github.com/openvpi/GAME/releases/tag/v1.0.0" target="_blank" rel="noopener noreferrer"><span data-i18n="pitchCredits">Original model &amp; credits</span> ↗</a></div>
+          </article>
         </div>
-        <p class="model-info-note"><span data-i18n="modelsNote">Results are model estimates; use your ears to check them. MIDI includes tempo and any detected time signature. The key is shown in the results.</span></p>
+        <p class="model-info-note"><span data-i18n="modelsNote">MIDI combines Tempo and available GAME notes in a Lead Vocal track; otherwise it contains tempo only. GAME does not isolate the lead singer. The key is shown in the results.</span></p>
       </section>
       <section class="model-info engine-comparison" aria-labelledby="engines-title">
-        <div class="model-info-heading"><h2 id="engines-title"><span data-i18n="compareTitle">ONNX vs. PyTorch: model differences</span></h2><p><span data-i18n="compareIntro">Both use the same Beat This! and S-KEY models to detect BPM, meter and key and generate tempo MIDI. The model format and runtime differ.</span></p></div>
+        <div class="model-info-heading"><h2 id="engines-title"><span data-i18n="compareTitle">ONNX vs. PyTorch: model differences</span></h2><p><span data-i18n="compareIntro">Both engines analyze tempo, key and pitch. Browser mode uses ONNX; Local Python uses PyTorch for Beat This! and S-KEY, and ONNX Runtime for GAME.</span></p></div>
         <aside class="accuracy-note" aria-labelledby="accuracy-title">
           <div class="accuracy-heading"><h3 id="accuracy-title" data-i18n="compareAccuracyTitle">Recognition accuracy</h3><span class="precision-badge" data-i18n="comparePrecision">Model weights: FP32</span></div>
-          <p data-i18n="compareAccuracy">ONNX export preserves the trained weights without retraining or quantization, and its model outputs are checked against PyTorch. FP32 describes numerical precision, not recognition accuracy. We have not benchmarked the two engines against labeled music to establish an accuracy advantage; audio decoding and numerical differences can still affect results.</p>
+          <p data-i18n="compareAccuracy">Beat This! and S-KEY exports have PyTorch conversion checks. GAME uses unchanged official FP32 ONNX; its vocal-range accuracy and PyTorch conversion error have not been benchmarked here. FP32 is numerical precision, not recognition accuracy. GAME sampling and engine differences may change note boundaries and range estimates.</p>
+          <div class="model-precision">
+            <h4 data-i18n="precisionTableTitle">Model numerical precision</h4>
+            <table aria-label="Model numerical precision" data-i18n-aria-label="precisionTableTitle"><thead><tr><th scope="col" data-i18n="precisionModel">Model</th><th scope="col" data-i18n="precisionBrowser">Browser ONNX</th><th scope="col" data-i18n="precisionPython">Local Python</th></tr></thead><tbody>
+              <tr><th scope="row">Beat This!</th><td>FP32<small>ONNX Runtime Web</small></td><td>FP32<small>PyTorch</small></td></tr>
+              <tr><th scope="row">S-KEY</th><td>FP32<small>ONNX Runtime Web</small></td><td>FP32<small>PyTorch</small></td></tr>
+              <tr><th scope="row">GAME Small</th><td>FP32<small>ONNX Runtime Web</small></td><td>FP32<small>ONNX Runtime</small></td></tr>
+            </tbody></table>
+            <p data-i18n="precisionNote">All three models use FP32 floating-point weights, without FP16 or INT8 quantization. FP32 describes numerical precision, not recognition accuracy.</p>
+          </div>
           <div class="export-errors" aria-labelledby="export-error-title">
             <h4 id="export-error-title"><span data-i18n="exportErrorTitle">ONNX export error · maximum absolute difference</span></h4>
             <div class="export-error-grid">
@@ -213,14 +250,14 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
         <div class="model-info-grid">
           <article class="model-card engine-card" aria-labelledby="compare-browser-title"><h3 id="compare-browser-title"><span data-i18n="compareBrowser">Browser ONNX · Recommended</span></h3><dl>
             <div><dt><span data-i18n="compareSetup">Getting started</span></dt><dd><span data-i18n="compareBrowserSetup">Open this page; no Python installation needed. Models download on first use and are cached when browser storage is available.</span></dd></div>
-            <div><dt><span data-i18n="compareRuntime">How it runs</span></dt><dd><span data-i18n="compareBrowserRuntime">ONNX Runtime Web runs exported models in a Web Worker. Beat This! tries WebGPU, with a WASM fallback; S-KEY uses WASM.</span></dd></div>
+            <div><dt><span data-i18n="compareRuntime">How it runs</span></dt><dd><span data-i18n="compareBrowserRuntime">ONNX Runtime Web runs exported models in a Web Worker. Beat This! and GAME try WebGPU with WASM fallback; S-KEY uses WASM.</span></dd></div>
             <div><dt><span data-i18n="comparePrivacy">Audio processing</span></dt><dd><span data-i18n="compareBrowserPrivacy">Audio is decoded and analyzed in your browser. It is not uploaded to an analysis server.</span></dd></div>
             <div><dt><span data-i18n="compareSpeed">Performance</span></dt><dd><span data-i18n="compareBrowserSpeed">Speed depends on browser, GPU support and available memory. ONNX is not always faster; the first run also includes model downloads.</span></dd></div>
             <div><dt><span data-i18n="compareBestFor">When to use it</span></dt><dd><span data-i18n="compareBrowserBestFor">Quick analysis with no installation, including the GitHub Pages version.</span></dd></div>
           </dl></article>
           <article class="model-card engine-card" aria-labelledby="compare-python-title"><h3 id="compare-python-title"><span data-i18n="comparePython">Local Python</span></h3><dl>
             <div><dt><span data-i18n="compareSetup">Getting started</span></dt><dd><span data-i18n="comparePythonSetup">Install Python dependencies and FFmpeg, then start the local FastAPI service. Model weights download on first use.</span></dd></div>
-            <div><dt><span data-i18n="compareRuntime">How it runs</span></dt><dd><span data-i18n="comparePythonRuntime">PyTorch runs the original models directly. This app currently uses CPU inference, with FFmpeg decoding the audio.</span></dd></div>
+            <div><dt><span data-i18n="compareRuntime">How it runs</span></dt><dd><span data-i18n="comparePythonRuntime">FFmpeg decodes audio. Beat This! and S-KEY run in PyTorch; GAME runs the same official ONNX graphs with ONNX Runtime. All use CPU.</span></dd></div>
             <div><dt><span data-i18n="comparePrivacy">Audio processing</span></dt><dd><span data-i18n="comparePythonPrivacy">The browser sends audio over HTTP to FastAPI on this computer (127.0.0.1:8765), which returns results and a MIDI download.</span></dd></div>
             <div><dt><span data-i18n="compareSpeed">Performance</span></dt><dd><span data-i18n="comparePythonSpeed">Speed depends on your CPU and available memory. It avoids browser runtime constraints but needs a running local service.</span></dd></div>
             <div><dt><span data-i18n="compareBestFor">When to use it</span></dt><dd><span data-i18n="comparePythonBestFor">A local Python workflow, or an alternative when browser inference cannot run. See the setup guide in the engine selector above.</span></dd></div>
@@ -228,14 +265,14 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
         </div>
       </section>
       <details class="method-note"><summary><span data-i18n="tempoQuestion">How are average BPM and variable tempo MIDI calculated?</span></summary><p><span data-i18n="tempoAnswer">Average BPM uses the number of beat intervals and the time from the first to the last beat. With at least five beats and a deviation of more than 30 ms from a constant grid, the result is marked as variable tempo. MIDI tempo changes follow each beat interval and preserve the initial beat offset. Import it at the same start time as the audio, with tempo-map import enabled in your DAW. The adjacent tempo extends before the first and after the last beat. Jitter or missed beats may also appear as tempo changes. An uncertain meter is omitted and does not by itself indicate variable tempo. When evidence is insufficient, a single average tempo is exported; insufficient or invalid beats, or tempos outside the MIDI range, return -1. Each detected beat is treated as a quarter note, so half-time and double-time ambiguity remain possible.</span></p></details>
-      <details class="method-note"><summary><span data-i18n="keyQuestion">What does the S-KEY result mean?</span></summary><p><span data-i18n="keyAnswer">S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. Tempo MIDI contains only tempo and any detected meter; the key is displayed on this page.</span></p></details>
+      <details class="method-note"><summary><span data-i18n="keyQuestion">What does the S-KEY result mean?</span></summary><p><span data-i18n="keyAnswer">S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. MIDI includes tempo, detected meter and available Lead Vocal notes; the key is displayed on this page.</span></p></details>
       <section class="report-issue" aria-labelledby="report-title">
         <div><h2 id="report-title" data-i18n="reportTitle">Found a problem?</h2><p data-i18n="reportDescription">Report bugs or share suggestions on GitHub Issues. Include your browser, operating system and analysis engine to help us investigate.</p></div>
         <a class="report-link" href="https://github.com/Hikari-Tsai/music-detection/issues" target="_blank" rel="noopener noreferrer" aria-label="Report an issue on GitHub (opens in a new tab)" data-i18n-aria-label="reportLinkAria"><span data-i18n="reportLink">Report an issue</span><span aria-hidden="true">↗</span></a>
       </section>
     </main>
 
-    <footer><span><span data-i18n="footer">Every beat, a new beginning.</span></span><a href="https://github.com/CPJKU/beat_this" target="_blank" rel="noreferrer">Beat This!<svg class="icon"><use href="#i-arrow"/></svg></a><a href="https://github.com/deezer/skey" target="_blank" rel="noreferrer">S-KEY<svg class="icon"><use href="#i-arrow"/></svg></a></footer>
+    <footer><span><span data-i18n="footer">Every beat, a new beginning.</span></span><a href="https://github.com/CPJKU/beat_this" target="_blank" rel="noreferrer">Beat This!<svg class="icon"><use href="#i-arrow"/></svg></a><a href="https://github.com/deezer/skey" target="_blank" rel="noreferrer">S-KEY<svg class="icon"><use href="#i-arrow"/></svg></a><a href="https://github.com/openvpi/GAME" target="_blank" rel="noopener noreferrer">GAME ↗</a></footer>
   </div>
 </body>
 </html>

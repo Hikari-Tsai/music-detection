@@ -15,12 +15,18 @@ class SelectionTests(unittest.TestCase):
         beats = np.array([0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75])
         with patch('backend.analysis.decode_audio', return_value=(source, 22050, 10)), \
              patch('backend.analysis.MODEL', return_value=(beats, beats[::4])) as model, \
-             patch('backend.analysis.analyze_key', return_value={'key_status':'estimated'}) as key:
+             patch('backend.analysis.analyze_key', return_value={'key_status':'estimated'}) as key, \
+             patch('backend.analysis.analyze_pitch', return_value={'pitch_status':'estimated'}) as pitch:
             result = analyze_file(Path('unused.wav'), 'test.wav', 2, 6)
         np.testing.assert_array_equal(model.call_args.args[0], source[44100:132300])
         np.testing.assert_array_equal(key.call_args.args[0], source[44100:132300])
+        np.testing.assert_array_equal(pitch.call_args.args[0], source[44100:132300])
+        self.assertEqual(pitch.call_args.args[1], 22050)
+        self.assertEqual(result['pitch_status'], 'estimated')
         self.assertEqual(result['duration_seconds'], 4)
         self.assertEqual(result['selection_start_seconds'], 2)
+        self.assertEqual(result['beats'], beats.tolist())
+        self.assertEqual(result['downbeats'], beats[::4].tolist())
         self.assertEqual(result['result']['bpm'], 120)
         midi = mido.MidiFile(file=io.BytesIO(result['midi']))
         self.assertAlmostEqual(midi.length, 4, delta=.001)
@@ -32,8 +38,8 @@ class SelectionTests(unittest.TestCase):
 
     def test_http_selection_is_applied_before_inference(self):
         # Sound outside the selection must not trigger either model.
-        source = np.zeros(22050*6); source[:22050]=.5; source[22050*5:]=.5
-        wav=io.BytesIO(); sf.write(wav,source,22050,format='WAV')
+        source = np.zeros(44100*6); source[:int(44100*.8)]=.5; source[int(44100*5.2):]=.5
+        wav=io.BytesIO(); sf.write(wav,source,44100,format='WAV')
         client=TestClient(app)
         response=client.post('/api/analyze', data={'start_seconds':'1','end_seconds':'5'},
             files={'file':('test.wav',wav.getvalue(),'audio/wav')})

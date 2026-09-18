@@ -13,6 +13,8 @@ export function createModelAssets(
   progress,
   {
     primaryBaseURL,
+    manifestOverride = null,
+    fallbackName,
     includeFrontend = false,
     timeoutMs = 30000,
     fetchImpl = globalThis.fetch,
@@ -21,9 +23,11 @@ export function createModelAssets(
 ) {
   const fallback = {
     base: new URL(baseURL),
-    name: ['localhost', '127.0.0.1', '[::1]'].includes(new URL(baseURL).hostname)
-      ? 'Local server'
-      : 'GitHub Pages'
+    name:
+      fallbackName ||
+      (['localhost', '127.0.0.1', '[::1]'].includes(new URL(baseURL).hostname)
+        ? 'Local server'
+        : 'GitHub Pages')
   };
   const sources = primaryBaseURL
     ? [{ base: new URL(primaryBaseURL), name: 'Hugging Face' }, fallback]
@@ -103,7 +107,7 @@ export function createModelAssets(
   async function fromSource(source, notice) {
     const report = (key, args = {}) => progress([...notice, `${source.name}: `, { key, args }]);
     report('modelSourceConnecting');
-    const manifest = await json(source, 'manifest.json');
+    const manifest = manifestOverride || (await json(source, 'manifest.json'));
     if (
       !manifest ||
       !/^[a-f0-9]{64}$/.test(manifest.sha256) ||

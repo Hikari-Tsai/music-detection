@@ -54,6 +54,8 @@ try {
   assert.equal(await page.locator('#key-value').innerText(), 'G major');
   assert.match(await page.locator('#result-range').innerText(), /whole track/);
   assert.equal(posts.length, 0);
+  assert.equal(await page.locator('#range-editor').evaluate((el) => el.open), false);
+  await page.locator('#range-editor > summary').click();
   await page.locator('#clip-start').fill('5');
   await page.locator('#clip-end').fill('20');
   assert.match(await page.locator('#range-summary').innerText(), /15.000/);

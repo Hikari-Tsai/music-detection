@@ -2,6 +2,8 @@ import { setText } from './i18n.js';
 import { createEngine } from './engine.js';
 import { decodeSource } from './audio-source.js';
 import { createRangeEditor } from './range-editor.js';
+import { createPitchView } from './pitch-view.js';
+import { createTempoClickView } from './tempo-click-view.js';
 const $ = (id) => document.getElementById(id);
 function makeEngine(kind) {
   return createEngine(kind, {
@@ -26,6 +28,14 @@ function updateEngineCopy() {
 updateEngineCopy();
 const input = $('audio-file');
 const audio = $('audio-player');
+const pitchView = createPitchView(() => {
+  audio.pause();
+  tempoClick.stop();
+});
+const tempoClick = createTempoClickView(() => {
+  audio.pause();
+  pitchView.pause();
+});
 const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac', 'mp4', 'mov']);
 let busy = false;
 let objectUrl = null;
@@ -62,6 +72,8 @@ function status(text, state = '') {
 }
 
 function resetResult() {
+  pitchView.reset();
+  tempoClick.reset();
   $('result-range').hidden = true;
   if (downloadUrl?.startsWith('blob:')) URL.revokeObjectURL(downloadUrl);
   downloadUrl = null;
@@ -76,12 +88,13 @@ function resetResult() {
   setText($('tempo-label'), 'TEMPO');
   setText($('download-label'), '下載 MIDI Tempo');
   setText($('result-description'), '自動分析 BPM；偵測到變速時，顯示平均值並匯出變速 MIDI。');
-  setText($('midi-hint'), '僅含速度與拍號，不含音符');
+  setText($('midi-hint'), { key: 'midiOnly' });
   status('等候音訊');
 }
 
 function setBusy(value) {
   busy = value;
+  $('banner-art').dataset.analyzing = String(value);
   $('choose-file').disabled = value;
   $('clear-file').disabled = value;
   input.disabled = value;
@@ -170,6 +183,7 @@ async function prepareFile(file) {
   objectUrl = URL.createObjectURL(file);
   audio.src = objectUrl;
   lastFile = file;
+  $('range-editor').open = false;
   sourceAudio = null;
   sourceDuration = 0;
   selection.setDuration(0);
@@ -229,6 +243,7 @@ async function analyze() {
   setText($('status-message'), '正在分析節拍，請稍候');
   setText($('elapsed'), { key: 'elapsed', args: { seconds: 0 } });
   setText($('key-description'), '等候調性分析');
+  pitchView.reset(true);
   status('分析中', 'loading');
   setBusy(true);
   drawWaveform();
@@ -247,6 +262,8 @@ async function analyze() {
       },
       { range, prepared: sourceAudio }
     );
+    pitchView.render(data, range?.start || 0);
+    tempoClick.render(data);
     if (data.key_status === 'estimated' && data.key) {
       setText($('key-value'), [data.key.tonic, ' ', { key: data.key.mode }]);
       setText($('key-description'), range ? { key: 'rangeKey' } : '全曲調性估計 · S-KEY');
@@ -299,7 +316,7 @@ async function analyze() {
           range
             ? { key: 'rangeVariable' }
             : '顯示整段平均 BPM；MIDI 依偵測拍點寫入速度變化。匯入時請與原音訊使用相同起點。',
-          hasSignature ? '' : '拍號未確定，僅匯出速度。'
+          hasSignature ? '' : { key: 'noMeter' }
         ]);
       } else if (data.tempo_mode === 'average') {
         status('平均估計', 'nonconstant');
@@ -307,7 +324,7 @@ async function analyze() {
         setText($('download-label'), '下載平均 MIDI Tempo');
         setText($('result-description'), [
           '資訊不足以確認固定或變速，先以整段拍點計算平均 BPM，MIDI 使用單一速度。',
-          hasSignature ? '' : '拍號未確定，僅匯出速度。'
+          hasSignature ? '' : { key: 'noMeter' }
         ]);
       } else {
         status('固定速度', 'complete');
@@ -317,14 +334,22 @@ async function analyze() {
       downloadName =
         file.name.replace(/\.[^.]+$/, '') +
         (range ? `_${range.start.toFixed(3)}-${range.end.toFixed(3)}s` : '') +
-        '_tempo.mid';
+        (data.midi_has_vocal ? '_tempo_vocal.mid' : '_tempo.mid');
+      if (data.midi_has_vocal) setText('download-label', { key: 'downloadVocalMidi' });
       $('download-midi').disabled = false;
       setText($('midi-hint'), [
-        hasSignature ? '僅含速度與拍號' : '僅含速度，不設定拍號',
+        data.midi_has_vocal
+          ? { key: 'midiVocalContents' }
+          : hasSignature
+            ? '僅含速度與拍號'
+            : '僅含速度，不設定拍號',
         engine.downloadHint(data)
       ]);
     }
   } catch (error) {
+    tempoClick.reset();
+    pitchView.reset();
+    setText('pitch-summary', { key: 'pitchInterrupted' });
     setText($('key-description'), '調性分析未完成');
     status('分析未完成');
     $('analysis-status').hidden = true;
@@ -401,7 +426,11 @@ function syncPlayButton() {
     .querySelector('use')
     .setAttribute('href', audio.paused ? '#i-play' : '#i-pause');
 }
-audio.addEventListener('play', syncPlayButton);
+audio.addEventListener('play', () => {
+  pitchView.pause();
+  tempoClick.stop();
+  syncPlayButton();
+});
 audio.addEventListener('pause', syncPlayButton);
 audio.addEventListener('timeupdate', () => {
   const bounds = selection.bounds;
@@ -422,8 +451,9 @@ $('play-button').addEventListener('click', async () => {
     if (bounds && (audio.currentTime < bounds.start || audio.currentTime >= bounds.end))
       audio.currentTime = bounds.start;
     await audio.play();
-  } catch {
-    $('preview-note').hidden = false;
+    $('preview-note').hidden = true;
+  } catch (error) {
+    if (error.name !== 'AbortError') $('preview-note').hidden = false;
   }
 });
 $('seek').addEventListener('input', () => {

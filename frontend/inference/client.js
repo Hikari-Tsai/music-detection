@@ -7,6 +7,16 @@ export async function analyzeInBrowser(file, onProgress, { range = null, prepare
   onProgress('正在瀏覽器內解碼音訊');
   const source = prepared || (await decodeSource(file));
   const mono = selectSamples(source.audio, source.sampleRate, range);
+  // Decode from the original file at GAME's native rate rather than upsampling
+  // the beat/key waveform. Keep the existing beat/key decoder numerically intact.
+  let pitchAudio = null;
+  try {
+    const pitchSource =
+      source.pitchSource || (source.pitchSource = await decodeSource(file, 44100));
+    pitchAudio = selectSamples(pitchSource.audio, pitchSource.sampleRate, range);
+  } catch (error) {
+    console.warn('GAME audio preparation failed; retaining beat/key inputs.', String(error));
+  }
   if (!worker) worker = makeWorker();
   return new Promise((resolve, reject) => {
     worker.onmessage = ({ data }) => {
@@ -30,10 +40,11 @@ export async function analyzeInBrowser(file, onProgress, { range = null, prepare
     worker.postMessage(
       {
         audio: mono.buffer,
+        pitchAudio: pitchAudio?.buffer,
         filename: file.name,
         forceWasm: new URL(location.href).searchParams.get('engine') === 'wasm'
       },
-      [mono.buffer]
+      pitchAudio ? [mono.buffer, pitchAudio.buffer] : [mono.buffer]
     );
   });
 }

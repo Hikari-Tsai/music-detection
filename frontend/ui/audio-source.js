@@ -35,10 +35,12 @@ export function makeWaveform(audio) {
   return peak > 0 ? waveform.map((value) => value / peak) : waveform;
 }
 
-export async function decodeSource(file) {
+export async function decodeSource(file, sampleRate = 22050) {
   let decoded;
   try {
-    decoded = await new OfflineAudioContext(1, 1, 22050).decodeAudioData(await file.arrayBuffer());
+    decoded = await new OfflineAudioContext(1, 1, sampleRate).decodeAudioData(
+      await file.arrayBuffer()
+    );
   } catch {
     if (/\.(mp4|mov)$/i.test(file.name))
       throw new Error(

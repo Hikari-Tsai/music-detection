@@ -2,6 +2,8 @@
 
 以下指令都在 repository 根目錄執行。
 
+GAME 音高分析的雙引擎流程、來源與限制另見 [GAME 文件](game.md)。以下既有數值比對紀錄主要針對 Beat This!／S-KEY，不代表 GAME 準確率。
+
 ## 純前端 ONNX 版本（可放 GitHub Pages）
 
 預設 Browser ONNX 模式將音訊解碼、頻譜計算、Beat This! 推論、拍點處理與 MIDI 產生全部移到瀏覽器，不呼叫 `/api/analyze` 或上傳音訊，模型輸出沿用原本的四分音符假設及固定／平均／變速判定。WebGPU 優先；初始化或推論失敗時重新使用 WASM CPU 分析。CPU 使用單執行緒，不需要 GitHub Pages 無法直接設定的跨來源隔離標頭。
@@ -48,7 +50,7 @@ HTTP 錯誤、網路中斷、設定格式錯誤、SHA-256／檔案大小不符�
 
 ### 調性分析與限制
 
-調性使用獨立的 **S-KEY FP32 ONNX（324,536 bytes，約 0.325 MB）**，前處理包含在模型內，共用 ONNX Runtime 的 WASM CPU 引擎。至少 3 秒有聲音訊才執行，全曲一次推論，顯示 24 種大調／小調之一。這是全曲估計，不是和弦或轉調時間軸；原模型分數不是經校準的準確率，因此 UI 不顯示信心百分比。調性模型載入或推論失敗仍保留 BPM 與 MIDI，重新選檔可重試。Tempo MIDI 內容維持速度與拍號。模型來源、匯出及比對見 [S-KEY 驗證](skey.md)。
+調性使用獨立的 **S-KEY FP32 ONNX（324,536 bytes，約 0.325 MB）**，前處理包含在模型內，共用 ONNX Runtime 的 WASM CPU 引擎。至少 3 秒有聲音訊才執行，全曲一次推論，顯示 24 種大調／小調之一。這是全曲估計，不是和弦或轉調時間軸；原模型分數不是經校準的準確率，因此 UI 不顯示信心百分比。調性模型載入或推論失敗仍保留 BPM 與 MIDI，重新選檔可重試。MIDI 的 Tempo 軌保存速度與拍號；有可用 GAME 音符時，另加入 Lead Vocal 軌並合併為單一 Type 1 MIDI，無音符時維持 Tempo-only。模型來源、匯出及比對見 [S-KEY 驗證](skey.md)。
 
 支援的音訊格式由瀏覽器解碼能力決定；WAV、MP3 最方便，遇到不支援的格式會要求轉檔。仍限制每檔 100 MB、20 分鐘；這是上限，不保證低記憶體手機能處理該長度。分析在 Worker 執行，輸出 MIDI 保留在頁面的 Blob，重新整理或清除音訊後需重新分析。
 
@@ -87,6 +89,6 @@ npm run test:skey-browser
 
 拖入音訊後解碼、顯示完整波形並自動分析全曲；若使用者調整雙把手或起訖秒數，則需按「分析選取範圍」才分析該片段。`frontend/ui/audio-source.js` 保留完整 PCM 與波形，`range-editor.js` 管理秒數和驗證。範圍最少 1 秒，S-KEY 至少需要 3 秒；修改範圍時清除舊結果與下載。
 
-瀏覽器 client 以選取秒數換算取樣位置，只複製片段送進 Worker，讓模型與 MIDI 使用片段相對時間。Local Python 的 multipart 請求另帶 `start_seconds`、`end_seconds`，後端驗證並裁切解碼後的音訊，再交給兩個模型；JSON 回傳來源長度與實際選取起訖秒數。前端會拒絕未確認範圍的舊版後端結果。
+瀏覽器 client 以選取秒數換算取樣位置，只複製片段送進 Worker，讓模型與 MIDI 使用片段相對時間。Local Python 的 multipart 請求另帶 `start_seconds`、`end_seconds`，後端驗證並裁切解碼後的音訊，再交給各模型；JSON 回傳來源長度與實際選取起訖秒數。前端會拒絕未確認範圍的舊版後端結果。
 
 MIDI 的 0 秒對應選取起點，下載檔名會包含起訖秒數。原檔及完整波形不會被修改，也不會產生裁切音訊下載。範圍功能的實際瀏覽器測試可執行 `npm run test:range-browser`，需要本機靜態伺服器與更新後的 Python 服務。

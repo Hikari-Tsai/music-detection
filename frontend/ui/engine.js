@@ -10,9 +10,7 @@ export function createEngine(
   return {
     kind: browser ? 'browser' : 'python',
     localNote: browser ? '瀏覽器本機運算' : '僅在本機處理',
-    privacyNote: browser
-      ? '音訊只在瀏覽器內分析，不會上傳。首次使用需下載約 82 MB 模型。'
-      : '音訊不會傳送至雲端，分析後即清除上傳暫存。',
+    privacyNote: browser ? { key: 'privacyBrowser' } : '音訊不會傳送至雲端，分析後即清除上傳暫存。',
     previewNote: browser
       ? '瀏覽器無法播放此音訊，請改用 WAV 或 MP3。'
       : '瀏覽器不支援此格式的試聽，仍可分析。',
@@ -41,7 +39,7 @@ export function createEngine(
       const response = await fetch(new URL('/api/analyze', pythonBaseURL), {
         method: 'POST',
         body,
-        signal: AbortSignal.timeout(300000)
+        signal: AbortSignal.timeout(1800000)
       });
       let data;
       try {
