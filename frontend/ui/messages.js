@@ -1,5 +1,45 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  runtimeConnecting: {
+    en: 'Preparing the analysis runtime download',
+    ja: '解析エンジンのダウンロードを準備中',
+    'zh-Hant': '正在準備下載分析執行引擎'
+  },
+  runtimeCached: {
+    en: 'Reading the cached analysis runtime',
+    ja: 'キャッシュ済みの解析エンジンを読み込み中',
+    'zh-Hant': '正在讀取已快取的分析執行引擎'
+  },
+  runtimeDownload: {
+    en: 'Downloading analysis runtime ({size} MB before transfer compression)',
+    ja: '解析エンジンをダウンロード中（転送圧縮前 {size} MB）',
+    'zh-Hant': '正在下載分析執行引擎（傳輸壓縮前 {size} MB）'
+  },
+  runtimeProgress: {
+    en: 'Downloading analysis runtime {percent}%',
+    ja: '解析エンジンをダウンロード中 {percent}%',
+    'zh-Hant': '正在下載分析執行引擎 {percent}%'
+  },
+  runtimeVerifying: {
+    en: 'Download complete; verifying analysis runtime',
+    ja: 'ダウンロード完了、解析エンジンを検証中',
+    'zh-Hant': '下載完成，正在驗證分析執行引擎'
+  },
+  runtimeConfig: {
+    en: 'Invalid analysis runtime configuration',
+    ja: '解析エンジンの設定が無効です',
+    'zh-Hant': '分析執行引擎設定不正確'
+  },
+  runtimeIntegrity: {
+    en: 'Analysis runtime size or checksum verification failed',
+    ja: '解析エンジンのサイズまたはチェックサムの検証に失敗しました',
+    'zh-Hant': '分析執行引擎檔案大小或雜湊驗證失敗'
+  },
+  runtimeFailed: {
+    en: 'ONNX Runtime download failed. The CDN and fallback source are unavailable. Check your connection and try again.',
+    ja: 'ONNX Runtime のダウンロードに失敗しました。CDN と予備の配信元の両方を利用できません。接続を確認して再試行してください。',
+    'zh-Hant': 'ONNX Runtime 執行引擎下載失敗，CDN 與備援來源皆無法使用，請檢查網路後重試。'
+  },
   browserWorkerStarting: {
     en: 'Starting the browser analysis engine',
     ja: 'ブラウザーの解析エンジンを起動中',

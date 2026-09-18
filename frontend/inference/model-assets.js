@@ -13,6 +13,8 @@ export function createModelAssets(
   progress,
   {
     primaryBaseURL,
+    primaryName = 'Hugging Face',
+    assetKind = 'model',
     manifestOverride = null,
     fallbackName,
     includeFrontend = false,
@@ -30,7 +32,7 @@ export function createModelAssets(
         : 'GitHub Pages')
   };
   const sources = primaryBaseURL
-    ? [{ base: new URL(primaryBaseURL), name: 'Hugging Face' }, fallback]
+    ? [{ base: new URL(primaryBaseURL), name: primaryName }, fallback]
     : [fallback];
   let bundle = null,
     pending = null;
@@ -113,7 +115,7 @@ export function createModelAssets(
       !/^[a-f0-9]{64}$/.test(manifest.sha256) ||
       !Number.isSafeInteger(manifest.model_bytes) ||
       manifest.model_bytes < 1 ||
-      !/^[\w.-]+\.onnx$/.test(manifest.model_file)
+      !(assetKind === 'runtime' ? /^[\w.-]+\.wasm$/ : /^[\w.-]+\.onnx$/).test(manifest.model_file)
     )
       throw new SourceError('modelSourceConfig');
     const frontend = includeFrontend ? await json(source, 'frontend.json') : null;
@@ -139,7 +141,7 @@ export function createModelAssets(
     const cacheURL = new URL(manifest.model_file, fallback.base).href;
     let cache;
     try {
-      cache = await cacheStorage?.open(`tempo-model-${manifest.sha256}`);
+      cache = await cacheStorage?.open(`tempo-${assetKind}-${manifest.sha256}`);
       const response = await cache?.match(cacheURL);
       if (response) {
         report('modelCached');
@@ -185,11 +187,13 @@ export function createModelAssets(
         if (index + 1 === sources.length) {
           progress([...notice, `${sources[index].name}: `, reason]);
           throw new ModelLoadError(
-            primaryBaseURL
-              ? 'Hugging Face 與備援來源皆無法載入模型，請檢查網路後重試。'
-              : error.reason === 'modelSourceIntegrity'
-                ? '模型檔案驗證失敗，請重新下載。'
-                : '模型下載失敗，請確認網路連線後再試。'
+            assetKind === 'runtime'
+              ? 'ONNX Runtime 執行引擎下載失敗，CDN 與備援來源皆無法使用，請檢查網路後重試。'
+              : primaryBaseURL
+                ? 'Hugging Face 與備援來源皆無法載入模型，請檢查網路後重試。'
+                : error.reason === 'modelSourceIntegrity'
+                  ? '模型檔案驗證失敗，請重新下載。'
+                  : '模型下載失敗，請確認網路連線後再試。'
           );
         }
         notice = [

@@ -32,6 +32,10 @@ Main 適合日常使用；Staging 提供尚未合併至 main 的變更。
 
 瀏覽器模式不需安裝 Python，也不會上傳音訊。首次模型下載合計約 134 MB（不含執行環境），優先從 Hugging Face 下載；Beat This!／S-KEY 以 GitHub Pages 備援，GAME 則以固定版本的 GitHub Repo 副本備援。皆驗證 SHA-256 並嘗試快取。
 
+ONNX Runtime 執行引擎另由 **unpkg CDN** 優先提供，GitHub Pages 備援；WASM 解壓後約 27.2 MB，同樣驗證並快取。進度會分開顯示引擎下載與 GPU／CPU 初始化，下載期間不計入初始化逾時。
+
+下載來源統一在 [`frontend/inference/download-sources.js`](frontend/inference/download-sources.js) 管理，包含三個模型與 Runtime 的主要／備援網址；修改後需重新建置。
+
 選取片段至少 1 秒，調性分析至少 3 秒。MIDI 的 0 秒對應片段起點；若放回原曲，請對齊所選起點。有可用音符時，輸出 Type 1 MIDI：`Tempo` 軌保存速度／可判定拍號，`Lead Vocal` 軌保存 GAME 音符，依變速表換算時間（480 ticks／四分音符）。音高取最近的 MIDI 半音，力度固定 90、預設鋼琴音色；不輸出滑音、歌詞或和弦。GAME 無結果或失敗時保留 Tempo-only 下載；BPM 無法判定時維持不提供 MIDI。
 
 ## 兩種分析方式

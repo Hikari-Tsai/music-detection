@@ -29,18 +29,27 @@ GitHub Pages 使用 `.github/workflows/pages.yml`，推送至 `main` 或 `stagin
 
 正式網址：[Key & Tempo](https://hikari-tsai.github.io/music-detection/)；預覽網址：[Staging](https://hikari-tsai.github.io/music-detection/staging/)。各自的 `deployment.json` 記錄發布分支與 commit。手動執行可選擇 `main` 或 `staging`，兩者都會發布兩個版本；其他分支會略過。Pages 的來源設為 GitHub Actions，`github-pages` environment 須允許這兩個部署分支。完整操作見 [README](../README.md)。
 
-瀏覽器會在首次有聲音訊分析時下載約 **82 MB 的 FP32 ONNX 模型**，另需下載 WASM 分析引擎。模型以 SHA-256 驗證，成功後嘗試存入 Cache Storage；快取被瀏覽器清除或不允許儲存時仍可使用，但下次可能重新下載。這不是完整離線 PWA，網頁及 runtime 仍需可載入。
+瀏覽器會在首次有聲音訊分析時下載約 **134 MB 的 FP32 ONNX 模型**（Beat This!、S-KEY 與 GAME），另需下載 WASM 分析引擎。模型與 WASM 以 SHA-256 驗證，成功後嘗試存入 Cache Storage；快取被瀏覽器清除或不允許儲存時仍可使用，但下次可能重新下載。這不是完整離線 PWA，網頁程式及模型設定仍需可載入。
+
+### 執行引擎下載來源
+
+ONNX Runtime Web 固定為 **1.24.3**。`ort-wasm-simd-threaded.asyncify.wasm` 優先從 [unpkg](https://unpkg.com/onnxruntime-web@1.24.3/dist/ort-wasm-simd-threaded.asyncify.wasm) 下載，失敗時改用同網站的 `./ort/`（正式部署為 GitHub Pages，本機為 Local server）。解壓後約 27.2 MB；實際傳輸量依伺服器壓縮而異。JavaScript 與匹配的 runtime factory 隨應用程式打包，建置時檢查套件版本與 WASM 雜湊，避免版本混用。
+
+執行引擎沿用檔案大小／SHA-256 驗證、30 秒無資料傳輸逾時與 Cache Storage；下載進度獨立顯示來源、百分比、快取及備援原因。即使下載超過 60 秒，只要持續收到資料便會繼續；完整下載並驗證後，才設定 `ort.env.wasm.wasmBinary` 並開始 session 初始化計時。GPU 逾時後建立的新 CPU Worker 可重用已驗證的快取，不需重新下載整份引擎。若瀏覽器禁止快取，重試仍可能再次下載。
 
 ### 模型下載來源與備援
 
-`frontend/inference/model-sources.js` 固定 Hugging Face 的版本：
+`frontend/inference/download-sources.js` 集中管理 Beat This!、S-KEY、GAME 與 ONNX Runtime 的主要／備援下載網址、來源名稱與固定版本。`primaryBaseURL` 為主要來源，`fallbackBaseURL` 為備援；兩者都需保留結尾 `/`。相對備援路徑依建置後的 Worker 位置解析，因此支援 main、staging 與本機服務。修改後需重新建置／部署。Runtime 的版本、檔名、大小與 SHA-256 也在同檔的 `runtime.manifest` 管理，升級時需與 `package.json` 套件版本一致。
+
+模型來源如下：
 
 | 模型 | Hugging Face repository | Revision | 同網站備援目錄 |
 | --- | --- | --- | --- |
 | Beat This! | [aaatmy/beat-this-onnx](https://huggingface.co/aaatmy/beat-this-onnx) | `e2c0d4376fac8141905a8312c1b327849751d59c` | `./models/` |
 | S-KEY | [aaatmy/skey-onnx](https://huggingface.co/aaatmy/skey-onnx) | `c04b6a2bc1d82e50b46d8669560d056f3a2344ab` | `./models/skey/` |
+| GAME Small | [aaatmy/game-small-onnx](https://huggingface.co/aaatmy/game-small-onnx) | `ea339353ea4a04b4bf3847e1a192854100778be5` | 固定 Git commit 的 raw.githubusercontent.com 副本 |
 
-每個模型先從 Hugging Face 取得 manifest 與必要設定，再使用通過雜湊驗證的快取或下載模型。只有來源失敗才依序嘗試同網站備援；正式部署即為 GitHub Pages。本機開發則從本機伺服器備援，進度會顯示 `Local server`。
+Beat This!／S-KEY 先從 Hugging Face 取得 manifest 與必要設定，再使用通過雜湊驗證的快取或下載模型。只有來源失敗才嘗試同網站備援；正式部署即為 GitHub Pages，本機開發顯示 `Local server`。GAME 使用隨程式打包的 manifest，從 Hugging Face 下載各 ONNX 檔，失敗時改用設定檔內固定 Git commit 的 GitHub 副本。
 
 HTTP 錯誤、網路中斷、設定格式錯誤、SHA-256／檔案大小不符，或連續 30 秒沒有收到資料，皆會觸發切換。30 秒是等待回應或下一段資料的上限，不是整個模型的下載期限；持續有進度的慢速下載不會因此中斷。下載提示以英文、日文、繁體中文顯示來源、百分比及驗證狀態，備援期間保留失敗原因。
 
@@ -58,7 +67,7 @@ HTTP 錯誤、網路中斷、設定格式錯誤、SHA-256／檔案大小不符�
 
 - `scripts/export_onnx.py`：opset 17、FP32、動態時間長度；停用 rotary embedding 快取後匯出原模型，驗證 63／128／1264／1500 frames 與 PyTorch 的分數差異。
 - `frontend/inference/dsp.js`：22,050 Hz PCM → 1024 點週期 Hann、441 hop、reflect padding、幅度頻譜正規化、128 維 Slaney Log-Mel。窗函數與濾波器直接從 torchaudio 匯出。
-- `frontend/inference/model-assets.js`：依序載入 Hugging Face／同網站配套資源、逾時與驗證、來源進度與可選快取；來源版本在 `model-sources.js` 管理。
+- `frontend/inference/model-assets.js`：依序載入 Hugging Face／同網站配套資源、逾時與驗證、來源進度與可選快取；來源設定在 `download-sources.js` 管理。
 - `frontend/inference/worker.js`：1500-frame 分段、6-frame 邊界、keep-first 合併，與官方流程一致；模型分數轉拍點，再生成結果。
 - `frontend/inference/key-engine.js`：快取獨立 S-KEY session，22,050 Hz 單聲道 PCM 直接推論，調性失敗隔離；`key.js` 使用共用官方類別表。
 - `frontend/inference/tempo.js`：固定／平均／變速判定、純 JavaScript MIDI meta event 編碼。變速圖對齊的是模型拍點，抖動或漏拍也會反映在檔案中。
@@ -91,7 +100,7 @@ npm run test:skey-browser
 
 CPU 每次初始化最多 120 秒，逾時便終止 Worker、顯示三語錯誤訊息並恢復頁面操作，不再自動重試。Worker 啟動後 30 秒內若未回應，也會結束等待。正常回報的 GPU 初始化／推論錯誤仍沿用既有 WASM 備援。
 
-初始化計時涵蓋 ONNX Runtime 資源載入與 session 建立，套用於 Beat This!、S-KEY 及 GAME 各個模型。模型下載沿用 30 秒無資料傳輸逾時；音訊解碼、頻譜計算、推論與 session 釋放不受初始化時限限制。`?engine=wasm` 直接使用 CPU，也受 CPU 初始化時限保護。背景分頁或裝置休眠可能延後瀏覽器計時器執行。
+初始化計時涵蓋 WASM 編譯／引擎初始化與 session 建立，套用於 Beat This!、S-KEY 及 GAME 各個模型；在模型與 WASM 下載完成後才開始。模型與執行引擎下載各自採用 30 秒無資料傳輸逾時，下載失敗會顯示來源錯誤，不誤報 GPU 初始化逾時。音訊解碼、頻譜計算、推論與 session 釋放不受初始化時限限制。`?engine=wasm` 直接使用 CPU，也受 CPU 初始化時限保護。背景分頁或裝置休眠可能延後瀏覽器計時器執行。
 
 ## 範圍分析
 

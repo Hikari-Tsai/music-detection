@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { HUGGING_FACE_MODELS } from '../frontend/inference/model-sources.js';
+import { DOWNLOAD_SOURCES } from '../frontend/inference/download-sources.js';
 const base = process.env.TEST_URL || 'http://127.0.0.1:8766/';
 const api = 'http://127.0.0.1:8765';
 const browser = await chromium.launch({
@@ -15,7 +15,10 @@ try {
   });
   // Exercise real models through the site's HTTP fallback. Sending 82 MB through
   // Playwright route.fulfill exceeds Chrome's DevTools pipe message capacity.
-  for (const source of Object.values(HUGGING_FACE_MODELS)) {
+  for (const source of [
+    DOWNLOAD_SOURCES.beat.primaryBaseURL,
+    DOWNLOAD_SOURCES.key.primaryBaseURL
+  ]) {
     await context.route(source + '**', (route) =>
       route.fulfill({ status: 503, body: 'Use local test models' })
     );
