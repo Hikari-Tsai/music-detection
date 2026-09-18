@@ -7,6 +7,8 @@ half/double-time ambiguity or infer the notated denominator.
 import argparse
 import io
 import json
+import math
+from bisect import bisect_right
 from pathlib import Path
 
 import mido
@@ -83,8 +85,46 @@ def estimate_tempo(beats, downbeats, tolerance_seconds=0.03):
     return result
 
 
-def tempo_midi_bytes(result, duration):
-    """Build a tempo track, preserving variable beat timing relative to audio 0."""
+def _vocal_track(notes, duration, events):
+    seconds, starts, segments = 0., [], []
+    for i, (tick, tempo) in enumerate(events):
+        if i:
+            seconds += mido.tick2second(tick - events[i-1][0], 480, events[i-1][1])
+        starts.append(seconds)
+        segments.append((tick, tempo))
+
+    def to_tick(time):
+        index = max(0, bisect_right(starts, time) - 1)
+        tick, tempo = segments[index]
+        return round(tick + mido.second2tick(time - starts[index], 480, tempo))
+
+    messages = []
+    for note in notes:
+        start, end, pitch = (note[k] for k in ('start_seconds', 'end_seconds', 'midi'))
+        if not all(math.isfinite(v) for v in (start, end, pitch)) or not 0 <= pitch <= 127:
+            continue
+        start, end = max(0, start), min(duration, end)
+        if end <= start:
+            continue
+        on = to_tick(start)
+        off = max(on + 1, to_tick(end))
+        pitch = math.floor(pitch + .5)
+        messages.extend([(on, 1, pitch), (off, 0, pitch)])
+    if not messages:
+        return None
+    track = mido.MidiTrack([mido.MetaMessage('track_name', name='Lead Vocal'),
+                            mido.Message('program_change', channel=0, program=0)])
+    previous = 0
+    for tick, on, pitch in sorted(messages):
+        track.append(mido.Message('note_on' if on else 'note_off', channel=0,
+                                  note=pitch, velocity=90 if on else 0, time=tick-previous))
+        previous = tick
+    track.append(mido.MetaMessage('end_of_track', time=max(0,to_tick(duration)-previous)))
+    return track
+
+
+def tempo_midi_bytes(result, duration, notes=None):
+    """Build tempo plus optional Lead Vocal, preserving time relative to audio 0."""
     midi = mido.MidiFile(type=0, ticks_per_beat=480)
     track = mido.MidiTrack()
     midi.tracks.append(track)
@@ -99,10 +139,16 @@ def tempo_midi_bytes(result, duration):
         for i, tempo in enumerate(tempos[1:], start=1):
             if tempo != events[-1][1]:
                 events.append((first_tick + i * 480, tempo))
+    vocal = _vocal_track(notes or [], duration, events)
+    if vocal is not None:
+        midi.type = 1
+        midi.tracks.append(vocal)
     track.append(mido.MetaMessage("set_tempo", tempo=events[0][1], time=0))
     if result["signature_beats"] is not None:
         track.append(mido.MetaMessage("time_signature", numerator=result["signature_beats"],
                                       denominator=4, time=0))
+    if vocal is not None:
+        track.append(mido.MetaMessage('track_name', name='Tempo', time=0))
     previous_tick, elapsed, current_tempo = 0, 0., events[0][1]
     for tick, tempo in events[1:]:
         delta = tick - previous_tick

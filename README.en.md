@@ -4,7 +4,7 @@
 
 # Key & Tempo
 
-Analyze music BPM, meter, key and estimated vocal range on your own device, then download a MIDI tempo file. Runs in your browser with ONNX by default, with an optional local Python engine.
+Analyze music BPM, meter, key and estimated vocal range on your own device, then export tempo and available Lead Vocal notes in one MIDI file. Runs in your browser with ONNX by default, with an optional local Python engine.
 
 [![Main — Production](docs/buttons/main.svg)](https://hikari-tsai.github.io/music-detection/)
 [![Staging — Preview](docs/buttons/staging.svg)](https://hikari-tsai.github.io/music-detection/staging/)
@@ -17,7 +17,7 @@ Use Main for everyday use, or Staging to try changes not yet merged into main.
 - Preview detected beats with a click track; higher clicks mark detected downbeats.
 - View GAME's note timeline, lowest/highest notes and range; play/pause synthesized notes, seek on the chart and audition either extreme as a single tone.
 - Select and preview a clip, then analyze that range without modifying the original file.
-- Export a single tempo for constant timing, or show average BPM and export a variable tempo map when changes are detected.
+- Export one MIDI with Tempo/meter and Lead Vocal note tracks, retaining constant or variable tempo as detected.
 - Switch between Browser ONNX and Local Python in the same interface.
 - English, Japanese and Traditional Chinese, selected automatically from the browser language.
 
@@ -28,11 +28,11 @@ Supports **WAV, MP3, FLAC, M4A, OGG, AIFF, AAC, MP4 and MOV**, up to **100 MiB a
 1. Open [Main — Production](https://hikari-tsai.github.io/music-detection/) or [Staging — Preview](https://hikari-tsai.github.io/music-detection/staging/) and keep **Browser ONNX** selected.
 2. Drop in a file for automatic whole-track analysis. The first run downloads the models.
 3. To analyze a clip, adjust the range and press **Analyze selected range**.
-4. Review the results and download the MIDI tempo file.
+4. Review and audition the results, then download the combined Tempo + Lead Vocal MIDI.
 
 Browser mode needs no Python installation and does not upload audio. First-use models total about 134 MB, excluding the runtime. Hugging Face is primary; Beat This!/S-KEY fall back to GitHub Pages, while GAME falls back to a pinned GitHub repository copy. Files are SHA-256 verified and cached when possible.
 
-Selections must be at least 1 second; key analysis needs at least 3 seconds. MIDI time zero corresponds to the clip's start, so align it with that position when using the original track. MIDI contains tempo and any reliably estimated meter, without notes or chords.
+Selections must be at least 1 second; key analysis needs at least 3 seconds. MIDI time zero corresponds to the clip's start, so align it with that position when using the original track. When notes are available, a Type 1 MIDI contains a `Tempo` track with tempo/meter and a `Lead Vocal` track with GAME notes. Seconds are converted against the exported tempo map at 480 ticks per quarter note. Pitches are rounded to the nearest MIDI semitone, with fixed velocity 90 and a default piano program; no pitch bends, lyrics or chords are exported. Missing/failed GAME results preserve the tempo-only download; unavailable BPM still means no MIDI export.
 
 ## Analysis engines
 
@@ -41,7 +41,13 @@ Selections must be at least 1 second; key analysis needs at least 3 seconds. MID
 | **Browser ONNX (default)** | Browser Web Worker using WebGPU/WASM | Immediate online use, with audio kept in the browser |
 | **Local Python** | Local FastAPI, FFmpeg, PyTorch/ONNX Runtime | Python inference or audio codecs the browser cannot decode |
 
-GAME uses the official FP32 ONNX in both engines. Local Python retains PyTorch for Beat This!/S-KEY. Pitch failures preserve tempo/key results and MIDI downloads.
+| Model | Browser ONNX floating-point weights | Local Python floating-point weights |
+| --- | --- | --- |
+| Beat This! | FP32 · ONNX Runtime Web | FP32 · PyTorch |
+| S-KEY | FP32 · ONNX Runtime Web | FP32 · PyTorch |
+| GAME Small | FP32 · ONNX Runtime Web | FP32 · ONNX Runtime |
+
+None of these bundles is FP16/INT8 quantized. **FP32 is numerical precision, not recognition accuracy.** Existing Beat This!/S-KEY ONNX conversion checks recorded maximum absolute output differences of about `6.1393 × 10⁻⁶` / `3.7551 × 10⁻⁶`; these are not BPM errors or accuracy percentages. See [Browser ONNX](docs/browser.md) for scope. GAME has no project-specific PyTorch export-parity or labeled vocal-range accuracy benchmark. Pitch failures preserve tempo/key results and tempo-only downloads.
 
 Local Python receives the original file and selected range through `POST /api/analyze`, returning results and a MIDI download URL. Audio is sent only to the service on the same computer.
 

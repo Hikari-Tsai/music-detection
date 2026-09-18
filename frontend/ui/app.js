@@ -88,7 +88,7 @@ function resetResult() {
   setText($('tempo-label'), 'TEMPO');
   setText($('download-label'), '下載 MIDI Tempo');
   setText($('result-description'), '自動分析 BPM；偵測到變速時，顯示平均值並匯出變速 MIDI。');
-  setText($('midi-hint'), '僅含速度與拍號，不含音符');
+  setText($('midi-hint'), { key: 'midiOnly' });
   status('等候音訊');
 }
 
@@ -314,7 +314,7 @@ async function analyze() {
           range
             ? { key: 'rangeVariable' }
             : '顯示整段平均 BPM；MIDI 依偵測拍點寫入速度變化。匯入時請與原音訊使用相同起點。',
-          hasSignature ? '' : '拍號未確定，僅匯出速度。'
+          hasSignature ? '' : { key: 'noMeter' }
         ]);
       } else if (data.tempo_mode === 'average') {
         status('平均估計', 'nonconstant');
@@ -322,7 +322,7 @@ async function analyze() {
         setText($('download-label'), '下載平均 MIDI Tempo');
         setText($('result-description'), [
           '資訊不足以確認固定或變速，先以整段拍點計算平均 BPM，MIDI 使用單一速度。',
-          hasSignature ? '' : '拍號未確定，僅匯出速度。'
+          hasSignature ? '' : { key: 'noMeter' }
         ]);
       } else {
         status('固定速度', 'complete');
@@ -332,10 +332,15 @@ async function analyze() {
       downloadName =
         file.name.replace(/\.[^.]+$/, '') +
         (range ? `_${range.start.toFixed(3)}-${range.end.toFixed(3)}s` : '') +
-        '_tempo.mid';
+        (data.midi_has_vocal ? '_tempo_vocal.mid' : '_tempo.mid');
+      if (data.midi_has_vocal) setText('download-label', { key: 'downloadVocalMidi' });
       $('download-midi').disabled = false;
       setText($('midi-hint'), [
-        hasSignature ? '僅含速度與拍號' : '僅含速度，不設定拍號',
+        data.midi_has_vocal
+          ? { key: 'midiVocalContents' }
+          : hasSignature
+            ? '僅含速度與拍號'
+            : '僅含速度，不設定拍號',
         engine.downloadHint(data)
       ]);
     }

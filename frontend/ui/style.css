@@ -212,3 +212,11 @@ footer > span { margin-right: auto; }
 .tempo-click-button[aria-pressed="true"]{background:#c6f68a;color:#182016}
 .tempo-click-button:disabled{opacity:.4;cursor:not-allowed}
 .tempo-click-hint{margin:8px 0 0;font-size:11px;line-height:1.65;color:#a2afa4}
+
+.model-precision{margin-top:18px}
+.model-precision h4{font-size:13px;font-weight:500;margin:0 0 10px;color:#dce5d6}
+.model-precision table{width:100%;border-collapse:collapse;table-layout:fixed;text-align:left;font-size:12px}
+.model-precision th,.model-precision td{padding:10px 9px;border-bottom:1px solid #354031;overflow-wrap:anywhere;vertical-align:top}
+.model-precision th{font-weight:500;color:#bdcbb5}
+.model-precision td{font-family:var(--mono);color:var(--accent)}
+.model-precision small{display:block;font:10px/1.6 var(--sans);color:#a2afa4;margin-top:3px}

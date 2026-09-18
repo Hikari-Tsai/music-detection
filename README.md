@@ -4,7 +4,7 @@
 
 # Key & Tempo
 
-在自己的裝置上分析音樂的 BPM、拍號、調性與估計歌聲音域，並下載 MIDI Tempo 檔案。預設使用瀏覽器 ONNX，也可切換至本機 Python。
+在自己的裝置上分析音樂的 BPM、拍號、調性與估計歌聲音域，並匯出含 Tempo 與可用 Lead Vocal 音符的 MIDI。預設使用瀏覽器 ONNX，也可切換至本機 Python。
 
 [![Main 正式版](docs/buttons/main.svg)](https://hikari-tsai.github.io/music-detection/)
 [![Staging 預覽版](docs/buttons/staging.svg)](https://hikari-tsai.github.io/music-detection/staging/)
@@ -17,7 +17,7 @@ Main 適合日常使用；Staging 提供尚未合併至 main 的變更。
 - BPM 區提供 click 試聽，依偵測拍點播放，並以高音 click 標示小節首拍。
 - 顯示 GAME 音符時間圖、最高／最低音及音域跨度；提供合成器播放／暫停、點選圖表跳轉與最高／最低音單音試聽。
 - 選取、試聽指定片段，再分析該範圍；不修改原始檔案。
-- 固定速度輸出單一 Tempo；確認變速時顯示平均 BPM，並匯出變速 MIDI。
+- 單一 MIDI 合併 Tempo／拍號與 Lead Vocal 音符軌。固定速度寫入單一 Tempo，確認變速時保留變速表。
 - Browser ONNX 與 Local Python 共用介面。
 - 支援英文、日文、繁體中文，依瀏覽器語言自動切換。
 
@@ -28,11 +28,11 @@ Main 適合日常使用；Staging 提供尚未合併至 main 的變更。
 1. 開啟 [Main 正式版](https://hikari-tsai.github.io/music-detection/) 或 [Staging 預覽版](https://hikari-tsai.github.io/music-detection/staging/)，維持預設的 **Browser ONNX**。
 2. 拖入檔案，自動分析全曲；首次使用需下載模型。
 3. 若只分析片段，調整範圍並按「分析選取範圍」。
-4. 查看結果，下載 MIDI Tempo 檔案。
+4. 查看與試聽結果，下載合併的 Tempo + Lead Vocal MIDI。
 
 瀏覽器模式不需安裝 Python，也不會上傳音訊。首次模型下載合計約 134 MB（不含執行環境），優先從 Hugging Face 下載；Beat This!／S-KEY 以 GitHub Pages 備援，GAME 則以固定版本的 GitHub Repo 副本備援。皆驗證 SHA-256 並嘗試快取。
 
-選取片段至少 1 秒，調性分析至少 3 秒。MIDI 的 0 秒對應片段起點；若放回原曲，請對齊所選起點。MIDI 僅包含速度與可判定的拍號，不包含音符或和弦。
+選取片段至少 1 秒，調性分析至少 3 秒。MIDI 的 0 秒對應片段起點；若放回原曲，請對齊所選起點。有可用音符時，輸出 Type 1 MIDI：`Tempo` 軌保存速度／可判定拍號，`Lead Vocal` 軌保存 GAME 音符，依變速表換算時間（480 ticks／四分音符）。音高取最近的 MIDI 半音，力度固定 90、預設鋼琴音色；不輸出滑音、歌詞或和弦。GAME 無結果或失敗時保留 Tempo-only 下載；BPM 無法判定時維持不提供 MIDI。
 
 ## 兩種分析方式
 
@@ -41,7 +41,13 @@ Main 適合日常使用；Staging 提供尚未合併至 main 的變更。
 | **Browser ONNX（預設）** | 瀏覽器 Web Worker，使用 WebGPU／WASM | 直接線上使用，音訊留在瀏覽器 |
 | **Local Python** | 本機 FastAPI、FFmpeg、PyTorch／ONNX Runtime | 使用 Python 推論或處理瀏覽器無法解碼的音軌 |
 
-GAME 在兩種引擎都使用官方 FP32 ONNX；Local Python 的 Beat This!／S-KEY 維持 PyTorch。音高分析失敗不影響 BPM／調性及 MIDI。
+| 模型 | 瀏覽器 ONNX 浮點權重 | 本機 Python 浮點權重 |
+| --- | --- | --- |
+| Beat This! | FP32 · ONNX Runtime Web | FP32 · PyTorch |
+| S-KEY | FP32 · ONNX Runtime Web | FP32 · PyTorch |
+| GAME Small | FP32 · ONNX Runtime Web | FP32 · ONNX Runtime |
+
+三個模型目前皆未做 FP16／INT8 量化。**FP32 是數值精度，不是辨識準確率**；Beat This!／S-KEY 的既有 ONNX 匯出比對誤差分別約 `6.1393 × 10⁻⁶`／`3.7551 × 10⁻⁶`（測試輸出的最大絕對差，非 BPM 誤差或準確率），驗證範圍見 [Browser ONNX](docs/browser.md)。GAME 未做本專案的 PyTorch 匯出誤差或標註音域準確率評測。音高分析失敗不影響 BPM／調性及 Tempo MIDI。
 
 Local Python 透過 `POST /api/analyze` 接收原檔與選取範圍，回傳結果及 MIDI 下載網址。音訊只送往同一台電腦的服務。
 

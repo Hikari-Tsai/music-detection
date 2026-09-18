@@ -89,3 +89,4 @@ class PitchTests(unittest.TestCase):
         self.assertEqual(result["key_status"], "estimated")
         self.assertEqual(result["result"]["bpm"], 120)
         self.assertIsNotNone(result["download_url"])
+        self.assertFalse(result["midi_has_vocal"])

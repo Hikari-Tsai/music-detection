@@ -182,7 +182,7 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
           </section>
           <p class="result-description" id="result-description"><span data-i18n="initialDescription">Detect BPM automatically. For variable tempo, see the average and export a tempo map.</span></p>
           <button class="download-button" id="download-midi" type="button" disabled><svg class="icon"><use href="#i-download"/></svg><span id="download-label"><span data-i18n="downloadMidi">Download MIDI Tempo</span></span><span class="extension">.mid</span></button>
-          <p class="midi-hint" id="midi-hint"><span data-i18n="midiOnly">Tempo and time signature only, no notes</span></p>
+          <p class="midi-hint" id="midi-hint"><span data-i18n="midiOnly">Tempo plus Lead Vocal notes when available</span></p>
         </section>
       </div>
 
@@ -221,13 +221,22 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
             <div class="model-links"><a href="https://github.com/openvpi/GAME" target="_blank" rel="noopener noreferrer"><span data-i18n="sourceLink">Source code</span> ↗</a><a href="https://huggingface.co/aaatmy/game-small-onnx" target="_blank" rel="noopener noreferrer"><span data-i18n="pitchWeights">Model weights</span> ↗</a><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer"><span data-i18n="pitchLicenseLink">Model license</span> ↗</a><a href="https://github.com/openvpi/GAME/releases/tag/v1.0.0" target="_blank" rel="noopener noreferrer"><span data-i18n="pitchCredits">Original model &amp; credits</span> ↗</a></div>
           </article>
         </div>
-        <p class="model-info-note"><span data-i18n="modelsNote">Results are model estimates; use your ears to check them. MIDI includes tempo and any detected time signature. The key is shown in the results.</span></p>
+        <p class="model-info-note"><span data-i18n="modelsNote">MIDI combines Tempo and available GAME notes in a Lead Vocal track; otherwise it contains tempo only. GAME does not isolate the lead singer. The key is shown in the results.</span></p>
       </section>
       <section class="model-info engine-comparison" aria-labelledby="engines-title">
         <div class="model-info-heading"><h2 id="engines-title"><span data-i18n="compareTitle">ONNX vs. PyTorch: model differences</span></h2><p><span data-i18n="compareIntro">Both engines analyze tempo, key and pitch. Browser mode uses ONNX; Local Python uses PyTorch for Beat This! and S-KEY, and ONNX Runtime for GAME.</span></p></div>
         <aside class="accuracy-note" aria-labelledby="accuracy-title">
           <div class="accuracy-heading"><h3 id="accuracy-title" data-i18n="compareAccuracyTitle">Recognition accuracy</h3><span class="precision-badge" data-i18n="comparePrecision">Model weights: FP32</span></div>
           <p data-i18n="compareAccuracy">Beat This! and S-KEY exports have PyTorch conversion checks. GAME uses unchanged official FP32 ONNX; its vocal-range accuracy and PyTorch conversion error have not been benchmarked here. FP32 is numerical precision, not recognition accuracy. GAME sampling and engine differences may change note boundaries and range estimates.</p>
+          <div class="model-precision">
+            <h4 data-i18n="precisionTableTitle">Model numerical precision</h4>
+            <table aria-label="Model numerical precision" data-i18n-aria-label="precisionTableTitle"><thead><tr><th scope="col" data-i18n="precisionModel">Model</th><th scope="col" data-i18n="precisionBrowser">Browser ONNX</th><th scope="col" data-i18n="precisionPython">Local Python</th></tr></thead><tbody>
+              <tr><th scope="row">Beat This!</th><td>FP32<small>ONNX Runtime Web</small></td><td>FP32<small>PyTorch</small></td></tr>
+              <tr><th scope="row">S-KEY</th><td>FP32<small>ONNX Runtime Web</small></td><td>FP32<small>PyTorch</small></td></tr>
+              <tr><th scope="row">GAME Small</th><td>FP32<small>ONNX Runtime Web</small></td><td>FP32<small>ONNX Runtime</small></td></tr>
+            </tbody></table>
+            <p data-i18n="precisionNote">All three models use FP32 floating-point weights, without FP16 or INT8 quantization. FP32 describes numerical precision, not recognition accuracy.</p>
+          </div>
           <div class="export-errors" aria-labelledby="export-error-title">
             <h4 id="export-error-title"><span data-i18n="exportErrorTitle">ONNX export error · maximum absolute difference</span></h4>
             <div class="export-error-grid">
@@ -255,7 +264,7 @@ uv pip install --python .venv/bin/python -r requirements.txt</code></pre></detai
         </div>
       </section>
       <details class="method-note"><summary><span data-i18n="tempoQuestion">How are average BPM and variable tempo MIDI calculated?</span></summary><p><span data-i18n="tempoAnswer">Average BPM uses the number of beat intervals and the time from the first to the last beat. With at least five beats and a deviation of more than 30 ms from a constant grid, the result is marked as variable tempo. MIDI tempo changes follow each beat interval and preserve the initial beat offset. Import it at the same start time as the audio, with tempo-map import enabled in your DAW. The adjacent tempo extends before the first and after the last beat. Jitter or missed beats may also appear as tempo changes. An uncertain meter is omitted and does not by itself indicate variable tempo. When evidence is insufficient, a single average tempo is exported; insufficient or invalid beats, or tempos outside the MIDI range, return -1. Each detected beat is treated as a quarter note, so half-time and double-time ambiguity remain possible.</span></p></details>
-      <details class="method-note"><summary><span data-i18n="keyQuestion">What does the S-KEY result mean?</span></summary><p><span data-i18n="keyAnswer">S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. Tempo MIDI contains only tempo and any detected meter; the key is displayed on this page.</span></p></details>
+      <details class="method-note"><summary><span data-i18n="keyQuestion">What does the S-KEY result mean?</span></summary><p><span data-i18n="keyAnswer">S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. MIDI includes tempo, detected meter and available Lead Vocal notes; the key is displayed on this page.</span></p></details>
       <section class="report-issue" aria-labelledby="report-title">
         <div><h2 id="report-title" data-i18n="reportTitle">Found a problem?</h2><p data-i18n="reportDescription">Report bugs or share suggestions on GitHub Issues. Include your browser, operating system and analysis engine to help us investigate.</p></div>
         <a class="report-link" href="https://github.com/Hikari-Tsai/music-detection/issues" target="_blank" rel="noopener noreferrer" aria-label="Report an issue on GitHub (opens in a new tab)" data-i18n-aria-label="reportLinkAria"><span data-i18n="reportLink">Report an issue</span><span aria-hidden="true">↗</span></a>

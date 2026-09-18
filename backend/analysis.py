@@ -96,9 +96,10 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
         waveform = [round(value / peak, 4) for value in waveform]
     midi = None
     result = -1
+    vocal_notes = (pitch_result.get("pitch") or {}).get("notes", [])
     if tempo != -1:
         result = {"bpm": tempo["bpm"], "signature_beats": tempo["signature_beats"]}
-        midi = tempo_midi_bytes(tempo, duration)
+        midi = tempo_midi_bytes(tempo, duration, vocal_notes)
     return {
         **key_result,
         **pitch_result,
@@ -115,5 +116,6 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
         "result": result,
         "tempo_mode": tempo["tempo_mode"] if tempo != -1 else "unavailable",
         "midi": midi,
+        "midi_has_vocal": midi is not None and bool(vocal_notes),
         "waveform": waveform,
     }

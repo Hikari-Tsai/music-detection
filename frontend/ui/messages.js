@@ -1,5 +1,29 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  midiVocalContents: {
+    en: 'Tempo + Lead Vocal tracks; detected meter included when available. Notes are rounded to the nearest MIDI semitone.',
+    ja: 'Tempo と Lead Vocal の2トラック。判定できた拍子も含み、音高は最も近い MIDI 半音に丸めます。',
+    'zh-Hant': '包含 Tempo 與 Lead Vocal 兩軌，拍號可判定時一併寫入；音高取最近的 MIDI 半音。'
+  },
+  downloadVocalMidi: {
+    en: 'Download Tempo + Lead Vocal MIDI',
+    ja: 'Tempo + Lead Vocal MIDI をダウンロード',
+    'zh-Hant': '下載 Tempo + Lead Vocal MIDI'
+  },
+  precisionNote: {
+    en: 'Beat This! and S-KEY use FP32 floating-point weights in both their ONNX exports and local PyTorch models. GAME uses official FP32 ONNX in both engines. These bundles are not FP16 or INT8 quantized. FP32 describes numerical precision, not a recognition accuracy percentage.',
+    ja: 'Beat This! と S-KEY は ONNX 版・ローカル PyTorch 版ともに浮動小数点重みが FP32 です。GAME は両エンジンで公式 FP32 ONNX を使用します。FP16・INT8 量子化版ではありません。FP32 は数値精度であり、認識正解率ではありません。',
+    'zh-Hant':
+      'Beat This!、S-KEY 的 ONNX 匯出與本機 PyTorch 模型皆使用 FP32 浮點權重；GAME 在兩種引擎都使用官方 FP32 ONNX。這些版本未做 FP16／INT8 量化。FP32 是數值精度，不代表辨識準確率百分比。'
+  },
+  precisionPython: { en: 'Local Python', ja: 'ローカル Python', 'zh-Hant': '本機 Python' },
+  precisionBrowser: { en: 'Browser ONNX', ja: 'ブラウザー ONNX', 'zh-Hant': '瀏覽器 ONNX' },
+  precisionModel: { en: 'Model', ja: 'モデル', 'zh-Hant': '模型' },
+  precisionTableTitle: {
+    en: 'Model numerical precision',
+    ja: 'モデルの数値精度',
+    'zh-Hant': '模型數值精度'
+  },
   clickError: {
     en: 'Could not start click playback. Please try again.',
     ja: 'クリック音を再生できませんでした。もう一度お試しください。',
@@ -488,9 +512,9 @@ export const messages = {
     'zh-Hant': '拖入音樂，找到拍速、調性與歌聲音域。'
   },
   heroNext: {
-    'zh-Hant': '帶走 MIDI Tempo，讓下一段創作接著發生。',
-    en: 'Take the MIDI tempo map into your next creation.',
-    ja: 'MIDI テンポを、次の音楽づくりへ。'
+    'zh-Hant': '帶走速度與歌聲音符，讓下一段創作接著發生。',
+    en: 'Take tempo and vocal notes into your next creation.',
+    ja: 'テンポと歌声の音符を、次の音楽づくりへ。'
   },
   motionPauseAria: {
     'zh-Hant': '暫停 Banner 動畫',
@@ -638,9 +662,9 @@ export const messages = {
     ja: 'MIDI テンポをダウンロード'
   },
   midiOnly: {
-    'zh-Hant': '僅含速度與拍號，不含音符',
-    en: 'Tempo and time signature only, no notes',
-    ja: 'テンポと拍子のみ・音符は含みません'
+    en: 'Tempo plus Lead Vocal notes when available',
+    ja: 'テンポと、検出できた Lead Vocal の音符',
+    'zh-Hant': '速度與可用的 Lead Vocal 音符'
   },
   howTo: {
     'zh-Hant': '使用方式',
@@ -750,9 +774,10 @@ export const messages = {
     ja: 'S-KEY 研究論文（新しいタブ）'
   },
   modelsNote: {
-    en: 'All results are estimates. Pitch and key are displayed here; MIDI still contains only tempo and any detected time signature, without notes.',
-    ja: 'すべて推定結果です。音高とキーは画面に表示し、MIDI にはテンポと検出できた拍子のみを含めます。音符は含みません。',
-    'zh-Hant': '結果皆為模型估計。音高與調性顯示於頁面；MIDI 仍只含速度與可判定的拍號，不包含音符。'
+    en: 'All results are estimates. MIDI combines Tempo and GAME notes in a Lead Vocal track when available; otherwise it contains tempo only. GAME does not isolate the lead singer, so confirm the notes by listening. Key is displayed on this page.',
+    ja: 'すべて推定結果です。MIDI は Tempo と GAME の音符を Lead Vocal トラックにまとめます。音符がない場合はテンポのみです。GAME は主旋律の歌声を分離しないため、試聴して確認してください。キーは画面に表示します。',
+    'zh-Hant':
+      '結果皆為模型估計。MIDI 會合併 Tempo 與 GAME 的 Lead Vocal 音符軌；無音符時僅匯出速度。GAME 不會分離主唱，請搭配試聽確認音符；調性顯示於頁面。'
   },
   tempoQuestion: {
     'zh-Hant': '平均 BPM 與變速 MIDI 是怎麼算的？',
@@ -772,9 +797,9 @@ export const messages = {
   },
   keyAnswer: {
     'zh-Hant':
-      'S-KEY 估計整段音訊最可能的主音與大調／小調，不是每個和弦或逐段轉調偵測。至少需要 3 秒有聲音訊；相對大小調、少旋律的打擊樂或轉調歌曲可能有歧義。結果是模型估計，並非人工標註。Tempo MIDI 仍只包含速度與可辨識拍號，調性顯示於此頁面。',
-    en: 'S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. Tempo MIDI contains only tempo and any detected meter; the key is displayed on this page.',
-    ja: 'S-KEY は音声全体で最も可能性の高い主音と長調・短調を推定します。個々のコードや転調の位置は検出しません。音のある 3 秒以上の音声が必要です。平行調、旋律の少ない打楽器、転調を含む曲では曖昧になることがあります。結果は人による注釈ではなく、モデルの推定です。Tempo MIDI はテンポと推定できた拍子のみを含み、キーはこのページに表示します。'
+      'S-KEY 估計整段音訊最可能的主音與大調／小調，不是每個和弦或逐段轉調偵測。至少需要 3 秒有聲音訊；相對大小調、少旋律的打擊樂或轉調歌曲可能有歧義。結果是模型估計，並非人工標註。MIDI 包含速度、可辨識拍號與可用的 GAME Lead Vocal 音符，調性顯示於此頁面。',
+    en: 'S-KEY estimates the most likely tonic and major/minor mode for the whole clip, not individual chords or key changes over time. At least 3 seconds of audible audio are required. Relative keys, percussion with little melody, and modulating music may be ambiguous. This is a model estimate, not a human annotation. MIDI contains tempo, any detected meter and available GAME notes in a Lead Vocal track; the key is displayed on this page.',
+    ja: 'S-KEY は音声全体で最も可能性の高い主音と長調・短調を推定します。個々のコードや転調の位置は検出しません。音のある 3 秒以上の音声が必要です。平行調、旋律の少ない打楽器、転調を含む曲では曖昧になることがあります。結果は人による注釈ではなく、モデルの推定です。MIDI にはテンポ・推定できた拍子・利用可能な GAME の Lead Vocal 音符を含み、キーはこのページに表示します。'
   },
   footer: {
     'zh-Hant': '給每一個節拍，一個起點。',
@@ -892,9 +917,9 @@ export const messages = {
     ja: '全体の平均 BPM を表示しています。MIDI は検出した拍に沿ってテンポを変化させます。音声と同じ開始位置に読み込んでください。'
   },
   noMeter: {
-    'zh-Hant': '拍號未確定，僅匯出速度。',
-    en: ' Meter is uncertain; only tempo is exported.',
-    ja: ' 拍子が不確かなため、テンポのみを出力します。'
+    'zh-Hant': '拍號未確定，不寫入拍號。',
+    en: ' Meter is uncertain; no time signature is written.',
+    ja: ' 拍子が不確かなため、拍子情報は出力しません。'
   },
   average: {
     'zh-Hant': '平均估計',

@@ -111,13 +111,14 @@ self.onmessage = async ({ data }) => {
     );
     const result = estimateTempo(detected.beats, detected.downbeats);
     const duration = audio.length / 22050;
-    const midi = result === -1 ? null : tempoMidi(result, duration);
+    const midi = result === -1 ? null : tempoMidi(result, duration, pitchResult.pitch?.notes || []);
     const response = {
       ...keyResult,
       ...pitchResult,
       filename: data.filename,
       duration_seconds: duration,
       analysis_seconds: (performance.now() - started) / 1000,
+      midi_has_vocal: !!midi && !!pitchResult.pitch?.notes?.length,
       beat_count: detected.beats.length,
       downbeat_count: detected.downbeats.length,
       result: result === -1 ? -1 : { bpm: result.bpm, signature_beats: result.signature_beats },

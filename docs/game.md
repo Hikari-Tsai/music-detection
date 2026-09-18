@@ -26,7 +26,7 @@ Beat This!／S-KEY 保留既有 22,050 Hz 解碼流程。GAME 從原檔獨立解
 - `scores` 是 MIDI 半音音高，**不是信心分數**。音名以最近的半音標示（C4 = MIDI 60），Hz 以原始浮點音高換算（A4 = 440 Hz）；跨度使用浮點音高差。
 - 最高／最低音及時間圖均為模型估計。音符圖支援 Web Audio 合成器播放／暫停、游標及進度列；點圖中位置會從該秒數繼續播放，最高／最低音按鈕則播放 0.75 秒的單音。保留模型浮點音高、片段時長與休止，使用三角波及淡入淡出，無需額外音源下載。結果使用片段相對時間，UI 加回選取起點；原音訊可由原有播放器比對，兩種播放互斥。更換檔案、範圍、引擎、重新分析或切到背景時停止合成器。
 - API 新增 `pitch_status`（`estimated`／`unavailable`／`error`）、`pitch_reason`、`pitch_engine` 與 `pitch`。有結果時 `pitch` 包含 `lowest`、`highest`、`semitones`、`note_count`、`notes`；每段包含 `start_seconds`、`end_seconds`、`midi`、`note`、`hz`。`note_count` 是通過篩選的片段數，跨分段的長音可能被拆開。
-- GAME 失敗與無法判定皆不阻止 Tempo MIDI；MIDI 仍只有速度與拍號，**沒有新增音符 MIDI 匯出**。
+- 有可用音符時，下載 Type 1 MIDI，包含 `Tempo` 與 `Lead Vocal` 兩軌。Lead Vocal 保留篩選後的起訖時間，依匯出的變速表換算至 480 PPQ；音高四捨五入至最近半音（.5 向上），力度固定 90、GM 鋼琴 program 0，不寫入 pitch bend、歌詞或和弦。同 tick 先 note-off 再 note-on。無音符或 GAME 失敗時維持 Tempo-only；無有效 BPM 則不下載。API 的 `midi_has_vocal` 表示檔案是否包含音符軌。
 
 ## 限制與驗證範圍
 
@@ -40,6 +40,6 @@ GAME 的迭代取樣含隨機性，重跑與切換引擎可能改變邊界及極
 
 GAME uses identical official, unquantized FP32 ONNX graphs in the browser and Python. The browser downloads from a pinned Hugging Face revision, falls back to a pinned GitHub copy, verifies every file and optionally caches it. FastAPI uses the tracked local bundle with ONNX Runtime CPU; Beat This! and S-KEY retain PyTorch in Python.
 
-Audio is decoded separately at 44.1 kHz for GAME while retaining the original 22.05 kHz beat/key path. Overlapping inputs are capped at 10 seconds with 8-second output ownership. Voicing/padding masks, finite MIDI values and an 80 ms minimum retained duration filter notes. The UI presents note ranges, frequencies and a Web Audio synthesizer with play/pause, timeline seeking and individual extreme-note audition. Original audio remains available in its separate player; Tempo MIDI remains unchanged.
+Audio is decoded separately at 44.1 kHz for GAME while retaining the original 22.05 kHz beat/key path. Overlapping inputs are capped at 10 seconds with 8-second output ownership. Voicing/padding masks, finite MIDI values and an 80 ms minimum retained duration filter notes. The UI presents note ranges, frequencies and a Web Audio synthesizer with play/pause, timeline seeking and individual extreme-note audition. Original audio remains available in its separate player. A single Type 1 MIDI combines Tempo and Lead Vocal tracks when notes are available, with note times mapped through the exact exported tempo changes (480 PPQ), nearest-semitone pitches, velocity 90 and piano program 0. Missing pitch results retain tempo-only export.
 
 These are recording-specific pitch estimates, not a verified lead-vocal isolation result or the singer's physiological range. Instruments and harmonies can produce false positives, and stochastic sampling can change results. No labeled vocal-range accuracy or GAME PyTorch export-parity benchmark is claimed. Model weights remain **CC BY-NC-SA 4.0**, with upstream attribution and unchanged-file provenance in the linked notice.

@@ -57,7 +57,7 @@ async def analyze(file: UploadFile, start_seconds: float | None = Form(None), en
                 raise HTTPException(400, "檔案是空的，請重新選擇音訊。")
             result = await run_in_threadpool(analyze_file, source, filename, start_seconds, end_seconds)
             midi = result.pop("midi")
-            result["download_url"] = None if midi is None else DOWNLOADS.add(midi, Path(filename).stem + "_tempo.mid")
+            result["download_url"] = None if midi is None else DOWNLOADS.add(midi, Path(filename).stem + ("_tempo_vocal.mid" if result.get("midi_has_vocal") else "_tempo.mid"))
             return result
     except AnalysisError as error:
         raise HTTPException(error.status_code, error.detail) from error
