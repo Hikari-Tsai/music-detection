@@ -3,6 +3,7 @@ import manifest from '../../assets/models/game/1.0.3-small/manifest.json';
 import hosting from '../../assets/models/game/huggingface.json';
 import { createModelAssets, ModelLoadError } from './model-assets.js';
 import { PITCH_RATE, pitchChunks, decodePitchChunk, summarizePitch } from './pitch.js';
+import { createTrackedSession } from './session.js';
 
 const fallback =
   'https://raw.githubusercontent.com/Hikari-Tsai/music-detection/87b58f6f4d7e4ee90ed6d48d4305876a3f28db2d/assets/models/game/1.0.3-small/';
@@ -25,11 +26,15 @@ export function createPitchEngine(progress) {
     try {
       for (const [name, asset] of Object.entries(assets)) {
         const bytes = await asset.model();
-        progress({ key: 'pitchInit', args: { engine: provider === 'webgpu' ? 'GPU' : 'CPU' } });
-        sessions[name] = await ort.InferenceSession.create(bytes, {
-          executionProviders: [provider],
-          graphOptimizationLevel: 'all'
-        });
+        sessions[name] = await createTrackedSession(
+          ort,
+          bytes,
+          {
+            executionProviders: [provider],
+            graphOptimizationLevel: 'all'
+          },
+          `GAME / ${name}`
+        );
       }
       const notes = [],
         chunks = pitchChunks(audio.length);
