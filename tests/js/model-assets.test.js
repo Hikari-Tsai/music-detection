@@ -272,3 +272,28 @@ test('a valid existing same-origin hash cache avoids both model downloads', asyn
     { name: `tempo-model-${manifest.sha256}`, url: fallback + 'model.onnx' }
   ]);
 });
+
+test('pinned GAME member needs no remote manifest and verifies GitHub fallback against the same hash', async () => {
+  const calls = [],
+    notices = [];
+  const assets = createModelAssets(
+    'https://raw.githubusercontent.com/owner/repo/commit/game/',
+    (m) => notices.push(m),
+    {
+      primaryBaseURL: primary,
+      manifestOverride: manifest,
+      fallbackName: 'GitHub',
+      cacheStorage: undefined,
+      fetchImpl: async (url) => {
+        calls.push(String(url));
+        return String(url).startsWith(primary)
+          ? new Response('offline', { status: 503 })
+          : new Response(bytes);
+      }
+    }
+  );
+  assert.deepEqual(await assets.model(), bytes);
+  assert.equal(calls.length, 2);
+  assert.ok(calls.every((u) => u.endsWith('model.onnx')));
+  assert.ok(notices.some((m) => m.some((p) => p?.args?.to === 'GitHub')));
+});

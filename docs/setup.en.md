@@ -1,5 +1,7 @@
 [繁體中文](setup.md) · [English](setup.en.md) · [README](../README.en.md)
 
+GAME pitch analysis requires `onnxruntime` (included in `requirements.txt`) and the tracked `assets/models/game/1.0.3-small/` bundle. After updating an existing environment, reinstall dependencies and restart FastAPI. Browser GAME downloads from Hugging Face/GitHub and needs no Python.
+
 # Build, Local Python and deployment guide
 
 Run all commands from the project root. Initial installation and model export require internet access. Browser build commands use a macOS/Linux shell; Windows users can use the hosted ONNX app or follow the PowerShell instructions below for Local Python.

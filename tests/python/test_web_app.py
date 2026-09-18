@@ -56,6 +56,9 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(data["beat_count"], 29)
         self.assertEqual(data["key_status"], "estimated")
         self.assertEqual(data["key"]["label"], "G Major")
+        self.assertIn(data["pitch_status"], ("estimated", "unavailable"))
+        if data["pitch"]:
+            self.assertTrue(all(0 <= n["start_seconds"] < n["end_seconds"] <= data["duration_seconds"] + .001 for n in data["pitch"]["notes"]))
         self.assertGreater(len(data["waveform"]), 0)
         download = self.client.get(data["download_url"])
         self.assertEqual(download.status_code, 200)

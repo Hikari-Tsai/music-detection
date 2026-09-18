@@ -56,7 +56,7 @@ For reproducible applications, add `--revision <commit-sha>` to pin the model sn
 To check the original assets after download, run `shasum -a 256 -c SHA256SUMS`
 inside the downloaded directory (or `sha256sum -c SHA256SUMS` on Linux).
 
-This mirror alone does not enable vocal-range analysis in Key & Tempo.
+Key & Tempo uses this bundle for browser and local Python pitch analysis.
 It makes no accuracy guarantee for lead vocals, harmonies or highest/lowest notes.
 
 ## Attribution and license
@@ -86,4 +86,4 @@ endorsement of this mirror is implied.
 並非 openvpi 官方 Hugging Face 帳戶。
 
 模型採 **CC BY-NC-SA 4.0（署名、非商業性、相同方式分享）**，不適用本專案的 MIT。
-來源、檔案大小與校驗碼列於 `manifest.json`；本次僅託管模型，尚未接入網站分析流程。
+來源、檔案大小與校驗碼列於 `manifest.json`；本專案以此模型進行瀏覽器與本機 Python 音高分析。

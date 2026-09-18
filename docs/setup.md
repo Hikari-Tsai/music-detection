@@ -1,5 +1,7 @@
 [繁體中文](setup.md) · [English](setup.en.md) · [README](../README.md)
 
+GAME 音高功能需要 `onnxruntime`（已列入 `requirements.txt`），並保留 `assets/models/game/1.0.3-small/` 的模型檔案。舊環境更新後請重新執行依賴安裝並重啟 FastAPI。瀏覽器的 GAME 會從 Hugging Face／GitHub Repo 下載；不需要本機 Python。
+
 # 建置、Local Python 與部署指南
 
 所有指令皆在專案根目錄執行。首次安裝及模型匯出需要網路連線。瀏覽器建置以 macOS／Linux 終端機指令示範；Windows 可先使用線上 ONNX 版，或依下方 PowerShell 教學啟動 Local Python。

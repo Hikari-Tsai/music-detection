@@ -2,6 +2,7 @@ import { setText } from './i18n.js';
 import { createEngine } from './engine.js';
 import { decodeSource } from './audio-source.js';
 import { createRangeEditor } from './range-editor.js';
+import { createPitchView } from './pitch-view.js';
 const $ = (id) => document.getElementById(id);
 function makeEngine(kind) {
   return createEngine(kind, {
@@ -26,6 +27,16 @@ function updateEngineCopy() {
 updateEngineCopy();
 const input = $('audio-file');
 const audio = $('audio-player');
+const pitchView = createPitchView(async (seconds) => {
+  if (busy || !lastFile) return;
+  try {
+    audio.currentTime = seconds;
+    await audio.play();
+    $('preview-note').hidden = true;
+  } catch (error) {
+    if (error.name !== 'AbortError') $('preview-note').hidden = false;
+  }
+});
 const accepted = new Set(['wav', 'mp3', 'flac', 'm4a', 'ogg', 'aif', 'aiff', 'aac', 'mp4', 'mov']);
 let busy = false;
 let objectUrl = null;
@@ -62,6 +73,7 @@ function status(text, state = '') {
 }
 
 function resetResult() {
+  pitchView.reset();
   $('result-range').hidden = true;
   if (downloadUrl?.startsWith('blob:')) URL.revokeObjectURL(downloadUrl);
   downloadUrl = null;
@@ -229,6 +241,7 @@ async function analyze() {
   setText($('status-message'), '正在分析節拍，請稍候');
   setText($('elapsed'), { key: 'elapsed', args: { seconds: 0 } });
   setText($('key-description'), '等候調性分析');
+  pitchView.reset(true);
   status('分析中', 'loading');
   setBusy(true);
   drawWaveform();
@@ -247,6 +260,7 @@ async function analyze() {
       },
       { range, prepared: sourceAudio }
     );
+    pitchView.render(data, range?.start || 0);
     if (data.key_status === 'estimated' && data.key) {
       setText($('key-value'), [data.key.tonic, ' ', { key: data.key.mode }]);
       setText($('key-description'), range ? { key: 'rangeKey' } : '全曲調性估計 · S-KEY');
@@ -325,6 +339,8 @@ async function analyze() {
       ]);
     }
   } catch (error) {
+    pitchView.reset();
+    setText('pitch-summary', { key: 'pitchInterrupted' });
     setText($('key-description'), '調性分析未完成');
     status('分析未完成');
     $('analysis-status').hidden = true;
@@ -422,8 +438,9 @@ $('play-button').addEventListener('click', async () => {
     if (bounds && (audio.currentTime < bounds.start || audio.currentTime >= bounds.end))
       audio.currentTime = bounds.start;
     await audio.play();
-  } catch {
-    $('preview-note').hidden = false;
+    $('preview-note').hidden = true;
+  } catch (error) {
+    if (error.name !== 'AbortError') $('preview-note').hidden = false;
   }
 });
 $('seek').addEventListener('input', () => {

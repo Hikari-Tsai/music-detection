@@ -173,3 +173,26 @@ footer > span { margin-right: auto; }
 @media(max-width:760px) { .export-error-grid { grid-template-columns: 1fr; gap: 12px; } }
 
 .formats { max-width: 100%; padding: 0 16px; text-align: center; line-height: 1.8; }
+
+/* Pitch sits beside rhythm/key as an independent estimate, with original-audio preview. */
+.pitch-metric{padding:21px 0 18px;border-bottom:1px solid #354031}
+.pitch-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.pitch-heading h3{margin:0;font-size:13px;font-weight:500;letter-spacing:.3px}
+.pitch-heading .precision-badge{font:10px var(--mono);white-space:normal}
+.pitch-extremes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pitch-note{display:flex;align-items:flex-start;flex-direction:column;gap:7px;text-align:left;padding:14px 13px;background:#222d24;border:1px solid #3f5038;border-radius:8px;color:var(--text);min-width:0}
+.pitch-note>span{font-size:11px;color:#a9b7a5}
+.pitch-note strong{font:32px var(--mono);color:var(--accent);letter-spacing:-1px}
+.pitch-note small{font:10px var(--mono);color:#a9b7a5;line-height:1.6;overflow-wrap:anywhere}
+.pitch-note:not(:disabled):hover{background:#2c3a2c;border-color:#a0c777}
+.pitch-note:disabled{background:#1c251f;opacity:.65}
+.pitch-summary{margin:13px 0 0;color:#afbcac;font-size:11px;line-height:1.7}
+.pitch-caution{margin:12px 0 0;color:#9aa89d;font-size:11px;line-height:1.75}
+.pitch-chart{margin:14px 0 0;min-width:0}
+.pitch-chart canvas{display:block;width:100%;height:152px;cursor:pointer}
+.pitch-chart figcaption{font-size:10px;line-height:1.65;color:#a2afa4;margin-top:7px}
+.music-model-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.model-license{font-size:11px!important;line-height:1.75!important;color:#b4c9a3!important;border-top:1px solid var(--line);padding-top:13px}
+.model-links{flex-wrap:wrap;row-gap:12px}
+@media(max-width:950px){.music-model-grid{grid-template-columns:1fr}.workspace{align-items:start}}
+@media(max-width:400px){.pitch-note{padding:12px 10px}.pitch-note strong{font-size:28px}.pitch-chart canvas{height:135px}footer{flex-wrap:wrap}}

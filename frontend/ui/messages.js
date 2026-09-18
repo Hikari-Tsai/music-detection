@@ -143,10 +143,10 @@ export const messages = {
     'zh-Hant': 'ONNX 與 PyTorch 兩種模型的差異'
   },
   compareIntro: {
-    en: 'Both use the same Beat This! and S-KEY models to detect BPM, meter and key and generate tempo MIDI. The model format and runtime differ.',
-    ja: 'どちらも同じ Beat This! と S-KEY で BPM・拍子・調を推定し、テンポ MIDI を生成します。違いはモデルの形式と実行環境です。',
+    en: 'Both engines analyze tempo, key and pitch. Browser mode uses ONNX; Local Python uses PyTorch for Beat This! and S-KEY, and ONNX Runtime for GAME.',
+    ja: 'どちらもテンポ・キー・音高を解析します。ブラウザーは ONNX、Local Python は Beat This! と S-KEY に PyTorch、GAME に ONNX Runtime を使用します。',
     'zh-Hant':
-      '兩者使用相同的 Beat This! 與 S-KEY 模型，分析 BPM、拍號、調性並產生 Tempo MIDI；差別在於模型格式與執行環境。'
+      '兩種引擎皆分析拍速、調性與音高。瀏覽器使用 ONNX；Local Python 的 Beat This!／S-KEY 使用 PyTorch，GAME 則使用 ONNX Runtime。'
   },
   compareBrowser: {
     en: 'Browser ONNX · Recommended',
@@ -170,15 +170,16 @@ export const messages = {
     'zh-Hant': '需安裝 Python 相依套件與 FFmpeg，並啟動本機 FastAPI 服務；首次使用會下載模型權重。'
   },
   compareBrowserRuntime: {
-    en: 'ONNX Runtime Web runs exported models in a Web Worker. Beat This! tries WebGPU, with a WASM fallback; S-KEY uses WASM.',
-    ja: '変換済みモデルを Web Worker 内の ONNX Runtime Web で実行します。Beat This! は WebGPU を試し、利用できなければ WASM に切り替えます。S-KEY は WASM を使用します。',
+    en: 'ONNX Runtime Web runs in a Web Worker. Beat This! and GAME try WebGPU with WASM fallback; S-KEY uses WASM. GAME processes short overlapping chunks.',
+    ja: 'Web Worker 内の ONNX Runtime Web で実行。Beat This! と GAME は WebGPU を優先し、WASM に切り替え可能です。S-KEY は WASM。GAME は重複する短区間ごとに処理します。',
     'zh-Hant':
-      '透過 Web Worker 中的 ONNX Runtime Web 執行匯出模型。Beat This! 優先使用 WebGPU，失敗時改用 WASM；S-KEY 使用 WASM。'
+      'ONNX Runtime Web 在 Web Worker 執行。Beat This! 與 GAME 優先 WebGPU，失敗改用 WASM；S-KEY 使用 WASM。GAME 以有重疊的短片段分批處理。'
   },
   comparePythonRuntime: {
-    en: 'PyTorch runs the original models directly. This app currently uses CPU inference, with FFmpeg decoding the audio.',
-    ja: 'PyTorch で元のモデルを直接実行します。このアプリの現在の実装は CPU 推論を使用し、音声は FFmpeg でデコードします。',
-    'zh-Hant': '由 PyTorch 直接執行原始模型。目前此專案使用 CPU 推論，並以 FFmpeg 解碼音訊。'
+    en: 'FFmpeg decodes audio. Beat This! and S-KEY run in PyTorch; GAME runs the same official ONNX graphs with ONNX Runtime. All use CPU.',
+    ja: 'FFmpeg でデコードし、Beat This! と S-KEY は PyTorch、GAME は同一の公式 ONNX を ONNX Runtime で実行します。すべて CPU を使用します。',
+    'zh-Hant':
+      'FFmpeg 解碼音訊；Beat This! 與 S-KEY 由 PyTorch 執行，GAME 使用同一份官方 ONNX 搭配 ONNX Runtime，皆在 CPU 運算。'
   },
   compareBrowserPrivacy: {
     en: 'Audio is decoded and analyzed in your browser. It is not uploaded to an analysis server.',
@@ -214,10 +215,10 @@ export const messages = {
       '已有 Python 工作環境，或瀏覽器無法完成推論時使用。啟動步驟請見上方引擎選擇區的教學。'
   },
   compareAccuracy: {
-    en: 'ONNX export preserves the trained weights without retraining or quantization, and its model outputs are checked against PyTorch. FP32 describes numerical precision, not recognition accuracy. We have not benchmarked the two engines against labeled music to establish an accuracy advantage; audio decoding and numerical differences can still affect results.',
-    ja: 'ONNX への変換では再学習や量子化を行わず、学習済みの重みを保持し、モデルの出力を PyTorch と比較しています。FP32 は数値精度を示し、認識の正解率ではありません。注釈付きの音楽データで両エンジンの認識精度の優劣は評価していません。音声のデコードや数値計算の違いにより、結果に差が出ることがあります。',
+    en: 'Beat This! and S-KEY exports have PyTorch conversion checks. GAME uses unchanged official FP32 ONNX; its vocal-range accuracy and PyTorch conversion error have not been benchmarked here. FP32 is numerical precision, not recognition accuracy. GAME sampling and engine differences may change note boundaries and range estimates.',
+    ja: 'Beat This! と S-KEY は PyTorch との変換検証済みです。GAME は未変更の公式 FP32 ONNX を使用し、本サイトでは音域の正解率や PyTorch 変換誤差を評価していません。FP32 は数値精度です。GAME のサンプリングや実行環境により境界・音域の推定が変わる場合があります。',
     'zh-Hant':
-      'ONNX 匯出保留已訓練權重，未重新訓練或量化，並已比對 PyTorch 的模型輸出。FP32 指的是數值精度，不是辨識準確率。目前尚未用標註音樂資料集比較兩種引擎的準確率，無法宣稱哪一種較準；音訊解碼與數值運算差異仍可能影響結果。'
+      'Beat This! 與 S-KEY 已有 PyTorch 匯出比對。GAME 使用未修改的官方 FP32 ONNX，尚未在此評測歌聲音域準確率或 PyTorch 匯出誤差。FP32 代表數值精度；GAME 的取樣與引擎差異可能造成音符邊界及音域估計變動。'
   },
 
   githubStar: {
@@ -349,10 +350,10 @@ export const messages = {
       '選擇 Local Python，加入音訊後會自動分析全曲。若只分析片段，請調整範圍後按「分析選取範圍」。切換引擎也會分析目前範圍；若先前失敗，可在服務啟動後再按分析重試。'
   },
   pythonGuideFirstRun: {
-    en: 'The first analysis downloads the model weights and needs an internet connection. Audio is processed by the local service; temporary audio files are removed afterwards. MIDI downloads remain available for up to one hour.',
-    ja: '初回の解析ではモデルをダウンロードするため、ネット接続が必要です。音声はローカルサービスで処理され、一時ファイルは解析後に削除されます。MIDI のダウンロード有効期間は最大 1 時間です。',
+    en: 'Beat/key weights download on first use. GAME uses the bundled assets/models/game/1.0.3-small files and Python ONNX Runtime. After updating, reinstall requirements.txt and restart FastAPI. Temporary audio is deleted after analysis; MIDI downloads last up to one hour.',
+    ja: '拍・キーの重みは初回に取得します。GAME は同梱の assets/models/game/1.0.3-small と Python ONNX Runtime を使用します。更新後は requirements.txt を再インストールし、FastAPI を再起動してください。一時音声は解析後に削除し、MIDI は最長1時間保持します。',
     'zh-Hant':
-      '首次分析需連網下載模型權重。音訊由本機服務處理，暫存音訊會在分析後刪除；MIDI 下載最多保留一小時。'
+      '拍點／調性權重於首次使用下載。GAME 使用專案內 assets/models/game/1.0.3-small 與 Python ONNX Runtime。更新後請重新安裝 requirements.txt 並重啟 FastAPI；分析後刪除音訊暫存，MIDI 保留最長一小時。'
   },
   pythonGuideOpen: {
     en: 'Open the local service page ↗',
@@ -417,14 +418,14 @@ export const messages = {
       '音訊透過 HTTP 傳送至本機 FastAPI 服務 http://127.0.0.1:8765。請參閱下方啟動教學；切換後會分析目前選取的範圍。'
   },
   pageTitle: {
-    'zh-Hant': 'Key & Tempo — BPM、調性分析與 MIDI',
-    en: 'Key & Tempo — BPM, Key Detection & MIDI',
-    ja: 'Key & Tempo — BPM・キー解析・MIDI'
+    en: 'Key & Tempo — BPM, Key & Vocal Range',
+    ja: 'Key & Tempo — BPM・キー・歌声音域',
+    'zh-Hant': 'Key & Tempo — BPM、調性與歌聲音域'
   },
   metaDescription: {
-    'zh-Hant': '拖入音樂，在本機分析 BPM、拍號與大調／小調，下載固定或變速的 MIDI Tempo 檔案。',
-    en: 'Drop in music to analyze BPM, time signature and key locally, then download a constant or variable MIDI tempo map.',
-    ja: '音楽をドラッグして、BPM・拍子・キーをローカルで解析。固定テンポや可変テンポの MIDI をダウンロードできます。'
+    en: 'Analyze BPM, meter, key and estimated vocal range on your device. Preview detected pitches and download a MIDI tempo map.',
+    ja: 'BPM・拍子・キー・歌声の推定音域を端末で解析。音高の位置を試聴し、MIDI テンポマップをダウンロード。',
+    'zh-Hant': '在裝置上分析 BPM、拍號、調性與估計歌聲音域，試聽音高位置並下載 MIDI 速度圖。'
   },
   home: {
     'zh-Hant': 'Key & Tempo 首頁',
@@ -452,9 +453,9 @@ export const messages = {
     ja: '見つけよう、'
   },
   heroIntro: {
-    'zh-Hant': '拖入音樂，找到 BPM、拍號與調性。',
-    en: 'Drop in music. Discover its BPM, meter and key.',
-    ja: '音楽をドラッグして、BPM・拍子・キーを解析。'
+    en: 'Drop in music. Discover its tempo, key and vocal range.',
+    ja: '音楽をドロップして、テンポ・キー・歌声の音域を調べよう。',
+    'zh-Hant': '拖入音樂，找到拍速、調性與歌聲音域。'
   },
   heroNext: {
     'zh-Hant': '帶走 MIDI Tempo，讓下一段創作接著發生。',
@@ -567,9 +568,9 @@ export const messages = {
     ja: '音声はクラウドに送信されず、解析後に一時ファイルを削除します。'
   },
   privacyBrowser: {
-    'zh-Hant': '音訊只在瀏覽器內分析，不會上傳。首次使用需下載約 82 MB 模型。',
-    en: 'Audio is analyzed in your browser and never uploaded. The first run downloads about 82 MB of models.',
-    ja: '音声はアップロードせず、ブラウザー内で解析します。初回は約 82 MB のモデルをダウンロードします。'
+    en: 'Audio stays in your browser. First use downloads about 134 MB of models, plus the runtime; verified models are cached when available.',
+    ja: '音声はブラウザー内で処理します。初回は約 134 MB のモデルと実行環境をダウンロードし、可能な場合は検証済みモデルをキャッシュします。',
+    'zh-Hant': '音訊留在瀏覽器內。首次需下載約 134 MB 模型及執行環境，驗證後會嘗試快取。'
   },
   resultTitle: {
     'zh-Hant': '分析結果',
@@ -632,9 +633,9 @@ export const messages = {
     ja: 'リズムを解析'
   },
   workflowAnalyze: {
-    'zh-Hant': '辨識拍點、速度、拍數與調性。',
-    en: 'Find beats, tempo, meter and key.',
-    ja: '拍の位置・テンポ・拍子・キーを検出。'
+    en: 'Find beats, tempo, meter, key and singing pitches.',
+    ja: '拍・テンポ・拍子・キー・歌声の音高を検出。',
+    'zh-Hant': '分析拍點、拍速、拍號、調性與歌聲音高。'
   },
   workflowCreate: {
     'zh-Hant': '回到你的創作',
@@ -652,9 +653,9 @@ export const messages = {
     ja: '使用しているモデル'
   },
   modelsIntro: {
-    'zh-Hant': '節奏與調性，交給各自擅長的模型。讓你知道結果從何而來。',
-    en: 'Two specialized models for rhythm and harmony. Know what powers your results.',
-    ja: 'リズムとキー、それぞれに特化したモデル。解析結果の仕組みをご紹介します。'
+    en: 'Three specialized models for rhythm, key and singing pitch. Know what powers your results.',
+    ja: 'リズム・キー・歌声の音高を担当する3つのモデル。解析結果を支える仕組みを紹介します。',
+    'zh-Hant': '三個模型分別分析節拍、調性與歌聲音高，了解分析結果的來源。'
   },
   beatTask: {
     'zh-Hant': '節拍與小節首拍',
@@ -719,10 +720,9 @@ export const messages = {
     ja: 'S-KEY 研究論文（新しいタブ）'
   },
   modelsNote: {
-    'zh-Hant':
-      '結果為模型估計，可搭配聆聽確認。下載的 MIDI 僅包含速度與可辨識的拍號，調性顯示於分析結果中。',
-    en: 'Results are model estimates; use your ears to check them. MIDI includes tempo and any detected time signature. The key is shown in the results.',
-    ja: '結果はモデルによる推定です。聴いて確認することをおすすめします。MIDI にはテンポと推定できた拍子のみを含み、キーは画面に表示します。'
+    en: 'All results are estimates. Pitch and key are displayed here; MIDI still contains only tempo and any detected time signature, without notes.',
+    ja: 'すべて推定結果です。音高とキーは画面に表示し、MIDI にはテンポと検出できた拍子のみを含めます。音符は含みません。',
+    'zh-Hant': '結果皆為模型估計。音高與調性顯示於頁面；MIDI 仍只含速度與可判定的拍號，不包含音符。'
   },
   tempoQuestion: {
     'zh-Hant': '平均 BPM 與變速 MIDI 是怎麼算的？',
@@ -1165,5 +1165,139 @@ export const messages = {
     'zh-Hant': '語言',
     en: 'Language',
     ja: '言語'
+  },
+  pitchTitle: {
+    en: 'Detected vocal range',
+    ja: '検出された歌声の音域',
+    'zh-Hant': '偵測到的歌聲音域'
+  },
+  pitchLowest: {
+    en: 'Lowest note',
+    ja: '最低音',
+    'zh-Hant': '最低音'
+  },
+  pitchHighest: {
+    en: 'Highest note',
+    ja: '最高音',
+    'zh-Hant': '最高音'
+  },
+  pitchLowestAria: {
+    en: 'Preview lowest detected note',
+    ja: '検出された最低音の位置を試聴',
+    'zh-Hant': '試聽最低音所在位置'
+  },
+  pitchHighestAria: {
+    en: 'Preview highest detected note',
+    ja: '検出された最高音の位置を試聴',
+    'zh-Hant': '試聽最高音所在位置'
+  },
+  pitchChartAria: {
+    en: 'Estimated note pitches over the selected audio timeline',
+    ja: '選択した音声の音高と時間の推定グラフ',
+    'zh-Hant': '所選音訊的音高與時間估計圖'
+  },
+  pitchInitial: {
+    en: 'Note estimates for this track or selection.',
+    ja: '全曲または選択範囲の音高を推定します。',
+    'zh-Hant': '估計整首或所選片段的音高。'
+  },
+  pitchWaiting: {
+    en: 'Waiting for GAME pitch analysis…',
+    ja: 'GAME の音高解析を待機中…',
+    'zh-Hant': '等候 GAME 音高分析…'
+  },
+  pitchSummary: {
+    en: '{count} accepted segments · {span} semitones',
+    ja: '採用区間 {count} 件 · {span} 半音',
+    'zh-Hant': '{count} 個有效片段 · 音域跨度 {span} 半音'
+  },
+  pitchCaution: {
+    en: 'Estimated from this recording, not the singer’s full vocal range. Harmony and instruments may be included; confirm by listening.',
+    ja: 'この録音からの推定であり、歌手が出せる音域全体ではありません。ハーモニーや楽器を含む場合があるため、試聴して確認してください。',
+    'zh-Hant': '這是此錄音的估計音域，不代表歌手完整音域。可能包含和聲或樂器，請搭配試聽確認。'
+  },
+  pitchPreviewHint: {
+    en: 'Select an extreme or click a note to preview its position in the original audio.',
+    ja: '最高音・最低音のボタンやグラフをクリックすると、元の音声の該当位置を試聴できます。',
+    'zh-Hant': '點選最高／最低音或圖中的音符，試聽原音訊的對應位置。'
+  },
+  pitchFailed: {
+    en: 'Pitch analysis failed. Tempo/key results remain available; check the model source or update Local Python and retry.',
+    ja: '音高解析に失敗しました。テンポ・キーの結果は引き続き利用できます。モデルの取得元または Local Python の更新を確認して再試行してください。',
+    'zh-Hant': '音高分析未完成，BPM／調性結果仍可使用。請檢查模型來源，或更新本機 Python 後重試。'
+  },
+  pitchInterrupted: {
+    en: 'Analysis did not complete. Retry to obtain pitch results.',
+    ja: '解析が完了しませんでした。音高の結果を取得するには再試行してください。',
+    'zh-Hant': '分析未完成，請重新分析以取得音高結果。'
+  },
+  pitchMissing: {
+    en: 'This Local Python service does not return pitch results. Update the project, install requirements.txt and restart FastAPI.',
+    ja: 'この Local Python サービスは音高結果を返しません。プロジェクトを更新し、requirements.txt をインストールして FastAPI を再起動してください。',
+    'zh-Hant':
+      '此本機 Python 尚未回傳音高結果。請更新專案、安裝 requirements.txt 並重新啟動 FastAPI。'
+  },
+  pitchSilent: {
+    en: 'No audible signal; pitch cannot be estimated.',
+    ja: '有効な音声信号がないため、音高を推定できません。',
+    'zh-Hant': '音訊無有效訊號，無法估計音高。'
+  },
+  pitchNoNotes: {
+    en: 'No voiced note segments passed the filter. Try a clearer vocal passage.',
+    ja: '条件を満たす有声音の区間がありません。歌声が明瞭な部分を選んでください。',
+    'zh-Hant': '沒有通過篩選的有聲音符，請選擇歌聲較清楚的片段。'
+  },
+  pitchInit: {
+    en: 'Initializing GAME pitch engine · {engine}',
+    ja: 'GAME 音高エンジンを初期化中 · {engine}',
+    'zh-Hant': '正在初始化 GAME 音高引擎 · {engine}'
+  },
+  pitchProgress: {
+    en: 'Analyzing pitch {current}/{total} · GAME {engine}',
+    ja: '音高を解析中 {current}/{total} · GAME {engine}',
+    'zh-Hant': '正在分析音高 {current}/{total} · GAME {engine}'
+  },
+  pitchCpuFallback: {
+    en: 'GAME GPU unavailable; retrying pitch analysis on CPU.',
+    ja: 'GAME の GPU 処理が利用できないため、CPU で音高解析を再試行します。',
+    'zh-Hant': 'GAME GPU 無法使用，改由 CPU 重新分析音高。'
+  },
+  pitchTask: {
+    en: 'Singing pitch & note range',
+    ja: '歌声の音高と音域',
+    'zh-Hant': '歌聲音高與音域'
+  },
+  pitchDescription: {
+    en: 'Estimates singing-note boundaries and pitches. The app displays a note timeline and the lowest and highest accepted pitches for the track or selected range.',
+    ja: '歌声の音符の境界と音高を推定し、全曲または選択範囲の音高グラフと、採用された最低音・最高音を表示します。',
+    'zh-Hant':
+      '估計歌聲音符邊界與音高，呈現整首或所選片段的音符時間圖，以及篩選後的最低音與最高音。'
+  },
+  pitchLimit: {
+    en: 'Not a lead-vocal separator: harmony, accompaniment and octave errors can affect the range. Notes shorter than 80 ms are excluded. No labeled vocal-range accuracy benchmark has been completed.',
+    ja: '主旋律の歌声を分離するモデルではありません。ハーモニー・伴奏・オクターブ誤りが音域に影響します。80 ms 未満の音符は除外します。正解ラベルによる音域精度評価は未実施です。',
+    'zh-Hant':
+      '此模型不負責分離主唱；和聲、伴奏與八度誤判可能影響音域。排除短於 80 ms 的音符，尚未完成人工標註音域的準確率評測。'
+  },
+  pitchLicense: {
+    en: 'Weights: CC BY-NC-SA 4.0 (attribution, noncommercial, ShareAlike). Code: MIT. Credit: openvpi/GAME contributors; original model release by yqzhishen.',
+    ja: '重み：CC BY-NC-SA 4.0（表示・非営利・継承）。コード：MIT。開発：openvpi/GAME の貢献者、元モデルの公開者：yqzhishen。',
+    'zh-Hant':
+      '權重：CC BY-NC-SA 4.0（署名、非商業、相同方式分享）。程式碼：MIT。感謝 openvpi/GAME 貢獻者；原模型由 yqzhishen 發布。'
+  },
+  pitchWeights: {
+    en: 'Model weights',
+    ja: 'モデルの重み',
+    'zh-Hant': '模型權重'
+  },
+  pitchLicenseLink: {
+    en: 'Model license',
+    ja: 'モデルのライセンス',
+    'zh-Hant': '模型授權'
+  },
+  pitchCredits: {
+    en: 'Original model & credits',
+    ja: '元モデルと謝辞',
+    'zh-Hant': '原模型與致謝'
   }
 };

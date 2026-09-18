@@ -13,7 +13,8 @@ Model credit: openvpi/GAME contributors; official release publisher: yqzhishen.
 
 The original model files and configuration are unchanged. Hikari Tsai added
 mirror documentation and SHA-256 checksums. Attribution, noncommercial use and
-ShareAlike conditions apply to the model files. Hosting alone does not enable
-GAME inference in the application.
+ShareAlike conditions apply to the model files. The application now uses these graphs for browser and local Python inference,
+with separate application code for chunking, filtering and result presentation.
+These application changes do not modify or relicense the model files.
 
 The upstream code's MIT license does not replace the separate model license.
