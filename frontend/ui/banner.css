@@ -27,7 +27,7 @@
 @media (max-width: 1000px) { .intro { grid-template-columns: 1.15fr 1fr; gap: 8px; } .intro h1 { font-size: 38px; } .banner-visual { height: 255px; } }
 @media (max-width: 760px) {
   .intro { grid-template-columns: 1fr; gap: 8px; padding: 30px 0 26px; }
-  .intro h1 { font-size: 36px; }
+  .intro h1, .intro:lang(en) h1, .intro:lang(ja) h1 { font-size: clamp(25px, 7.4vw, 36px); }
   .intro-eyebrow { margin-bottom: 15px; font-size: 9px; }
   .intro p { font-size: 12px; }
   .banner-art { margin-top: -4px; }

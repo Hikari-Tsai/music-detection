@@ -496,25 +496,30 @@ export const messages = {
     en: 'Runs in your browser',
     ja: 'ブラウザー内で処理'
   },
-  heroBeat: {
-    'zh-Hant': '聽見節奏。',
-    en: 'Hear the beat.',
-    ja: 'リズムを知る。'
+  heroEyebrow: {
+    'zh-Hant': '拍速 · 調性 · 音高',
+    en: 'TEMPO · KEY · PITCH',
+    ja: 'テンポ · キー · 音高'
   },
-  heroFind: {
-    'zh-Hant': '看見',
-    en: 'Find the',
-    ja: '見つけよう、'
+  heroBeat: {
+    'zh-Hant': '讓耳邊的旋律，',
+    en: 'Melody in your ears,',
+    ja: '耳にした旋律を、'
+  },
+  heroNotes: {
+    'zh-Hant': '成為手上的音符',
+    en: 'notes in your hands.',
+    ja: '手もとの音符に。'
   },
   heroIntro: {
-    en: 'Drop in music. Discover its tempo, key and vocal range.',
-    ja: '音楽をドロップして、テンポ・キー・歌声の音域を調べよう。',
-    'zh-Hant': '拖入音樂，找到拍速、調性與歌聲音域。'
+    en: 'Drop in music to see how the beat moves and how high the melody goes.',
+    ja: '音楽をドロップして、拍の流れやメロディーの高さを確認。',
+    'zh-Hant': '把音樂拖進來，看看拍子怎麼走、旋律有多高。'
   },
   heroNext: {
-    'zh-Hant': '帶走速度與歌聲音符，讓下一段創作接著發生。',
-    en: 'Take tempo and vocal notes into your next creation.',
-    ja: 'テンポと歌声の音符を、次の音楽づくりへ。'
+    'zh-Hant': '系統會分析 BPM、調性與估計音域，馬上就能知道這首歌適不適合自己演唱。',
+    en: 'Check its BPM, key and estimated vocal range to quickly see whether the song suits your voice.',
+    ja: 'BPM・キー・推定音域を調べて、自分に歌いやすい曲かどうか、すぐに確認できます。'
   },
   motionPauseAria: {
     'zh-Hant': '暫停 Banner 動畫',
