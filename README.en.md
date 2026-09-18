@@ -77,6 +77,8 @@ third_party/         Third-party license notices
 
 GitHub Actions deploys `main` at the site root and `staging` under `/staging/` together. See the guide above for building the app and configuring Pages.
 
+The repository also preserves a [GAME Small v1.0.3 ONNX mirror](assets/models/game/1.0.3-small/) ([Hugging Face](https://huggingface.co/aaatmy/game-small-onnx)), with provenance and checksums. The models use **CC BY-NC-SA 4.0** and are not yet integrated into the website's analysis features.
+
 ## Known limitations
 
 - Models may detect half/double tempo, miss beats or misidentify keys. S-KEY estimates one key per selected range and does not locate modulations.

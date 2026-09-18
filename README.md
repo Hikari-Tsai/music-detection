@@ -77,6 +77,8 @@ third_party/         第三方授權聲明
 
 GitHub Actions 同時部署 `main` 至網站根目錄、`staging` 至 `/staging/`。自行建置與 Pages 設定請見上述指南。
 
+另保留 [GAME Small v1.0.3 ONNX 副本](assets/models/game/1.0.3-small/)（[Hugging Face](https://huggingface.co/aaatmy/game-small-onnx)），含來源與校驗碼。模型採 **CC BY-NC-SA 4.0**，尚未接入網站分析功能。
+
 ## 已知限制
 
 - 模型可能出現半速／倍速、漏拍或調性誤判；S-KEY 只提供所選範圍的單一調性，不定位轉調。
