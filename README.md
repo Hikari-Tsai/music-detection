@@ -18,6 +18,7 @@ Main 適合日常使用；Staging 提供尚未合併至 main 的變更。
 - 顯示 GAME 音符時間圖、最高／最低音及音域跨度；提供合成器播放／暫停、點選圖表跳轉與最高／最低音單音試聽。
 - 選取、試聽指定片段，再分析該範圍；不修改原始檔案。
 - 單一 MIDI 合併 Tempo／拍號與 Lead Vocal 音符軌。固定速度寫入單一 Tempo，確認變速時保留變速表。
+- 可勾選「強化歌聲分析」：單一 htdemucs 分離歌聲，再使用官方 GAME Large v1.0.3。
 - Browser ONNX 與 Local Python 共用介面。
 - 支援英文、日文、繁體中文，依瀏覽器語言自動切換。
 
@@ -30,13 +31,19 @@ Main 適合日常使用；Staging 提供尚未合併至 main 的變更。
 3. 若只分析片段，調整範圍並按「分析選取範圍」。
 4. 查看與試聽結果，下載合併的 Tempo + Lead Vocal MIDI。
 
-瀏覽器模式不需安裝 Python，也不會上傳音訊。首次模型下載合計約 134 MB（不含執行環境），優先從 Hugging Face 下載；Beat This!／S-KEY 以 GitHub Pages 備援，GAME 則以固定版本的 GitHub Repo 副本備援。皆驗證 SHA-256 並嘗試快取。
+瀏覽器模式不需安裝 Python，也不會上傳音訊。一般模式首次模型下載合計約 134 MB（不含執行環境），優先從 Hugging Face 下載；Beat This!／S-KEY 以 GitHub Pages 備援，GAME 則以固定版本的 GitHub Repo 副本備援。皆驗證 SHA-256 並嘗試快取。
 
 ONNX Runtime 執行引擎另由 **unpkg CDN** 優先提供，GitHub Pages 備援；WASM 解壓後約 27.2 MB，同樣驗證並快取。進度會分開顯示引擎下載與 GPU／CPU 初始化，下載期間不計入初始化逾時。
 
-下載來源統一在 [`frontend/inference/download-sources.js`](frontend/inference/download-sources.js) 管理，包含三個模型與 Runtime 的主要／備援網址；修改後需重新建置。
+下載來源統一在 [`frontend/inference/download-sources.json`](frontend/inference/download-sources.json) 管理，包含模型與 Runtime 的主要／備援網址；修改後需重新建置。
 
 選取片段至少 1 秒，調性分析至少 3 秒。MIDI 的 0 秒對應片段起點；若放回原曲，請對齊所選起點。有可用音符時，輸出 Type 1 MIDI：`Tempo` 軌保存速度／可判定拍號，`Lead Vocal` 軌保存 GAME 音符，依變速表換算時間（480 ticks／四分音符）。音高取最近的 MIDI 半音，力度固定 90、預設鋼琴音色；不輸出滑音、歌詞或和弦。GAME 無結果或失敗時保留 Tempo-only 下載；BPM 無法判定時維持不提供 MIDI。
+
+## 強化歌聲分析
+
+勾選「強化歌聲分析」後，先用單一 `htdemucs` 分離歌聲，釋放分離模型記憶體，再由官方 **GAME Large v1.0.3** 分析音符。預設不勾選；切換時重新分析目前選取範圍，新上傳仍自動分析全曲。Beat This! 與 S-KEY 始終使用原始混音。
+
+只有啟用時才額外下載約 **568 MB** 強化模型（htdemucs 174.3 MB + GAME Large 393.8 MB；不含一般模型與 Runtime）。優先使用 [Hugging Face 副本](https://huggingface.co/aaatmy/music-detection-enhanced)；瀏覽器以共用 GitHub Pages 模型目錄備援，本機 Python 以 [GitHub Release](https://github.com/Hikari-Tsai/music-detection/releases/tag/enhanced-models-v1) 備援。瀏覽器模式需要 **WebGPU**，記憶體需求與耗時較高；不會默默切換 Python 或 GAME Small。強化失敗仍保留可用的節拍／調性結果與 Tempo-only MIDI。分離歌聲可能包含和聲、伴奏殘留或失真，並不保證提高準確率，也尚未完成改善幅度評測。詳見[模型來源、授權與執行流程](docs/enhanced.md)。
 
 ## 兩種分析方式
 
@@ -49,11 +56,12 @@ ONNX Runtime 執行引擎另由 **unpkg CDN** 優先提供，GitHub Pages 備援
 | --- | --- | --- |
 | Beat This! | FP32 · ONNX Runtime Web | FP32 · PyTorch |
 | S-KEY | FP32 · ONNX Runtime Web | FP32 · PyTorch |
-| GAME Small | FP32 · ONNX Runtime Web | FP32 · ONNX Runtime |
+| GAME Small / Large | FP32 · ONNX Runtime Web | FP32 · ONNX Runtime |
+| htdemucs（選用） | FP32 · ONNX Runtime Web／WebGPU | FP32 · ONNX Runtime CPU |
 
-三個模型目前皆未做 FP16／INT8 量化。**FP32 是數值精度，不是辨識準確率**；Beat This!／S-KEY 的既有 ONNX 匯出比對誤差分別約 `6.1393 × 10⁻⁶`／`3.7551 × 10⁻⁶`（測試輸出的最大絕對差，非 BPM 誤差或準確率），驗證範圍見 [Browser ONNX](docs/browser.md)。GAME 未做本專案的 PyTorch 匯出誤差或標註音域準確率評測。音高分析失敗不影響 BPM／調性及 Tempo MIDI。
+以上模型目前皆未做 FP16／INT8 量化。**FP32 是數值精度，不是辨識準確率**；Beat This!／S-KEY 的既有 ONNX 匯出比對誤差分別約 `6.1393 × 10⁻⁶`／`3.7551 × 10⁻⁶`（測試輸出的最大絕對差，非 BPM 誤差或準確率），驗證範圍見 [Browser ONNX](docs/browser.md)。GAME 未做本專案的 PyTorch 匯出誤差或標註音域準確率評測。音高分析失敗不影響 BPM／調性及 Tempo MIDI。
 
-Local Python 透過 `POST /api/analyze` 接收原檔與選取範圍，回傳結果及 MIDI 下載網址。音訊只送往同一台電腦的服務。
+Local Python 透過 `POST /api/analyze` 接收原檔、選取範圍與 `enhanced` 選項，回傳結果及 MIDI 下載網址。音訊只送往同一台電腦的服務。
 
 ### 啟動 Local Python
 
@@ -71,7 +79,7 @@ Windows PowerShell：
 .\.venv\Scripts\python.exe -m uvicorn web_app:app --host 127.0.0.1 --port 8765
 ```
 
-開啟 [本機介面](http://127.0.0.1:8765/)，切換為 **Local Python**。Beat This!／S-KEY 於首次分析下載權重，GAME 直接讀取 Git 內的模型副本。既有安裝請重新安裝 `requirements.txt`（新增 `onnxruntime`）並重啟 FastAPI；使用期間保持終端機開啟。從 GitHub Pages 連線時的設定與疑難排解也收錄於安裝指南。
+開啟 [本機介面](http://127.0.0.1:8765/)，切換為 **Local Python**。Beat This!／S-KEY 於首次分析下載權重，一般模式 GAME 讀取 Git 內 Small 副本，強化模型於首次啟用時下載。既有安裝請重新安裝 `requirements.txt`（新增 `onnxruntime`）並重啟 FastAPI；使用期間保持終端機開啟。從 GitHub Pages 連線時的設定與疑難排解也收錄於安裝指南。
 
 ## 開發與文件
 
@@ -82,6 +90,7 @@ frontend/ui/         共用介面、語言切換與範圍選取
 frontend/inference/  ONNX 推論、模型下載與 MIDI 產生
 backend/             FastAPI、PyTorch／ONNX Runtime 分析與 MIDI API
 assets/models/game/  官方 GAME Small ONNX、副本來源與校驗碼
+assets/models/enhanced/  htdemucs 與 GAME Large 的固定來源與校驗碼
 scripts/             模型匯出、前端建置與瀏覽器測試
 shared/              共用調性類別
 samples/             範例音訊、來源與授權
@@ -109,7 +118,10 @@ GitHub Actions 同時部署 `main` 至網站根目錄、`staging` 至 `/staging/
 
 - [CPJKU/beat_this](https://github.com/CPJKU/beat_this)：節拍與小節首拍偵測。相關論文：[Beat this!](https://arxiv.org/abs/2407.21658)，ISMIR 2024。
 - [deezer/skey](https://github.com/deezer/skey)：音樂調性辨識。相關論文：[S-KEY](https://arxiv.org/abs/2501.12907)，ICASSP 2025。
-- [openvpi/GAME](https://github.com/openvpi/GAME)：歌聲音符邊界與音高估計。感謝 openvpi/GAME 貢獻者及原模型發布者 yqzhishen；[技術說明](https://github.com/openvpi/GAME/blob/v1.0.3/ALGORITHMS.md)、[原始權重與資料致謝](https://github.com/openvpi/GAME/releases/tag/v1.0.0)。使用官方 v1.0.3 Small ONNX，權重與設定檔未修改，新增本專案分段推論、結果篩選及介面。
+- [openvpi/GAME](https://github.com/openvpi/GAME)：歌聲音符邊界與音高估計。感謝 openvpi/GAME 貢獻者及原模型發布者 yqzhishen；[技術說明](https://github.com/openvpi/GAME/blob/v1.0.3/ALGORITHMS.md)、[原始權重與資料致謝](https://github.com/openvpi/GAME/releases/tag/v1.0.0)。使用[官方 v1.0.3](https://github.com/openvpi/GAME/releases/tag/v1.0.3) Small 與 Large ONNX，權重與設定檔未修改，新增本專案分段推論、結果篩選及介面。
+
+- [facebookresearch/demucs](https://github.com/facebookresearch/demucs)：強化模式使用單一 htdemucs 模型分離歌聲。相關論文：[Hybrid Transformers for Music Source Separation](https://arxiv.org/abs/2211.08553)。採 [MIT 授權](third_party/Demucs-LICENSE)。
+- [Ghilda/htdemucs-onnx](https://huggingface.co/Ghilda/htdemucs-onnx)：上述官方權重的社群 ONNX 匯出，供瀏覽器與本機 ONNX Runtime 使用。採 MIT 授權，詳見[匯出來源與聲明](third_party/HTDemucs-ONNX-NOTICE)。強化模型的本專案下載副本：[aaatmy/music-detection-enhanced](https://huggingface.co/aaatmy/music-detection-enhanced)；htdemucs 與 GAME Large 各自保留原授權。
 
 也感謝 ONNX Runtime、PyTorch／TorchAudio、nnAudio、ConvNeXt、FFmpeg、FastAPI、NumPy、SoundFile、fft.js 與 Mido 等開源工具。完整依賴見 [package.json](package.json)、[requirements.txt](requirements.txt) 與 [requirements-onnx.txt](requirements-onnx.txt)。
 
@@ -117,6 +129,6 @@ GitHub Actions 同時部署 `main` 至網站根目錄、`staging` 至 `/staging/
 
 本專案原創程式碼採 [MIT License](LICENSE)，Copyright © 2026 Hikari Tsai。第三方程式、模型與音訊保留各自授權，聲明收錄於 [third_party/](third_party/)。
 
-**GAME 權重採 [CC BY-NC-SA 4.0](assets/models/game/1.0.3-small/LICENSE)**，需署名、非商業使用，分享改作模型時遵守相同方式分享；不能因本專案程式碼為 MIT 而視為可自由商用。授權來源及修改說明見 [GAME 聲明](third_party/GAME-NOTICE.md)。
+**GAME Small 與 Large 權重採 [CC BY-NC-SA 4.0](assets/models/game/1.0.3-small/LICENSE)**，需署名、非商業使用，分享改作模型時遵守相同方式分享；不能因本專案程式碼為 MIT 而視為可自由商用。授權來源及修改說明見 [GAME 聲明](third_party/GAME-NOTICE.md)。
 
 範例 `samples/choice.ogg` 是 librosa 提供的 **Choice** 鼓與貝斯節錄，原作者為 Admiral Bob feat. Snowflake，由 Brian McFee 整理。其聲明包含 **CC BY-NC（署名、非商業）** 條件，並非 MIT；詳見 [來源紀錄](samples/source.json) 與 [原始授權](samples/choice.txt)。

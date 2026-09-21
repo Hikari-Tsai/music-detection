@@ -99,6 +99,7 @@ function setBusy(value) {
   $('clear-file').disabled = value;
   input.disabled = value;
   $('engine-select').disabled = value;
+  $('enhanced-mode').disabled = value;
   selection.setBusy(value);
   $('analyze-range').disabled = value || !lastFile || (selection.available && !selection.valid);
   $('result-panel').setAttribute('aria-busy', String(value));
@@ -260,7 +261,7 @@ async function analyze() {
       (text) => {
         setText($('status-message'), text);
       },
-      { range, prepared: sourceAudio }
+      { range, prepared: sourceAudio, enhanced: $('enhanced-mode').checked }
     );
     pitchView.render(data, range?.start || 0);
     tempoClick.render(data);
@@ -369,6 +370,14 @@ async function analyze() {
   }
 }
 
+$('enhanced-mode').addEventListener('change', () => {
+  if (busy) return;
+  if (lastFile) analyze();
+  else {
+    errorMessage('');
+    resetResult();
+  }
+});
 $('analyze-range').addEventListener('click', () => analyze());
 $('choose-file').addEventListener('click', () => input.click());
 $('engine-select').addEventListener('change', () => {

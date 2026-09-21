@@ -1,21 +1,24 @@
 import * as ort from 'onnxruntime-web/webgpu';
-import manifest from '../../assets/models/game/1.0.3-small/manifest.json';
+import smallManifest from '../../assets/models/game/1.0.3-small/manifest.json';
+import enhancedManifest from '../../assets/models/enhanced/manifest.json';
 import { DOWNLOAD_SOURCES } from './download-sources.js';
 import { createModelAssets, ModelLoadError } from './model-assets.js';
 import { PITCH_RATE, pitchChunks, decodePitchChunk, summarizePitch } from './pitch.js';
 import { createTrackedSession } from './session.js';
 
-export function createPitchEngine(progress) {
+export function createPitchEngine(progress, enhanced = false) {
+  const manifest = enhanced ? enhancedManifest.game : smallManifest;
+  const source = enhanced ? DOWNLOAD_SOURCES.gameLarge : DOWNLOAD_SOURCES.game;
   const assets = Object.fromEntries(
     manifest.files
       .filter((f) => f.name.endsWith('.onnx'))
       .map((f) => [
         f.name.replace('.onnx', ''),
         createModelAssets(
-          new URL(DOWNLOAD_SOURCES.game.fallbackBaseURL, import.meta.url),
+          new URL(source.fallbackBaseURL, import.meta.url),
           (text) => progress(['GAME / ' + f.name + ': ', text]),
           {
-            ...DOWNLOAD_SOURCES.game,
+            ...source,
             manifestOverride: { model_file: f.name, model_bytes: f.bytes, sha256: f.sha256 }
           }
         )
@@ -117,7 +120,9 @@ export function createPitchEngine(progress) {
           for (const t of tensors) t.dispose();
         }
       }
-      return { ...summarizePitch(notes), pitch_engine: provider };
+      const result = summarizePitch(notes);
+      if (result.pitch && enhanced) result.pitch.model = 'GAME Large v1.0.3';
+      return { ...result, pitch_engine: provider, pitch_mode: enhanced ? 'enhanced' : 'standard' };
     } finally {
       // Do not keep three models' GPU sessions resident between analyses.
       await Promise.all(Object.values(sessions).map((s) => s.release().catch(() => {})));
@@ -133,15 +138,21 @@ export function createPitchEngine(progress) {
         try {
           return await run(audio, 'webgpu');
         } catch (error) {
-          if (error instanceof ModelLoadError) throw error;
+          if (enhanced || error instanceof ModelLoadError) throw error;
           console.warn('GAME WebGPU unavailable; retrying with WASM.', String(error));
           progress({ key: 'pitchCpuFallback' });
         }
       }
+      if (enhanced) throw new Error('Enhanced browser pitch requires WebGPU');
       return await run(audio, 'wasm');
     } catch (error) {
       console.warn('GAME unavailable; retaining tempo and key results.', String(error));
-      return { pitch: null, pitch_status: 'error', pitch_reason: 'analysis_failed' };
+      return {
+        pitch: null,
+        pitch_status: 'error',
+        pitch_reason: enhanced ? 'enhancement_failed' : 'analysis_failed',
+        pitch_mode: enhanced ? 'enhanced' : 'standard'
+      };
     }
   };
 }

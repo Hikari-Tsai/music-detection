@@ -18,6 +18,7 @@ Use Main for everyday use, or Staging to try changes not yet merged into main.
 - View GAME's note timeline, lowest/highest notes and range; play/pause synthesized notes, seek on the chart and audition either extreme as a single tone.
 - Select and preview a clip, then analyze that range without modifying the original file.
 - Export one MIDI with Tempo/meter and Lead Vocal note tracks, retaining constant or variable tempo as detected.
+- Optionally enable **Enhanced vocal analysis**: single-model htdemucs vocal separation followed by official GAME Large v1.0.3.
 - Switch between Browser ONNX and Local Python in the same interface.
 - English, Japanese and Traditional Chinese, selected automatically from the browser language.
 
@@ -30,13 +31,19 @@ Supports **WAV, MP3, FLAC, M4A, OGG, AIFF, AAC, MP4 and MOV**, up to **100 MiB a
 3. To analyze a clip, adjust the range and press **Analyze selected range**.
 4. Review and audition the results, then download the combined Tempo + Lead Vocal MIDI.
 
-Browser mode needs no Python installation and does not upload audio. First-use models total about 134 MB, excluding the runtime. Hugging Face is primary; Beat This!/S-KEY fall back to GitHub Pages, while GAME falls back to a pinned GitHub repository copy. Files are SHA-256 verified and cached when possible.
+Browser mode needs no Python installation and does not upload audio. Standard-mode first-use models total about 134 MB, excluding the runtime. Hugging Face is primary; Beat This!/S-KEY fall back to GitHub Pages, while GAME falls back to a pinned GitHub repository copy. Files are SHA-256 verified and cached when possible.
 
 The ONNX Runtime binary downloads separately from **unpkg CDN**, with GitHub Pages as fallback. The WASM is about 27.2 MB uncompressed and is also verified and cached. Progress distinguishes runtime download from GPU/CPU initialization; download time does not count toward initialization timeouts.
 
-All model/runtime primary and fallback download URLs are managed in [`frontend/inference/download-sources.js`](frontend/inference/download-sources.js). Rebuild after changing this configuration.
+All model/runtime primary and fallback download URLs are managed in [`frontend/inference/download-sources.json`](frontend/inference/download-sources.json). Rebuild after changing this configuration.
 
 Selections must be at least 1 second; key analysis needs at least 3 seconds. MIDI time zero corresponds to the clip's start, so align it with that position when using the original track. When notes are available, a Type 1 MIDI contains a `Tempo` track with tempo/meter and a `Lead Vocal` track with GAME notes. Seconds are converted against the exported tempo map at 480 ticks per quarter note. Pitches are rounded to the nearest MIDI semitone, with fixed velocity 90 and a default piano program; no pitch bends, lyrics or chords are exported. Missing/failed GAME results preserve the tempo-only download; unavailable BPM still means no MIDI export.
+
+## Enhanced vocal analysis
+
+Check **Enhanced vocal analysis** to separate vocals with a single `htdemucs` model, release its memory, then estimate notes using official **GAME Large v1.0.3**. This option is off by default. Changing it reanalyzes the current selection; new uploads still automatically analyze the full file. Beat This! and S-KEY always use the original mix.
+
+About **568 MB** of extra models download only when enabled (htdemucs 174.3 MB + GAME Large 393.8 MB, excluding standard models and the runtime). The [Hugging Face mirror](https://huggingface.co/aaatmy/music-detection-enhanced) is primary; browsers fall back to the shared GitHub Pages model directory, and Local Python falls back to the [GitHub Release](https://github.com/Hikari-Tsai/music-detection/releases/tag/enhanced-models-v1). Browser enhancement requires **WebGPU**, more memory and more time; it never silently switches to Local Python or GAME Small. On an enhancement failure, valid tempo/key results and tempo-only MIDI remain available. The vocal stem may include backing vocals and residual instruments, and separation artifacts may change notes. Improved accuracy is not guaranteed or benchmarked here. [Model sources, licenses and runtime details](docs/enhanced.md).
 
 ## Analysis engines
 
@@ -49,11 +56,12 @@ Selections must be at least 1 second; key analysis needs at least 3 seconds. MID
 | --- | --- | --- |
 | Beat This! | FP32 · ONNX Runtime Web | FP32 · PyTorch |
 | S-KEY | FP32 · ONNX Runtime Web | FP32 · PyTorch |
-| GAME Small | FP32 · ONNX Runtime Web | FP32 · ONNX Runtime |
+| GAME Small / Large | FP32 · ONNX Runtime Web | FP32 · ONNX Runtime |
+| htdemucs (optional) | FP32 · ONNX Runtime Web / WebGPU | FP32 · ONNX Runtime CPU |
 
 None of these bundles is FP16/INT8 quantized. **FP32 is numerical precision, not recognition accuracy.** Existing Beat This!/S-KEY ONNX conversion checks recorded maximum absolute output differences of about `6.1393 × 10⁻⁶` / `3.7551 × 10⁻⁶`; these are not BPM errors or accuracy percentages. See [Browser ONNX](docs/browser.md) for scope. GAME has no project-specific PyTorch export-parity or labeled vocal-range accuracy benchmark. Pitch failures preserve tempo/key results and tempo-only downloads.
 
-Local Python receives the original file and selected range through `POST /api/analyze`, returning results and a MIDI download URL. Audio is sent only to the service on the same computer.
+Local Python receives the original file, selected range and `enhanced` option through `POST /api/analyze`, returning results and a MIDI download URL. Audio is sent only to the service on the same computer.
 
 ### Start Local Python
 
@@ -71,7 +79,7 @@ Windows PowerShell:
 .\.venv\Scripts\python.exe -m uvicorn web_app:app --host 127.0.0.1 --port 8765
 ```
 
-Open the [local interface](http://127.0.0.1:8765/) and select **Local Python**. Beat/key weights download on first use; GAME loads the tracked model bundle. Existing installations must reinstall `requirements.txt` (adds `onnxruntime`) and restart FastAPI. Keep the terminal open while using the service. The setup guide also covers connections from GitHub Pages and troubleshooting.
+Open the [local interface](http://127.0.0.1:8765/) and select **Local Python**. Beat/key weights download on first use; standard GAME loads the tracked Small bundle; enhanced models download on first use. Existing installations must reinstall `requirements.txt` (adds `onnxruntime`) and restart FastAPI. Keep the terminal open while using the service. The setup guide also covers connections from GitHub Pages and troubleshooting.
 
 ## Development and documentation
 
@@ -82,6 +90,7 @@ frontend/ui/         Shared UI, languages and range selection
 frontend/inference/  ONNX inference, model downloads and MIDI generation
 backend/             FastAPI, PyTorch/ONNX Runtime analysis and MIDI API
 assets/models/game/  Official GAME Small ONNX, provenance and checksums
+assets/models/enhanced/  Pinned htdemucs and GAME Large sources and checksums
 scripts/             Model export, frontend builds and browser tests
 shared/              Shared key labels
 samples/             Example audio, provenance and license
@@ -96,7 +105,7 @@ The repository also preserves a [GAME Small v1.0.3 ONNX mirror](assets/models/ga
 
 ## Known limitations
 
-- GAME estimates pitches in this recording/selection, not the singer's entire vocal capability, and does not separate lead vocals. Harmony, instruments, octave errors and random sampling can affect the range. Segments shorter than 80 ms are excluded; this does not guarantee removal of false detections.
+- Standard GAME estimates pitches in this recording/selection, not the singer's entire vocal capability, and does not separate lead vocals. Harmony, instruments, octave errors and random sampling can affect the range. Segments shorter than 80 ms are excluded; this does not guarantee removal of false detections.
 
 - Models may detect half/double tempo, miss beats or misidentify keys. S-KEY estimates one key per selected range and does not locate modulations.
 - ONNX/PyTorch comparisons verify conversion consistency, not recognition accuracy across a large music dataset.
@@ -110,7 +119,10 @@ This project uses code and model resources from the following repositories. Than
 
 - [CPJKU/beat_this](https://github.com/CPJKU/beat_this): beat and downbeat detection. Related paper: [Beat this!](https://arxiv.org/abs/2407.21658), ISMIR 2024.
 - [deezer/skey](https://github.com/deezer/skey): musical key detection. Related paper: [S-KEY](https://arxiv.org/abs/2501.12907), ICASSP 2025.
-- [openvpi/GAME](https://github.com/openvpi/GAME): singing-note boundary and pitch estimation. Credit to the GAME contributors and original model publisher yqzhishen; [technical description](https://github.com/openvpi/GAME/blob/v1.0.3/ALGORITHMS.md), [original weights and dataset acknowledgements](https://github.com/openvpi/GAME/releases/tag/v1.0.0). The official v1.0.3 Small ONNX weights/configuration are unchanged; this application adds chunked inference, result filtering and UI.
+- [openvpi/GAME](https://github.com/openvpi/GAME): singing-note boundary and pitch estimation. Credit to the GAME contributors and original model publisher yqzhishen; [technical description](https://github.com/openvpi/GAME/blob/v1.0.3/ALGORITHMS.md), [original weights and dataset acknowledgements](https://github.com/openvpi/GAME/releases/tag/v1.0.0). The [official v1.0.3](https://github.com/openvpi/GAME/releases/tag/v1.0.3) Small and Large ONNX weights/configuration are unchanged; this application adds chunked inference, result filtering and UI.
+
+- [facebookresearch/demucs](https://github.com/facebookresearch/demucs): enhanced mode uses the single htdemucs model for vocal separation. Related paper: [Hybrid Transformers for Music Source Separation](https://arxiv.org/abs/2211.08553). [MIT license](third_party/Demucs-LICENSE).
+- [Ghilda/htdemucs-onnx](https://huggingface.co/Ghilda/htdemucs-onnx): community ONNX export of those official weights, used by browser and local ONNX Runtime. MIT licensed; see the [export provenance and notice](third_party/HTDemucs-ONNX-NOTICE). This project mirrors enhanced models at [aaatmy/music-detection-enhanced](https://huggingface.co/aaatmy/music-detection-enhanced); htdemucs and GAME Large retain their respective licenses.
 
 Thanks also to ONNX Runtime, PyTorch/TorchAudio, nnAudio, ConvNeXt, FFmpeg, FastAPI, NumPy, SoundFile, fft.js and Mido. Full dependencies are listed in [package.json](package.json), [requirements.txt](requirements.txt) and [requirements-onnx.txt](requirements-onnx.txt).
 
@@ -118,6 +130,6 @@ Thanks also to ONNX Runtime, PyTorch/TorchAudio, nnAudio, ConvNeXt, FFmpeg, Fast
 
 Original project code is released under the [MIT License](LICENSE), Copyright © 2026 Hikari Tsai. Third-party code, models and audio retain their own licenses; notices are included in [third_party/](third_party/).
 
-**GAME weights use [CC BY-NC-SA 4.0](assets/models/game/1.0.3-small/LICENSE)**: attribution and noncommercial use are required, with ShareAlike for shared adaptations. The application's MIT license does not grant commercial rights to those weights. See the [GAME notice](third_party/GAME-NOTICE.md) for provenance and modification details.
+**GAME Small and Large weights use [CC BY-NC-SA 4.0](assets/models/game/1.0.3-small/LICENSE)**: attribution and noncommercial use are required, with ShareAlike for shared adaptations. The application's MIT license does not grant commercial rights to those weights. See the [GAME notice](third_party/GAME-NOTICE.md) for provenance and modification details.
 
 The example `samples/choice.ogg` is librosa's drum-and-bass excerpt of **Choice** by Admiral Bob feat. Snowflake, prepared by Brian McFee. Its notice includes **CC BY-NC (Attribution, Noncommercial)** terms and is not MIT. See the [provenance record](samples/source.json) and [original license notice](samples/choice.txt).

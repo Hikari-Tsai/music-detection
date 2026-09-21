@@ -1,5 +1,83 @@
 // Shared language catalog. Keys are stable across all three locales.
 export const messages = {
+  enhancementBackendUnsupported: {
+    en: 'Local Python did not confirm enhanced mode. Update the project and restart the local service, then try again.',
+    ja: 'Local Python が強化モードを確認できませんでした。プロジェクトを更新し、ローカルサービスを再起動して再試行してください。',
+    'zh-Hant': '本機 Python 未確認強化模式，請更新專案並重新啟動服務後再試。'
+  },
+  separationReleased: {
+    en: 'Vocal separation complete; memory released. Preparing GAME Large.',
+    ja: '歌声の分離が完了し、メモリーを解放しました。GAME Large を準備中。',
+    'zh-Hant': '歌聲分離完成，已釋放分離記憶體；正在準備 GAME Large。'
+  },
+  separationProgress: {
+    en: 'Separating vocals · segment {current}/{total}',
+    ja: '歌声を分離中 · 区間 {current}/{total}',
+    'zh-Hant': '正在分離歌聲 · 片段 {current}/{total}'
+  },
+  separationStarting: {
+    en: 'Preparing htdemucs vocal separation',
+    ja: 'htdemucs の歌声分離を準備中',
+    'zh-Hant': '正在準備 htdemucs 歌聲分離'
+  },
+  separationExport: {
+    en: 'Community ONNX export',
+    ja: 'コミュニティ ONNX 版',
+    'zh-Hant': '社群 ONNX 匯出'
+  },
+  separationLicense: {
+    en: 'Demucs and this ONNX export: MIT. GAME Large weights: CC BY-NC-SA 4.0.',
+    ja: 'Demucs とこの ONNX 版：MIT。GAME Large の重み：CC BY-NC-SA 4.0。',
+    'zh-Hant': 'Demucs 與此 ONNX 匯出：MIT。GAME Large 權重：CC BY-NC-SA 4.0。'
+  },
+  separationLimit: {
+    en: 'The vocal stem can contain backing vocals and leakage. Separation artifacts may change notes; enhanced mode is not guaranteed to improve accuracy.',
+    ja: '分離した歌声にはコーラスや伴奏の漏れが含まれることがあります。分離による歪みも音符に影響するため、強化モードで精度が上がる保証はありません。',
+    'zh-Hant':
+      '分離出的歌聲仍可能包含和聲與伴奏殘留；分離失真也會影響音符，強化模式不保證提高準確率。'
+  },
+  separationDescription: {
+    en: 'One htdemucs model separates vocals before GAME Large analyzes them. Separation memory is released before pitch analysis. The browser uses Ghilda’s community ONNX export of the official weights (about 174.3 MB / 166.2 MiB).',
+    ja: '単一の htdemucs で歌声を分離し、分離処理のメモリーを解放してから GAME Large で解析します。ブラウザーは公式の重みを変換した Ghilda のコミュニティ ONNX 版（約 174.3 MB / 166.2 MiB）を使います。',
+    'zh-Hant':
+      '使用單一 htdemucs 分離歌聲，釋放分離模型記憶體後，再交給 GAME Large 分析。瀏覽器使用 Ghilda 將官方權重匯出的社群 ONNX 版（約 174.3 MB / 166.2 MiB）。'
+  },
+  separationTask: {
+    en: 'Vocal separation · enhanced mode',
+    ja: '歌声分離 · 強化モード',
+    'zh-Hant': '歌聲分離 · 強化模式'
+  },
+  largeRelease: {
+    en: 'Official Large release',
+    ja: '公式 Large リリース',
+    'zh-Hant': '官方 Large 發布版'
+  },
+  enhancementWebGPURequired: {
+    en: 'Enhanced browser analysis requires WebGPU. Turn off enhanced mode, or explicitly select Local Python after starting the local service.',
+    ja: 'ブラウザーでの強化解析には WebGPU が必要です。強化をオフにするか、ローカルサービスを起動して Local Python を選択してください。',
+    'zh-Hant': '瀏覽器強化分析需要 WebGPU。請取消強化模式，或啟動本機服務後自行切換 Local Python。'
+  },
+  enhancementFailed: {
+    en: 'Enhanced vocal analysis failed. Tempo and key results remain available; retry or turn off enhanced mode.',
+    ja: '歌声の強化解析に失敗しました。テンポとキーの結果は保持されます。再試行するか、強化をオフにしてください。',
+    'zh-Hant': '強化歌聲分析失敗；節拍與調性結果仍保留。請重試或取消勾選強化模式。'
+  },
+  enhancedHelp: {
+    en: 'Separate vocals with htdemucs, then estimate notes with GAME Large. Downloads about 568 MB of extra models on first use and uses more time and memory. Browser mode requires WebGPU. Changing this option reanalyzes the selected range; tempo and key still use the original mix.',
+    ja: 'htdemucs で歌声を分離し、GAME Large で音符を推定します。初回は追加モデル約 568 MB をダウンロードし、時間とメモリーを多く使います。ブラウザーでは WebGPU が必要です。変更すると選択範囲を再解析します。テンポとキーは元のミックスを使います。',
+    'zh-Hant':
+      '先由 htdemucs 分離歌聲，再用 GAME Large 估計音符。首次需額外下載約 568 MB 模型，耗時與記憶體需求較高；瀏覽器模式需要 WebGPU。切換後會重新分析目前選取範圍，節拍與調性仍使用原始混音。'
+  },
+  enhancedOptional: {
+    en: 'Optional',
+    ja: '任意',
+    'zh-Hant': '選用'
+  },
+  enhancedLabel: {
+    en: 'Enhanced vocal analysis',
+    ja: '歌声解析の強化',
+    'zh-Hant': '強化歌聲分析'
+  },
   runtimeConnecting: {
     en: 'Preparing the analysis runtime download',
     ja: '解析エンジンのダウンロードを準備中',
@@ -81,10 +159,10 @@ export const messages = {
     'zh-Hant': '下載 Tempo + Lead Vocal MIDI'
   },
   precisionNote: {
-    en: 'Beat This! and S-KEY use FP32 floating-point weights in both their ONNX exports and local PyTorch models. GAME uses official FP32 ONNX in both engines. These bundles are not FP16 or INT8 quantized. FP32 describes numerical precision, not a recognition accuracy percentage.',
-    ja: 'Beat This! と S-KEY は ONNX 版・ローカル PyTorch 版ともに浮動小数点重みが FP32 です。GAME は両エンジンで公式 FP32 ONNX を使用します。FP16・INT8 量子化版ではありません。FP32 は数値精度であり、認識正解率ではありません。',
+    en: 'Beat This!, S-KEY, GAME Small/Large and htdemucs use FP32 floating-point weights. These bundles are not FP16 or INT8 quantized. FP32 describes numerical precision, not a recognition accuracy percentage.',
+    ja: 'Beat This!、S-KEY、GAME Small／Large、htdemucs の浮動小数点重みは FP32 です。FP16・INT8 量子化版ではありません。FP32 は数値精度であり、認識正解率ではありません。',
     'zh-Hant':
-      'Beat This!、S-KEY 的 ONNX 匯出與本機 PyTorch 模型皆使用 FP32 浮點權重；GAME 在兩種引擎都使用官方 FP32 ONNX。這些版本未做 FP16／INT8 量化。FP32 是數值精度，不代表辨識準確率百分比。'
+      'Beat This!、S-KEY、GAME Small／Large 與 htdemucs 皆使用 FP32 浮點權重，未做 FP16／INT8 量化。FP32 是數值精度，不代表辨識準確率百分比。'
   },
   precisionPython: { en: 'Local Python', ja: 'ローカル Python', 'zh-Hant': '本機 Python' },
   precisionBrowser: { en: 'Browser ONNX', ja: 'ブラウザー ONNX', 'zh-Hant': '瀏覽器 ONNX' },
@@ -267,10 +345,10 @@ export const messages = {
     'zh-Hant': 'ONNX 與 PyTorch 兩種模型的差異'
   },
   compareIntro: {
-    en: 'Both engines analyze tempo, key and pitch. Browser mode uses ONNX; Local Python uses PyTorch for Beat This! and S-KEY, and ONNX Runtime for GAME.',
-    ja: 'どちらもテンポ・キー・音高を解析します。ブラウザーは ONNX、Local Python は Beat This! と S-KEY に PyTorch、GAME に ONNX Runtime を使用します。',
+    en: 'Both engines analyze tempo, key and pitch. Browser mode uses ONNX; Local Python uses PyTorch for Beat This! and S-KEY, and ONNX Runtime for GAME and optional htdemucs.',
+    ja: 'どちらもテンポ・キー・音高を解析します。ブラウザーは ONNX、Local Python は Beat This! と S-KEY に PyTorch、GAME と任意の htdemucs に ONNX Runtime を使用します。',
     'zh-Hant':
-      '兩種引擎皆分析拍速、調性與音高。瀏覽器使用 ONNX；Local Python 的 Beat This!／S-KEY 使用 PyTorch，GAME 則使用 ONNX Runtime。'
+      '兩種引擎皆分析拍速、調性與音高。瀏覽器使用 ONNX；Local Python 的 Beat This!／S-KEY 使用 PyTorch，GAME 與選用的 htdemucs 則使用 ONNX Runtime。'
   },
   compareBrowser: {
     en: 'Browser ONNX · Recommended',
@@ -294,16 +372,16 @@ export const messages = {
     'zh-Hant': '需安裝 Python 相依套件與 FFmpeg，並啟動本機 FastAPI 服務；首次使用會下載模型權重。'
   },
   compareBrowserRuntime: {
-    en: 'ONNX Runtime Web runs in a Web Worker. Beat This! and GAME try WebGPU with WASM fallback; S-KEY uses WASM. GAME processes short overlapping chunks.',
-    ja: 'Web Worker 内の ONNX Runtime Web で実行。Beat This! と GAME は WebGPU を優先し、WASM に切り替え可能です。S-KEY は WASM。GAME は重複する短区間ごとに処理します。',
+    en: 'ONNX Runtime Web runs in a Web Worker. Standard Beat This! and GAME Small try WebGPU with WASM fallback; S-KEY uses WASM. Enhanced htdemucs and GAME Large require WebGPU and run in sequence.',
+    ja: 'Web Worker の ONNX Runtime Web で実行します。通常の Beat This! と GAME Small は WebGPU 優先、WASM に切り替え可能です。S-KEY は WASM。強化モードの htdemucs と GAME Large は WebGPU 必須で順番に実行します。',
     'zh-Hant':
-      'ONNX Runtime Web 在 Web Worker 執行。Beat This! 與 GAME 優先 WebGPU，失敗改用 WASM；S-KEY 使用 WASM。GAME 以有重疊的短片段分批處理。'
+      'ONNX Runtime Web 在 Web Worker 執行。一般模式的 Beat This!、GAME Small 優先 WebGPU，可備援至 WASM；S-KEY 使用 WASM。強化模式的 htdemucs 與 GAME Large 需要 WebGPU，依序執行。'
   },
   comparePythonRuntime: {
-    en: 'FFmpeg decodes audio. Beat This! and S-KEY run in PyTorch; GAME runs the same official ONNX graphs with ONNX Runtime. All use CPU.',
-    ja: 'FFmpeg でデコードし、Beat This! と S-KEY は PyTorch、GAME は同一の公式 ONNX を ONNX Runtime で実行します。すべて CPU を使用します。',
+    en: 'FFmpeg decodes audio. Beat This! and S-KEY use PyTorch. htdemucs and GAME Small/Large run on CPU with ONNX Runtime; PyTorch handles htdemucs STFT transforms only. The separation process exits before GAME Large starts.',
+    ja: 'FFmpeg でデコードします。Beat This! と S-KEY は PyTorch、htdemucs と GAME Small／Large は CPU の ONNX Runtime で実行します。htdemucs では STFT 変換のみ PyTorch を使い、分離プロセスが終了してから GAME Large を起動します。',
     'zh-Hant':
-      'FFmpeg 解碼音訊；Beat This! 與 S-KEY 由 PyTorch 執行，GAME 使用同一份官方 ONNX 搭配 ONNX Runtime，皆在 CPU 運算。'
+      'FFmpeg 解碼音訊。Beat This! 與 S-KEY 使用 PyTorch；htdemucs 與 GAME Small／Large 使用 ONNX Runtime CPU 推論，htdemucs 僅 STFT 轉換使用 PyTorch。分離程序結束後才啟動 GAME Large。'
   },
   compareBrowserPrivacy: {
     en: 'Audio is decoded and analyzed in your browser. It is not uploaded to an analysis server.',
@@ -339,10 +417,10 @@ export const messages = {
       '已有 Python 工作環境，或瀏覽器無法完成推論時使用。啟動步驟請見上方引擎選擇區的教學。'
   },
   compareAccuracy: {
-    en: 'Beat This! and S-KEY exports have PyTorch conversion checks. GAME uses unchanged official FP32 ONNX; its vocal-range accuracy and PyTorch conversion error have not been benchmarked here. FP32 is numerical precision, not recognition accuracy. GAME sampling and engine differences may change note boundaries and range estimates.',
-    ja: 'Beat This! と S-KEY は PyTorch との変換検証済みです。GAME は未変更の公式 FP32 ONNX を使用し、本サイトでは音域の正解率や PyTorch 変換誤差を評価していません。FP32 は数値精度です。GAME のサンプリングや実行環境により境界・音域の推定が変わる場合があります。',
+    en: 'Beat This! and S-KEY exports have PyTorch conversion checks. GAME Small and Large use official FP32 ONNX. Neither enhanced-mode gains nor vocal-range accuracy have been benchmarked here. Separation can retain backing vocals or introduce artifacts, so it does not guarantee improvement. FP32 is numerical precision, not recognition accuracy.',
+    ja: 'Beat This! と S-KEY は PyTorch との変換検証済みです。GAME Small／Large は公式 FP32 ONNX を使用します。強化の効果や音域の正解率は未評価です。分離後もコーラスや歪みが残るため、精度向上は保証しません。FP32 は数値精度であり、認識正解率ではありません。',
     'zh-Hant':
-      'Beat This! 與 S-KEY 已有 PyTorch 匯出比對。GAME 使用未修改的官方 FP32 ONNX，尚未在此評測歌聲音域準確率或 PyTorch 匯出誤差。FP32 代表數值精度；GAME 的取樣與引擎差異可能造成音符邊界及音域估計變動。'
+      'Beat This! 與 S-KEY 已有 PyTorch 匯出比對；GAME Small／Large 使用官方 FP32 ONNX。尚未評測強化模式的改善幅度或歌聲音域準確率。分離可能保留和聲或產生失真，不保證改善；FP32 是數值精度，不代表辨識準確率。'
   },
 
   githubStar: {
@@ -474,10 +552,10 @@ export const messages = {
       '選擇 Local Python，加入音訊後會自動分析全曲。若只分析片段，請調整範圍後按「分析選取範圍」。切換引擎也會分析目前範圍；若先前失敗，可在服務啟動後再按分析重試。'
   },
   pythonGuideFirstRun: {
-    en: 'Beat/key weights download on first use. GAME uses the bundled assets/models/game/1.0.3-small files and Python ONNX Runtime. After updating, reinstall requirements.txt and restart FastAPI. Temporary audio is deleted after analysis; MIDI downloads last up to one hour.',
-    ja: '拍・キーの重みは初回に取得します。GAME は同梱の assets/models/game/1.0.3-small と Python ONNX Runtime を使用します。更新後は requirements.txt を再インストールし、FastAPI を再起動してください。一時音声は解析後に削除し、MIDI は最長1時間保持します。',
+    en: 'Beat/key weights download on first use. Standard mode uses the bundled GAME Small model. Enabling enhanced mode downloads htdemucs and GAME Large (about 568 MB extra). After updating, reinstall requirements.txt and restart FastAPI. Temporary audio is deleted after analysis; MIDI downloads last up to one hour.',
+    ja: '拍・キーの重みは初回に取得します。通常は同梱の GAME Small を使い、強化モードを有効にすると htdemucs と GAME Large（追加で約 568 MB）をダウンロードします。更新後は requirements.txt を再インストールし、FastAPI を再起動してください。一時音声は解析後に削除し、MIDI は最長1時間保持します。',
     'zh-Hant':
-      '拍點／調性權重於首次使用下載。GAME 使用專案內 assets/models/game/1.0.3-small 與 Python ONNX Runtime。更新後請重新安裝 requirements.txt 並重啟 FastAPI；分析後刪除音訊暫存，MIDI 保留最長一小時。'
+      '拍點／調性權重於首次使用下載；一般模式使用專案內 GAME Small，啟用強化模式才下載 htdemucs 與 GAME Large（額外約 568 MB）。更新後請重新安裝 requirements.txt 並重啟 FastAPI；分析後刪除音訊暫存，MIDI 保留最長一小時。'
   },
   pythonGuideOpen: {
     en: 'Open the local service page ↗',
@@ -782,9 +860,9 @@ export const messages = {
     ja: '使用しているモデル'
   },
   modelsIntro: {
-    en: 'Three specialized models for rhythm, key and singing pitch. Know what powers your results.',
-    ja: 'リズム・キー・歌声の音高を担当する3つのモデル。解析結果を支える仕組みを紹介します。',
-    'zh-Hant': '三個模型分別分析節拍、調性與歌聲音高，了解分析結果的來源。'
+    en: 'Specialized models for rhythm, key and singing pitch, with optional vocal separation before enhanced pitch analysis.',
+    ja: 'リズム・キー・歌声の音高を解析するモデル。強化モードでは音高解析の前に歌声を分離します。',
+    'zh-Hant': '分別分析節拍、調性與歌聲音高；選用強化模式時，先分離歌聲再分析音符。'
   },
   beatTask: {
     'zh-Hant': '節拍與小節首拍',
@@ -1399,10 +1477,10 @@ export const messages = {
     'zh-Hant': '歌聲音高與音域'
   },
   pitchDescription: {
-    en: 'Estimates singing-note boundaries and pitches. The app displays a note timeline and the lowest and highest accepted pitches for the track or selected range.',
-    ja: '歌声の音符の境界と音高を推定し、全曲または選択範囲の音高グラフと、採用された最低音・最高音を表示します。',
+    en: 'GAME Small estimates singing notes from the mix by default. Enhanced mode uses the official GAME Large v1.0.3 ONNX release on separated vocals. Both display the note timeline and lowest/highest accepted pitches.',
+    ja: '通常は GAME Small がミックスから歌声の音符を推定します。強化モードでは分離した歌声を公式 GAME Large v1.0.3 ONNX で解析します。どちらも音高グラフと採用された最低音・最高音を表示します。',
     'zh-Hant':
-      '估計歌聲音符邊界與音高，呈現整首或所選片段的音符時間圖，以及篩選後的最低音與最高音。'
+      '預設由 GAME Small 從混音估計歌聲音符；強化模式將分離後的歌聲交給官方 GAME Large v1.0.3 ONNX。兩者皆顯示音符時間圖及篩選後的最低／最高音。'
   },
   pitchLimit: {
     en: 'Not a lead-vocal separator: harmony, accompaniment and octave errors can affect the range. Notes shorter than 80 ms are excluded. No labeled vocal-range accuracy benchmark has been completed.',

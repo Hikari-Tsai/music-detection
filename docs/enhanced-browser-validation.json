@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-22",
+  "engine": "Chrome 152 / ONNX Runtime Web 1.24.3 / WebGPU (Apple Metal 3)",
+  "input": "8-second local WAV excerpt; audio never uploaded",
+  "models": "Single htdemucs followed by GAME Large v1.0.3, FP32",
+  "model_transport": "Integration test streams exact SHA-256 verified model cache over loopback HTTP; timing excludes external model download. Separate htdemucs smoke used actual Hugging Face and unpkg downloads.",
+  "elapsed_seconds": 14.234,
+  "pitch_mode": "enhanced",
+  "pitch_status": "estimated",
+  "note_count": 14,
+  "model": "GAME Large v1.0.3",
+  "lowest": {
+    "start_seconds": 7.74,
+    "end_seconds": 7.99,
+    "midi": 64.003,
+    "note": "E4",
+    "hz": 329.684
+  },
+  "highest": {
+    "start_seconds": 0.43,
+    "end_seconds": 0.77,
+    "midi": 73.041,
+    "note": "C#5",
+    "hz": 555.671
+  },
+  "demucs_worker_terminated_before_game_init": true,
+  "analysis_worker_terminated": true,
+  "midi_has_vocal": true,
+  "limitations": [
+    "One device and one excerpt, not an accuracy or cross-device performance benchmark.",
+    "ONNX Runtime may execute unsupported or shape operations on CPU while using WebGPU.",
+    "Separate native/browser BPM estimates differ slightly; this change does not claim bitwise equivalence."
+  ]
+}

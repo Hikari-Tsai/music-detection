@@ -1,0 +1,71 @@
+{
+  "command": ".venv/bin/python tests/python/validate_enhanced_dsp.py",
+  "environment": {
+    "python": "3.12.13",
+    "torch": "2.8.0",
+    "numpy": "2.5.3",
+    "node": "v22.23.2",
+    "machine": "arm64"
+  },
+  "fixture": {
+    "seed": 20260922,
+    "sample_rate": 44100,
+    "samples_per_channel": 388080,
+    "channels": 2,
+    "description": "Stereo chirp, 880 Hz tone, seeded Gaussian noise, channel offsets and first/last sample impulses; second fixture is anti-phase stereo.",
+    "input_sha256": "828addc73c24927f82cc25254ed2b3589f5261781c55fe91a7b3f60ba6c41b23"
+  },
+  "source_sha256": {
+    "frontend/inference/separation-dsp.js": "9f91f21e7f47bb4a8794522750e41b00be36437c77e044006612f01fb23f3376",
+    "backend/enhanced_pitch.py": "7ce4af82053eb43751d2f829a1173405bf0945fa02b0cff08aa87f3698efde17"
+  },
+  "model_sha256": "e528a932a7d091e15938369135569884b62c2193fb11044c3d4a0d4c7b9221af",
+  "method": "Exchange raw channel-major Float32 arrays between native PyTorch and the actual frontend DSP module running in Node. Reconstruct identical real ONNX vocal frequency/time branches in each engine; use an identity vocal model for independent overlap/normalization checks.",
+  "limitations": [
+    "Does not measure vocal separation quality or GAME pitch accuracy.",
+    "Does not establish equivalence of browser WebGPU versus native CPU ONNX graph execution.",
+    "Does not compare against the official CLI random-shift or contextual center-padding policy."
+  ],
+  "checks": [
+    {
+      "name": "spectrum",
+      "values": 2752512,
+      "peak_absolute_error": 1.9073486328125e-06,
+      "rms_error": 3.5497189619094516e-08,
+      "peak_tolerance": 4e-06,
+      "passed": true
+    },
+    {
+      "name": "roundtrip",
+      "values": 687960,
+      "peak_absolute_error": 3.5762786865234375e-07,
+      "rms_error": 6.789128648362596e-08,
+      "peak_tolerance": 1e-06,
+      "passed": true
+    },
+    {
+      "name": "model-vocals",
+      "values": 687960,
+      "peak_absolute_error": 7.310882210731506e-08,
+      "rms_error": 1.9976947151694645e-09,
+      "peak_tolerance": 1e-06,
+      "passed": true
+    },
+    {
+      "name": "overlap",
+      "values": 388080,
+      "peak_absolute_error": 2.384185791015625e-07,
+      "rms_error": 2.8369892532873272e-08,
+      "peak_tolerance": 5e-07,
+      "passed": true
+    },
+    {
+      "name": "antiphase",
+      "values": 388080,
+      "peak_absolute_error": 0.0,
+      "rms_error": 0.0,
+      "peak_tolerance": 1e-07,
+      "passed": true
+    }
+  ]
+}

@@ -59,8 +59,18 @@ jobs:
           python -m pip install torch==2.8.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -r requirements-onnx.txt
           npm ci
+      - uses: actions/cache@v4
+        with:
+          path: .cache/enhanced-pages
+          key: enhanced-models-${{ hashFiles('assets/models/enhanced/manifest.json') }}
+      - name: Prepare optional enhanced model fallbacks
+        run: |
+          if [ -f scripts/prepare_enhanced_models.py ]; then
+            python scripts/prepare_enhanced_models.py
+          fi
       - name: Export and verify models, build static app
         env:
+          ENHANCED_MODEL_ASSETS: "1"
           SITE_URL: https://hikari-tsai.github.io/music-detection/${{ matrix.branch == 'staging' && 'staging/' || '' }}
         run: |
           python scripts/export_onnx.py
@@ -113,8 +123,27 @@ jobs:
                   raise SystemExit(f'Incorrect branch artifact: {branch}')
           if Path('builds/site-main/staging').exists():
               raise SystemExit('main build must not occupy the reserved staging directory')
+          # Keep each immutable enhanced model version once across both sites.
+          shared = Path('shared-enhanced')
+          for branch in ('main', 'staging'):
+              source = Path('builds') / f'site-{branch}' / 'enhanced-models'
+              if source.exists():
+                  for item in source.rglob('*'):
+                      if not item.is_file():
+                          continue
+                      destination = shared / item.relative_to(source)
+                      destination.parent.mkdir(parents=True, exist_ok=True)
+                      if destination.exists():
+                          import hashlib
+                          if hashlib.file_digest(destination.open('rb'), 'sha256').digest() != hashlib.file_digest(item.open('rb'), 'sha256').digest():
+                              raise SystemExit(f'Conflicting immutable model: {destination}')
+                      else:
+                          shutil.copy2(item, destination)
+                  shutil.rmtree(source)
           shutil.copytree('builds/site-main', 'site')
           shutil.copytree('builds/site-staging', 'site/staging')
+          if shared.exists():
+              shutil.copytree(shared, 'site/enhanced-models')
           Path('site/.nojekyll').touch()
           PY
       - uses: actions/upload-pages-artifact@v3

@@ -38,7 +38,7 @@ def index():
 
 
 @app.post("/api/analyze")
-async def analyze(file: UploadFile, start_seconds: float | None = Form(None), end_seconds: float | None = Form(None)):
+async def analyze(file: UploadFile, start_seconds: float | None = Form(None), end_seconds: float | None = Form(None), enhanced: bool = Form(False)):
     filename = (file.filename or "audio").replace("\\", "/").split("/")[-1]
     extension = Path(filename).suffix.lower()
     try:
@@ -55,7 +55,7 @@ async def analyze(file: UploadFile, start_seconds: float | None = Form(None), en
                     stream.write(chunk)
             if not size:
                 raise HTTPException(400, "檔案是空的，請重新選擇音訊。")
-            result = await run_in_threadpool(analyze_file, source, filename, start_seconds, end_seconds)
+            result = await run_in_threadpool(analyze_file, source, filename, start_seconds, end_seconds, enhanced)
             midi = result.pop("midi")
             result["download_url"] = None if midi is None else DOWNLOADS.add(midi, Path(filename).stem + ("_tempo_vocal.mid" if result.get("midi_has_vocal") else "_tempo.mid"))
             return result

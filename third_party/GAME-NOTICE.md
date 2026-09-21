@@ -1,4 +1,4 @@
-# GAME Small model mirror
+# GAME model mirrors
 
 This repository includes unmodified official GAME Small v1.0.3 ONNX files in
 [`assets/models/game/1.0.3-small/`](../assets/models/game/1.0.3-small/).
@@ -18,3 +18,5 @@ with separate application code for chunking, filtering and result presentation.
 These application changes do not modify or relicense the model files.
 
 The upstream code's MIT license does not replace the separate model license.
+
+Enhanced mode also uses unmodified GAME Large v1.0.3 ONNX files from the same official release and under the same CC BY-NC-SA 4.0 license. Checksums and original release provenance: [`assets/models/enhanced/manifest.json`](../assets/models/enhanced/manifest.json). Hosted copy: https://huggingface.co/aaatmy/music-detection-enhanced ; GitHub distribution: https://github.com/Hikari-Tsai/music-detection/releases/tag/enhanced-models-v1 . No retraining or quantization was applied.

@@ -125,7 +125,7 @@ export function createPitchView(beforeSynth = () => {}) {
       setText('pitch-' + kind + '-detail', '—');
     }
     setText('pitch-summary', { key: loading ? 'pitchWaiting' : 'pitchInitial' });
-    setText('pitch-runtime', 'GAME Small');
+    setText('pitch-runtime', $('enhanced-mode')?.checked ? { key: 'enhancedLabel' } : 'GAME Small');
   }
   function render(data, selectionOffset = 0) {
     reset();
@@ -133,13 +133,17 @@ export function createPitchView(beforeSynth = () => {}) {
     duration = data.duration_seconds;
     if (data.pitch_status !== 'estimated' || !data.pitch?.notes?.length) {
       const key =
-        data.pitch_status === 'error'
-          ? 'pitchFailed'
-          : data.pitch_reason === 'silent'
-            ? 'pitchSilent'
-            : !data.pitch_status
-              ? 'pitchMissing'
-              : 'pitchNoNotes';
+        data.pitch_reason === 'enhancement_failed'
+          ? data.pitch_detail === 'enhancementWebGPURequired'
+            ? 'enhancementWebGPURequired'
+            : 'enhancementFailed'
+          : data.pitch_status === 'error'
+            ? 'pitchFailed'
+            : data.pitch_reason === 'silent'
+              ? 'pitchSilent'
+              : !data.pitch_status
+                ? 'pitchMissing'
+                : 'pitchNoNotes';
       setText('pitch-summary', { key });
       return;
     }
@@ -166,7 +170,8 @@ export function createPitchView(beforeSynth = () => {}) {
     });
     setText(
       'pitch-runtime',
-      'GAME · ' +
+      (result.model || (data.pitch_mode === 'enhanced' ? 'GAME Large v1.0.3' : 'GAME Small')) +
+        ' · ' +
         (data.pitch_engine === 'webgpu'
           ? 'WebGPU'
           : data.pitch_engine === 'onnx-cpu'
