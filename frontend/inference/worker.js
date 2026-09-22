@@ -116,16 +116,24 @@ self.onmessage = async ({ data }) => {
       await session.release();
       session = null;
     }
-    const pitchResult = await analyzePitch(
-      data.pitchAudio ? new Float32Array(data.pitchAudio) : null,
-      data.forceWasm
-    );
+    const pitchResult = data.enhancementError
+      ? {
+          pitch: null,
+          pitch_status: 'error',
+          pitch_reason: 'enhancement_failed',
+          pitch_detail: data.enhancementError
+        }
+      : await (data.enhanced ? createPitchEngine(progress, true) : analyzePitch)(
+          data.pitchAudio ? new Float32Array(data.pitchAudio) : null,
+          data.forceWasm
+        );
     const result = estimateTempo(detected.beats, detected.downbeats);
     const duration = audio.length / 22050;
     const midi = result === -1 ? null : tempoMidi(result, duration, pitchResult.pitch?.notes || []);
     const response = {
       ...keyResult,
       ...pitchResult,
+      pitch_mode: data.enhanced ? 'enhanced' : 'standard',
       filename: data.filename,
       duration_seconds: duration,
       analysis_seconds: (performance.now() - started) / 1000,

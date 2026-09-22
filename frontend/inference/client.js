@@ -1,3 +1,4 @@
+import { separateInBrowser } from './separation-client.js';
 import { decodeSource, selectSamples } from '../ui/audio-source.js';
 let worker;
 let gpuTimedOut = false;
@@ -7,18 +8,46 @@ const WORKER_START_TIMEOUT_MS = 30000;
 function makeWorker() {
   return new Worker(new URL('./analysis-worker.js', import.meta.url), { type: 'module' });
 }
-export async function analyzeInBrowser(file, onProgress, { range = null, prepared = null } = {}) {
+export async function analyzeInBrowser(
+  file,
+  onProgress,
+  { range = null, prepared = null, enhanced = false } = {}
+) {
+  const enhancedStarted = performance.now();
   onProgress('正在瀏覽器內解碼音訊');
   const source = prepared || (await decodeSource(file));
   // Keep source PCM on the main thread: transferred slices detach, so a fresh
   // worker must receive new slices of the same range when GPU startup times out.
   let pitchSource = null;
   try {
-    pitchSource = source.pitchSource || (source.pitchSource = await decodeSource(file, 44100));
+    if (!enhanced)
+      pitchSource = source.pitchSource || (source.pitchSource = await decodeSource(file, 44100));
   } catch (error) {
     console.warn('GAME audio preparation failed; retaining beat/key inputs.', String(error));
   }
   const forceWasm = new URL(location.href).searchParams.get('engine') === 'wasm' || gpuTimedOut;
+  let enhancedAudio = null,
+    enhancementError = null;
+  if (enhanced) {
+    worker?.terminate();
+    worker = null;
+    if (forceWasm || !globalThis.navigator?.gpu) {
+      enhancementError = 'enhancementWebGPURequired';
+      onProgress({ key: enhancementError });
+    } else {
+      try {
+        const stereoSource = await decodeSource(file, 44100, true);
+        enhancedAudio = await separateInBrowser(
+          stereoSource.stereo.map((channel) => selectSamples(channel, 44100, range)),
+          onProgress
+        );
+      } catch (error) {
+        console.warn('Enhanced separation failed; retaining tempo and key.', error);
+        enhancementError = 'enhancementFailed';
+        onProgress({ key: enhancementError });
+      }
+    }
+  }
   return new Promise((resolve, reject) => {
     let timer = null;
     let current = null;
@@ -73,6 +102,10 @@ export async function analyzeInBrowser(file, onProgress, { range = null, prepare
                 );
                 return;
               }
+              if (enhanced) {
+                enhancementError = 'enhancementFailed';
+                enhancedAudio = null;
+              }
               gpuTimedOut = true;
               notice = {
                 key: 'gpuInitTimeoutFallback',
@@ -87,13 +120,17 @@ export async function analyzeInBrowser(file, onProgress, { range = null, prepare
             try {
               const response = {
                 ...data.data,
+                ...(enhanced
+                  ? { analysis_seconds: (performance.now() - enhancedStarted) / 1000 }
+                  : {}),
                 download_url: data.midi
                   ? URL.createObjectURL(new Blob([data.midi], { type: 'audio/midi' }))
                   : null
               };
               settled = true;
               clearTimer();
-              detach();
+              if (enhanced) terminate();
+              else detach();
               resolve(response);
             } catch (error) {
               fail(error);
@@ -110,15 +147,19 @@ export async function analyzeInBrowser(file, onProgress, { range = null, prepare
             fail(new Error('瀏覽器分析引擎啟動逾時，請確認網路連線並重新整理頁面後重試。'));
         }, WORKER_START_TIMEOUT_MS);
         const mono = selectSamples(source.audio, source.sampleRate, range);
-        const pitchAudio = pitchSource
-          ? selectSamples(pitchSource.audio, pitchSource.sampleRate, range)
-          : null;
+        const pitchAudio = enhanced
+          ? enhancedAudio?.slice()
+          : pitchSource
+            ? selectSamples(pitchSource.audio, pitchSource.sampleRate, range)
+            : null;
         current.postMessage(
           {
             audio: mono.buffer,
             pitchAudio: pitchAudio?.buffer,
             filename: file.name,
-            forceWasm: cpuOnly
+            forceWasm: cpuOnly,
+            enhanced,
+            enhancementError
           },
           pitchAudio ? [mono.buffer, pitchAudio.buffer] : [mono.buffer]
         );

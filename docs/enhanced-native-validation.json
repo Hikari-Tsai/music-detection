@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-22",
+  "engine": "Local Python ONNX Runtime CPU",
+  "input": "User-provided local WAV; only the 10\u201318 second selection was analyzed by the models. No audio was uploaded or included in this artifact.",
+  "model_verification": "Both stages loaded locally cached models only after byte-size and SHA-256 verification against the checked manifest.",
+  "demucs_sha256": "e528a932a7d091e15938369135569884b62c2193fb11044c3d4a0d4c7b9221af",
+  "game_release": "v1.0.3",
+  "game_onnx_bytes": 393801733,
+  "checks": [
+    {
+      "case": "native_enhanced_pitch_real_audio_10_to_18_seconds",
+      "input_duration_seconds": 8.0,
+      "elapsed_seconds": 13.452,
+      "pitch_mode": "enhanced",
+      "pitch_status": "estimated",
+      "model": "GAME Large v1.0.3",
+      "note_count": 14,
+      "lowest_midi": 64.003,
+      "highest_midi": 73.04,
+      "notes_finite_and_within_selection": true
+    },
+    {
+      "case": "native_analyze_file_real_audio_10_to_18_seconds",
+      "elapsed_seconds": 14.697,
+      "reported_analysis_seconds": 14.7,
+      "source_duration_seconds": 49.16,
+      "selection_start_seconds": 10.0,
+      "selection_end_seconds": 18.0,
+      "duration_seconds": 8.0,
+      "pitch_mode": "enhanced",
+      "pitch_status": "estimated",
+      "model": "GAME Large v1.0.3",
+      "note_count": 14,
+      "lowest_midi": 64.004,
+      "highest_midi": 73.04,
+      "beat_count": 12,
+      "key_status": "estimated",
+      "tempo_result": {
+        "bpm": 83.544,
+        "signature_beats": 4
+      },
+      "midi_has_vocal": true,
+      "midi_note_on_count": 14,
+      "notes_finite_and_within_selection": true
+    }
+  ],
+  "limitations": [
+    "A functional smoke test on one excerpt, not an accuracy benchmark.",
+    "Timing includes loading isolated child processes and their model sessions; it is specific to the validation host.",
+    "Model confidence and separation quality were not evaluated against human labels."
+  ]
+}

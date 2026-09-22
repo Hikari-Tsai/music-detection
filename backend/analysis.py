@@ -10,6 +10,7 @@ from .config import ROOT, MAX_SECONDS
 from .tempo import estimate_tempo, tempo_midi_bytes
 from .key_analysis import analyze_key
 from .pitch_analysis import analyze_pitch
+from .enhanced_pitch import analyze_enhanced_pitch
 
 class AnalysisError(Exception):
     def __init__(self, status_code, detail):
@@ -20,12 +21,12 @@ class AnalysisError(Exception):
 MODEL_LOCK = threading.Lock()
 MODEL = None
 
-def decode_audio(source, sample_rate=22050):
-    decoded = source.with_name(f"decoded-{sample_rate}.wav")
+def decode_audio(source, sample_rate=22050, channels=1):
+    decoded = source.with_name(f"decoded-{sample_rate}-{channels}.wav")
     try:
         process = subprocess.run(
             ["ffmpeg", "-nostdin", "-v", "error", "-y", "-protocol_whitelist", "file,pipe", "-i", str(source),
-             "-map", "0:a:0", "-vn", "-t", str(MAX_SECONDS + 1), "-ac", "1", "-ar", str(sample_rate),
+             "-map", "0:a:0", "-vn", "-t", str(MAX_SECONDS + 1), "-ac", str(channels), "-ar", str(sample_rate),
              "-c:a", "pcm_f32le", str(decoded)],
             capture_output=True, timeout=120,
         )
@@ -62,7 +63,7 @@ def select_audio(audio, sr, start_seconds=None, end_seconds=None):
     return audio[first:last], first / sr, last / sr
 
 
-def analyze_file(source, filename, start_seconds=None, end_seconds=None):
+def analyze_file(source, filename, start_seconds=None, end_seconds=None, enhanced=False):
     global MODEL
     start = time.perf_counter()
     audio, sr, duration = decode_audio(source)
@@ -82,13 +83,17 @@ def analyze_file(source, filename, start_seconds=None, end_seconds=None):
     try:
         # Preserve the original 22.05 kHz beat/key decoding. GAME receives a
         # separate 44.1 kHz decode of the source, never an upsampled beat input.
-        pitch_audio, pitch_sr, _ = decode_audio(source, sample_rate=44100)
+        if enhanced:
+            pitch_audio, pitch_sr, _ = decode_audio(source, sample_rate=44100, channels=2)
+        else:
+            pitch_audio, pitch_sr, _ = decode_audio(source, sample_rate=44100)
         pitch_audio, _, _ = select_audio(pitch_audio, pitch_sr, start_seconds, end_seconds)
-        pitch_result = analyze_pitch(pitch_audio, pitch_sr)
+        pitch_result = (analyze_enhanced_pitch if enhanced else analyze_pitch)(pitch_audio, pitch_sr)
     except Exception:
         import logging
         logging.getLogger(__name__).exception("GAME audio preparation failed")
-        pitch_result = {"pitch": None, "pitch_status": "error", "pitch_reason": "analysis_failed"}
+        pitch_result = {"pitch": None, "pitch_status": "error", "pitch_reason": "enhancement_failed" if enhanced else "analysis_failed"}
+    pitch_result["pitch_mode"] = "enhanced" if enhanced else "standard"
     tempo = estimate_tempo(beats, downbeats)
     waveform = [float(np.max(np.abs(chunk))) for chunk in np.array_split(audio, 240)]
     peak = max(waveform)

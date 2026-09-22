@@ -32,6 +32,7 @@ export function createEngine(
       }
       const body = new FormData();
       body.append('file', file);
+      body.append('enhanced', options.enhanced ? 'true' : 'false');
       if (options.range) {
         body.append('start_seconds', options.range.start);
         body.append('end_seconds', options.range.end);
@@ -59,6 +60,8 @@ export function createEngine(
           Math.abs(data.selection_end_seconds - options.range.end) > 0.001)
       )
         throw new Error('本機 Python 未確認選取範圍，請更新專案並重新啟動服務後再試。');
+      if (options.enhanced && data.pitch_mode !== 'enhanced')
+        throw new Error('本機 Python 未確認強化模式，請更新專案並重新啟動服務後再試。');
       return {
         ...data,
         download_url: data.download_url ? new URL(data.download_url, pythonBaseURL).href : null

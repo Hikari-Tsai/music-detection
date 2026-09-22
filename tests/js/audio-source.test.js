@@ -36,3 +36,51 @@ test('source waveform remains finite for silence and preserves a localized peak'
     1
   );
 });
+
+test('enhanced decoding downmixes surround through speakers instead of dropping center vocals', async (t) => {
+  const saved = globalThis.OfflineAudioContext;
+  t.after(() => {
+    if (saved === undefined) delete globalThis.OfflineAudioContext;
+    else globalThis.OfflineAudioContext = saved;
+  });
+  const center = Float32Array.of(0.7, 0.7),
+    silent = new Float32Array(2);
+  const original = {
+    length: 2,
+    duration: 1,
+    sampleRate: 2,
+    numberOfChannels: 6,
+    getChannelData: (ch) => (ch === 2 ? center : silent)
+  };
+  let input,
+    rendered = false;
+  globalThis.OfflineAudioContext = class {
+    constructor(channels) {
+      this.channels = channels;
+      this.destination = {};
+    }
+    async decodeAudioData() {
+      return original;
+    }
+    createBufferSource() {
+      input = { connect() {}, start() {} };
+      return input;
+    }
+    async startRendering() {
+      assert.equal(this.channels, 2);
+      assert.equal(input.buffer, original);
+      rendered = true;
+      return { numberOfChannels: 2, getChannelData: () => center };
+    }
+  };
+  const { decodeSource } = await import('../../frontend/ui/audio-source.js');
+  const result = await decodeSource(
+    { name: 'surround.wav', arrayBuffer: async () => new ArrayBuffer(0) },
+    2,
+    true
+  );
+  assert.equal(rendered, true);
+  assert.deepEqual(result.stereo, [center, center]);
+  result.stereo[0][0] = 0;
+  assert.notEqual(result.stereo[1][0], 0, 'independent channel buffers');
+});

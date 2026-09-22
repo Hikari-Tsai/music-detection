@@ -35,7 +35,7 @@ export function makeWaveform(audio) {
   return peak > 0 ? waveform.map((value) => value / peak) : waveform;
 }
 
-export async function decodeSource(file, sampleRate = 22050) {
+export async function decodeSource(file, sampleRate = 22050, preserveStereo = false) {
   let decoded;
   try {
     decoded = await new OfflineAudioContext(1, 1, sampleRate).decodeAudioData(
@@ -56,8 +56,26 @@ export async function decodeSource(file, sampleRate = 22050) {
     for (let i = 0; i < audio.length; i++) audio[i] += channel[i] / decoded.numberOfChannels;
   }
   if (audio.some((v) => !Number.isFinite(v))) throw new Error('音訊含有無效取樣，請重新匯出。');
+  let stereoBuffer = decoded;
+  if (preserveStereo && decoded.numberOfChannels > 2) {
+    // Web Audio's speaker downmix retains center-channel vocals in surround
+    // movie soundtracks; taking only channels 0 and 1 would discard them.
+    const context = new OfflineAudioContext(2, decoded.length, decoded.sampleRate);
+    const input = context.createBufferSource();
+    input.buffer = decoded;
+    input.connect(context.destination);
+    input.start();
+    stereoBuffer = await context.startRendering();
+  }
   return {
     audio,
+    ...(preserveStereo
+      ? {
+          stereo: [0, 1].map((ch) =>
+            stereoBuffer.getChannelData(Math.min(ch, stereoBuffer.numberOfChannels - 1)).slice()
+          )
+        }
+      : {}),
     sampleRate: decoded.sampleRate,
     duration: decoded.duration,
     waveform: makeWaveform(audio)

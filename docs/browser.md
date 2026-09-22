@@ -6,7 +6,7 @@ GAME 音高分析的雙引擎流程、來源與限制另見 [GAME 文件](game.m
 
 ## 純前端 ONNX 版本（可放 GitHub Pages）
 
-預設 Browser ONNX 模式將音訊解碼、頻譜計算、Beat This! 推論、拍點處理與 MIDI 產生全部移到瀏覽器，不呼叫 `/api/analyze` 或上傳音訊，模型輸出沿用原本的四分音符假設及固定／平均／變速判定。WebGPU 優先；初始化或推論失敗時重新使用 WASM CPU 分析。CPU 使用單執行緒，不需要 GitHub Pages 無法直接設定的跨來源隔離標頭。
+預設 Browser ONNX 模式將音訊解碼、頻譜計算、Beat This! 推論、拍點處理與 MIDI 產生全部移到瀏覽器，不呼叫 `/api/analyze` 或上傳音訊，模型輸出沿用原本的四分音符假設及固定／平均／變速判定。一般模式 WebGPU 優先；初始化或推論失敗時重新使用 WASM CPU 分析。強化模式另需 WebGPU，詳見下段。CPU 使用單執行緒，不需要 GitHub Pages 無法直接設定的跨來源隔離標頭。
 
 同頁的 Analysis engine 可明確切換 Local Python，此時才將音訊送往本機 `http://127.0.0.1:8765`，並使用該服務產生的 MIDI 下載 URL。切換會分析目前選取範圍，失敗時不保留舊下載或自動改用另一個引擎。重新整理回到 Browser ONNX；語言選擇仍獨立保留。啟動方式與 CORS 設定見 [README](../README.md)。
 
@@ -29,7 +29,15 @@ GitHub Pages 使用 `.github/workflows/pages.yml`，推送至 `main` 或 `stagin
 
 正式網址：[Key & Tempo](https://hikari-tsai.github.io/music-detection/)；預覽網址：[Staging](https://hikari-tsai.github.io/music-detection/staging/)。各自的 `deployment.json` 記錄發布分支與 commit。手動執行可選擇 `main` 或 `staging`，兩者都會發布兩個版本；其他分支會略過。Pages 的來源設為 GitHub Actions，`github-pages` environment 須允許這兩個部署分支。完整操作見 [README](../README.md)。
 
-瀏覽器會在首次有聲音訊分析時下載約 **134 MB 的 FP32 ONNX 模型**（Beat This!、S-KEY 與 GAME），另需下載 WASM 分析引擎。模型與 WASM 以 SHA-256 驗證，成功後嘗試存入 Cache Storage；快取被瀏覽器清除或不允許儲存時仍可使用，但下次可能重新下載。這不是完整離線 PWA，網頁程式及模型設定仍需可載入。
+瀏覽器會在一般模式首次有聲音訊分析時下載約 **134 MB 的 FP32 ONNX 模型**（Beat This!、S-KEY 與 GAME），另需下載 WASM 分析引擎。模型與 WASM 以 SHA-256 驗證，成功後嘗試存入 Cache Storage；快取被瀏覽器清除或不允許儲存時仍可使用，但下次可能重新下載。這不是完整離線 PWA，網頁程式及模型設定仍需可載入。
+
+### 選用強化歌聲分析
+
+勾選「強化歌聲分析」才下載與載入額外模型（合計約 568.1 MB／541.8 MiB，不含一般模型與 Runtime）：單一 htdemucs（約 174.3 MB / 166.2 MiB 的社群 ONNX 匯出）→ 釋放分離記憶體 → 官方 GAME Large v1.0.3（約 393.8 MB／375.6 MiB）。一般模式維持 GAME Small。Beat This!／S-KEY 使用原始混音；切換勾選狀態會重跑目前範圍，新檔案仍自動分析全曲。
+
+瀏覽器強化需要 WebGPU；無法使用或強化失敗時會明確提示，不會以 Small 冒充強化結果，也不會自動上傳至 Python。音高失敗保留可用節拍／調性與 Tempo MIDI。分離可能保留和聲或引入失真，不保證提高音域準確率。來源、授權、結果欄位及限制見[強化模式](enhanced.md)。
+
+強化模型優先由 [aaatmy/music-detection-enhanced](https://huggingface.co/aaatmy/music-detection-enhanced) 固定版本提供；瀏覽器備援至 GitHub Pages 共用的 `enhanced-models/v1/`，本機 Python 備援至 [enhanced-models-v1 GitHub Release](https://github.com/Hikari-Tsai/music-detection/releases/tag/enhanced-models-v1)。來源與 SHA-256 設定由共用 JSON 管理。
 
 ### 執行引擎下載來源
 
@@ -39,7 +47,7 @@ ONNX Runtime Web 固定為 **1.24.3**。`ort-wasm-simd-threaded.asyncify.wasm` �
 
 ### 模型下載來源與備援
 
-`frontend/inference/download-sources.js` 集中管理 Beat This!、S-KEY、GAME 與 ONNX Runtime 的主要／備援下載網址、來源名稱與固定版本。`primaryBaseURL` 為主要來源，`fallbackBaseURL` 為備援；兩者都需保留結尾 `/`。相對備援路徑依建置後的 Worker 位置解析，因此支援 main、staging 與本機服務。修改後需重新建置／部署。Runtime 的版本、檔名、大小與 SHA-256 也在同檔的 `runtime.manifest` 管理，升級時需與 `package.json` 套件版本一致。
+`frontend/inference/download-sources.json` 是集中設定來源；`download-sources.js` 僅保留 JavaScript 匯出介面。JSON 管理 Beat This!、S-KEY、GAME、htdemucs 與 ONNX Runtime 的主要／備援下載網址、來源名稱與固定版本。`primaryBaseURL` 為主要來源，`fallbackBaseURL` 為備援；兩者都需保留結尾 `/`。相對備援路徑依建置後的 Worker 位置解析，因此支援 main、staging 與本機服務。修改後需重新建置／部署。Runtime 的版本、檔名、大小與 SHA-256 也在同檔的 `runtime.manifest` 管理，升級時需與 `package.json` 套件版本一致。
 
 模型來源如下：
 
@@ -67,7 +75,7 @@ HTTP 錯誤、網路中斷、設定格式錯誤、SHA-256／檔案大小不符�
 
 - `scripts/export_onnx.py`：opset 17、FP32、動態時間長度；停用 rotary embedding 快取後匯出原模型，驗證 63／128／1264／1500 frames 與 PyTorch 的分數差異。
 - `frontend/inference/dsp.js`：22,050 Hz PCM → 1024 點週期 Hann、441 hop、reflect padding、幅度頻譜正規化、128 維 Slaney Log-Mel。窗函數與濾波器直接從 torchaudio 匯出。
-- `frontend/inference/model-assets.js`：依序載入 Hugging Face／同網站配套資源、逾時與驗證、來源進度與可選快取；來源設定在 `download-sources.js` 管理。
+- `frontend/inference/model-assets.js`：依序載入 Hugging Face／同網站配套資源、逾時與驗證、來源進度與可選快取；來源設定在 `download-sources.json` 管理。
 - `frontend/inference/worker.js`：1500-frame 分段、6-frame 邊界、keep-first 合併，與官方流程一致；模型分數轉拍點，再生成結果。
 - `frontend/inference/key-engine.js`：快取獨立 S-KEY session，22,050 Hz 單聲道 PCM 直接推論，調性失敗隔離；`key.js` 使用共用官方類別表。
 - `frontend/inference/tempo.js`：固定／平均／變速判定、純 JavaScript MIDI meta event 編碼。變速圖對齊的是模型拍點，抖動或漏拍也會反映在檔案中。
@@ -94,7 +102,7 @@ npm run test:skey-browser
 目前未在實體手機、Safari、Firefox 驗證；手機尺寸測試代表排版，不代表實體手機效能。測試音訊也不構成節拍辨識準確率 benchmark。
 
 
-## 初始化逾時與 CPU 備援
+## 一般模式初始化逾時與 CPU 備援
 
 模型初始化由頁面主執行緒計時，即使推論 Worker 卡住也能終止等待。GPU 每次初始化最多 60 秒，逾時後終止舊 Worker，建立新的 Worker，以瀏覽器 CPU 重新分析同一個檔案與選取範圍。備援原因會保留在下載與分析進度中；這次以及同頁後續分析都使用 CPU，重新整理頁面才會再次嘗試 GPU。不會自動上傳至 Python 或雲端。
 

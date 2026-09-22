@@ -256,3 +256,73 @@ test('runtime download finishes before the GPU watchdog starts, even after 60 se
   result(worker);
   await analysis;
 });
+
+test('unsupported enhancement preserves original beat/key input and never supplies Small audio', async (t) => {
+  const { workers, source } = await setup(t, '?engine=wasm');
+  const { analyzeInBrowser } = await import(`../../frontend/inference/client.js?test=${++runId}`);
+  const pending = analyzeInBrowser({ name: 'clip.wav' }, () => {}, {
+    prepared: source,
+    enhanced: true,
+    range: { start: 1, end: 3 }
+  });
+  assert.equal(workers[0].input.enhanced, true);
+  assert.equal(workers[0].input.enhancementError, 'enhancementWebGPURequired');
+  assert.equal(workers[0].input.pitchAudio, undefined);
+  assert.equal(workers[0].input.audio.byteLength, 44100 * 4);
+  result(workers[0]);
+  assert.equal((await pending).result.bpm, 120);
+  assert.equal(workers[0].terminated, true, 'release analysis allocator after enhanced response');
+});
+
+test('enhanced Large GPU timeout preserves beat/key retry without substituting Small', async (t) => {
+  const { workers, source } = await setup(t);
+  const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  const previousContext = globalThis.OfflineAudioContext;
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { gpu: {} } });
+  globalThis.OfflineAudioContext = class {
+    async decodeAudioData() {
+      return {
+        length: 176400,
+        duration: 4,
+        sampleRate: 44100,
+        numberOfChannels: 2,
+        getChannelData: () => new Float32Array(176400).fill(0.1)
+      };
+    }
+  };
+  t.after(() => {
+    if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
+    else delete globalThis.navigator;
+    if (previousContext === undefined) delete globalThis.OfflineAudioContext;
+    else globalThis.OfflineAudioContext = previousContext;
+  });
+  const { analyzeInBrowser } = await import(`../../frontend/inference/client.js?test=${++runId}`);
+  const pending = analyzeInBrowser(
+    { name: 'clip.wav', arrayBuffer: async () => new ArrayBuffer(8) },
+    () => {},
+    { prepared: source, enhanced: true, range: { start: 1, end: 3 } }
+  );
+  for (let i = 0; i < 8; i++) await Promise.resolve();
+  const separator = workers[0];
+  assert.equal(separator.input.stereo[0].byteLength, 88200 * 4);
+  separator.emit({ type: 'result', audio: new Float32Array(88200).fill(0.2).buffer });
+  for (let i = 0; i < 4; i++) await Promise.resolve();
+  assert.equal(separator.terminated, true);
+  const analysis = workers[1];
+  assert.equal(analysis.input.enhanced, true);
+  assert.equal(analysis.input.enhancementError, null);
+  assert.equal(new Float32Array(analysis.input.pitchAudio)[0], Math.fround(0.2));
+  analysis.emit({ type: 'started' });
+  phase(analysis, 'webgpu', 'start', 'GAME / encoder');
+  t.mock.timers.tick(60000);
+  assert.equal(analysis.terminated, true);
+  const retry = workers[2];
+  assert.equal(retry.input.forceWasm, true);
+  assert.equal(retry.input.enhanced, true);
+  assert.equal(retry.input.enhancementError, 'enhancementFailed');
+  assert.equal(retry.input.pitchAudio, undefined);
+  assert.equal(retry.input.audio.byteLength, 44100 * 4);
+  result(retry);
+  await pending;
+  assert.equal(retry.terminated, true);
+});

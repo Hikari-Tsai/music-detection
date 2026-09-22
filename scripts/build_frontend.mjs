@@ -51,7 +51,8 @@ for (const file of await readdir('node_modules/onnxruntime-web/dist')) {
 await build({
   entryPoints: {
     'browser-client': 'frontend/inference/client.js',
-    'analysis-worker': 'frontend/inference/worker.js'
+    'analysis-worker': 'frontend/inference/worker.js',
+    'separation-worker': 'frontend/inference/separation-worker.js'
   },
   outdir: 'dist',
   bundle: true,
@@ -64,4 +65,7 @@ await cp('third_party/ONNX-Runtime-LICENSE', 'dist/ort/LICENSE');
 await cp('third_party/Beat-This-LICENSE', 'dist/models/LICENSE');
 await cp('third_party', 'dist/licenses', { recursive: true });
 await cp('LICENSE', 'dist/LICENSE');
+// CI prepares these once per build; Pages assembly deduplicates main/staging.
+if (process.env.ENHANCED_MODEL_ASSETS === '1')
+  await cp('.cache/enhanced-pages', 'dist/enhanced-models', { recursive: true });
 console.log('Static browser app built in dist/');
