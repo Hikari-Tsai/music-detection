@@ -99,6 +99,7 @@ footer > span { margin-right: auto; }
 
 .github-star { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 8px 12px; border: 1px solid #526742; border-radius: 6px; background: #202c1d; color: var(--accent); font: inherit; white-space: nowrap; }
 .github-star .icon { width: 16px; height: 16px; }
+.star-count { padding: 0 6px; border-radius: 4px; background: #ffffff12; font-variant-numeric: tabular-nums; }
 .github-star:hover { background: #2c3b23; border-color: var(--accent); }
 @media (max-width: 760px) {
   .site-header { height: auto; min-height: 83px; padding: 18px 0; flex-wrap: wrap; gap: 14px; }

@@ -34,6 +34,7 @@ function renderLanguage() {
   for (const [element, fields] of bindings) {
     for (const [attribute, source] of fields) setText(element, source, attribute);
   }
+  window.dispatchEvent(new Event('app-languagechange'));
 }
 export function setLanguage(value) {
   language = manualLanguage = normalizeLanguage(value);

@@ -1,6 +1,6 @@
 [繁體中文](README.md) · [English](README.en.md)
 
-![Key & Tempo 系統架構圖：共用網頁介面、瀏覽器 ONNX 推論與選用的本機 Python 服務](docs/diagrams/key-tempo-system.webp)
+![Key & Tempo 系統架構圖：瀏覽器 ONNX、本機 FastAPI、模型下載備援，以及 htdemucs → GAME Large 強化音高分析](docs/diagrams/key-tempo-system.webp)
 
 # Key & Tempo
 

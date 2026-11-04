@@ -428,6 +428,11 @@ export const messages = {
     ja: 'スターで応援',
     'zh-Hant': '賞我星星'
   },
+  githubStarCountAria: {
+    en: 'Star on GitHub — {n} stars (opens the repository in a new tab)',
+    ja: 'スターで応援 — スター {n} 件（リポジトリを新しいタブで開く）',
+    'zh-Hant': '賞我星星 — 目前有 {n} 顆星星（在新分頁開啟 GitHub Repo）'
+  },
   githubStarAria: {
     en: 'Star on GitHub (opens the repository in a new tab)',
     ja: 'スターで応援（リポジトリを新しいタブで開く）',
