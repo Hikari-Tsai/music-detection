@@ -1,4 +1,5 @@
 import { setText } from './i18n.js';
+import { loadStars } from './github-stars.js';
 import { createEngine } from './engine.js';
 import { decodeSource } from './audio-source.js';
 import { createRangeEditor } from './range-editor.js';
@@ -497,3 +498,5 @@ $('download-midi').addEventListener('click', async () => {
     setBusy(false);
   }
 });
+
+void loadStars();

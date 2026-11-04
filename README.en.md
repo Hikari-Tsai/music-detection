@@ -1,6 +1,6 @@
 [繁體中文](README.md) · [English](README.en.md)
 
-![Key & Tempo system architecture: a shared web UI, browser ONNX inference, and an optional local Python service](docs/diagrams/key-tempo-system.webp)
+![Key & Tempo system architecture: browser ONNX, local FastAPI, model download fallback, and enhanced pitch with htdemucs → GAME Large](docs/diagrams/key-tempo-system.webp)
 
 # Key & Tempo
 

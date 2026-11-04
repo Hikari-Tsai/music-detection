@@ -6,12 +6,12 @@
   "input": "/Users/hikaritsai/Documents/ChatGPT/music-detection/docs/diagrams/key-tempo-architecture.json",
   "output": "/Users/hikaritsai/Documents/ChatGPT/music-detection/docs/diagrams/key-tempo-architecture.html",
   "specification": {
-    "sha256": "409e0d9811554288055559e0f9b52a5030463a4244e8660263260fe328f6b99b",
-    "bytes": 4866
+    "sha256": "f716701ce6fcc3b0f6e85b16c278b01517dfa87a3ea1770deaac8af2376718ad",
+    "bytes": 6986
   },
   "artifact": {
-    "sha256": "03a258bb4379c3a0b589a2cc860d56be7c46a7be09180a633c51dfd77b637643",
-    "bytes": 811234
+    "sha256": "a35ad264d4338d26fbcbcbb9c054a9150b495e1330fcfa2b7ddd73ecf4ca5a0e",
+    "bytes": 817797
   },
   "validation": {
     "checksPassed": 9,
@@ -20,5 +20,11 @@
     "compositionStatus": "pass",
     "errors": 0,
     "warnings": 0
+  },
+  "evidence": {
+    "verified": true,
+    "repository": "https://github.com/Hikari-Tsai/music-detection",
+    "revision": "996e71620f844adfdaeb2dd44b09da9bc72d8704",
+    "references": 22
   }
 }

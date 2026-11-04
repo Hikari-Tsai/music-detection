@@ -1,94 +1,114 @@
 {
-  "basis": "Local working-tree source files; not a pinned Git revision",
+  "basis": "Source files verified against the pinned Git revision",
+  "repository": "https://github.com/Hikari-Tsai/music-detection",
+  "revision": "996e71620f844adfdaeb2dd44b09da9bc72d8704",
   "components": {
-    "shared-ui": [
-      {
-        "path": "frontend/ui/app.js",
-        "sha256": "061a98bbc46d0a30c4bfe888c828a60510401171aa9cc6a3b6349b8662b39203"
-      },
-      {
-        "path": "frontend/ui/engine.js",
-        "sha256": "6823628ea77459d9ebc4f338e6c6cd809368234646a8ff38bcd425dba258297b"
-      },
-      {
-        "path": "frontend/ui/i18n.js",
-        "sha256": "10dc19a3924299994793a11eb386a2849c1a8d256038b91e1f80a8de6ec63175"
-      }
-    ],
-    "static-files": [
-      {
-        "path": "scripts/build_frontend.mjs",
-        "sha256": "477f6d7f357cc9f9fc9787f9652b7f043e226b4d9d509770c19e8cb44b257177"
-      },
+    "pages-site": [
       {
         "path": ".github/workflows/pages.yml",
-        "sha256": "3653e424f33f0363e5efa7561612c3b1a8f440066f4e4761f66f2748d61acac4"
+        "sha256": "470e79ad2703b44a7628303895a1f798009f321ed944ca5fb06b647b5e2bad8b"
       }
     ],
-    "model-cache": [
+    "verified-assets": [
       {
         "path": "frontend/inference/model-assets.js",
-        "sha256": "1587a0107482df3d584409074201d4b6199e6814f38a716aaa8d6d92fa484cfc"
-      }
-    ],
-    "browser-client": [
-      {
-        "path": "frontend/inference/client.js",
-        "sha256": "46bf4863409d672cd90e978abb7186b14deed0bc6145490fb85850753a84da88"
-      }
-    ],
-    "onnx-worker": [
-      {
-        "path": "frontend/inference/worker.js",
-        "sha256": "768b226540b69b9866da0509e3f9b28abce7f48e34402eb1d1774ceb26f79556"
+        "sha256": "5ec99272920772b984eb23149694daeaeadde019ac7c8ec94e1ffb77499cab6b"
       },
       {
-        "path": "frontend/inference/key-engine.js",
-        "sha256": "0a5b721b81870bba942084dbc4e604453ace806822770913d3975777aa00b888"
+        "path": "frontend/inference/download-sources.json",
+        "sha256": "e01b66fb6a16d7d440a8fd6d53378c3d66333fb9d187cf642bed3c90f360bcbe"
+      }
+    ],
+    "asset-origins": [
+      {
+        "path": "frontend/inference/download-sources.json",
+        "sha256": "e01b66fb6a16d7d440a8fd6d53378c3d66333fb9d187cf642bed3c90f360bcbe"
+      }
+    ],
+    "audio-workspace": [
+      {
+        "path": "frontend/ui/app.js",
+        "sha256": "758107ce2099903be393af19d9548a2b9a6cc7264cbc9a9934644d8f7c1b08a7"
+      },
+      {
+        "path": "frontend/ui/audio-source.js",
+        "sha256": "65b53f476ead08d2d1da9eed1aa874c9b6cf33d6bdc6fe59a503fb7242b1f504"
+      },
+      {
+        "path": "frontend/ui/index.html",
+        "sha256": "583144dc878f953c0bf41db6211d802033bd4ced9187aa7bb2876ecc57b94fcc"
+      }
+    ],
+    "browser-runtime": [
+      {
+        "path": "frontend/inference/client.js",
+        "sha256": "4af61de2fefaef339d7c21a900e343f2250a72bfda990ca24fdcc2ad92f8d426"
+      },
+      {
+        "path": "frontend/inference/worker.js",
+        "sha256": "803029475d4dc406e7a90ffe3d209b5effd905b9d8fa23d8cc2cb58c1615d20e"
+      },
+      {
+        "path": "frontend/inference/pitch-engine.js",
+        "sha256": "26e29ae9414efd0c058cb6c76ff2cacab006ff671d1f3c7742ac66acf055b062"
+      }
+    ],
+    "local-runtime": [
+      {
+        "path": "backend/app.py",
+        "sha256": "e8e652915076c1e18b826beaed4dd013dbcbdc2c3c53a39abefe9033426865c1"
+      },
+      {
+        "path": "backend/analysis.py",
+        "sha256": "c7ed0b7659e55367ccafedcfd1158532291b688cd8ae36cbad536a1c613702f4"
+      },
+      {
+        "path": "backend/pitch_analysis.py",
+        "sha256": "3b0eb6c514604f14854e26f978e4e757fcbc3ee09a5f263bb67aa7f644f90bf3"
+      }
+    ],
+    "music-results": [
+      {
+        "path": "frontend/ui/pitch-view.js",
+        "sha256": "ae7792588948cde7f39ba2ff10970adfb9f7bb98e240a22907551106c55e7134"
       },
       {
         "path": "frontend/inference/tempo.js",
-        "sha256": "ba0523da492c809e0a952a86a0b94cec9bde38aed71db05f50c579186d99e664"
-      }
-    ],
-    "browser-output": [
-      {
-        "path": "frontend/inference/client.js",
-        "sha256": "46bf4863409d672cd90e978abb7186b14deed0bc6145490fb85850753a84da88"
-      },
-      {
-        "path": "frontend/ui/app.js",
-        "sha256": "061a98bbc46d0a30c4bfe888c828a60510401171aa9cc6a3b6349b8662b39203"
-      }
-    ],
-    "local-api": [
-      {
-        "path": "backend/app.py",
-        "sha256": "7831c415ba1cb61eeaf16ae6710c64aea78a96c5979d0cea85153f7411ec574d"
-      }
-    ],
-    "native-analysis": [
-      {
-        "path": "backend/analysis.py",
-        "sha256": "7c918f3f1703a45216a5c59a860e3e2d4f0801b264391e25bbeae03acd1c996c"
-      },
-      {
-        "path": "backend/key_analysis.py",
-        "sha256": "7d66286ade2ee0a25186a4c30373e64fdbf3e515269e08c9884a26f824e02b95"
+        "sha256": "beaa81c90608950d8267cfd36f373b1a7aeb2bb06e0b31592467bcd5af106aaa"
       },
       {
         "path": "backend/tempo.py",
-        "sha256": "9ddc90ee8858fb26594fd2eb2af04d88adcd759b986e815f7d50fde6211d8aae"
+        "sha256": "14a5c84ccb7ef55e080ab80935ba6cc61ccbb3898ba7df526a3380d2f459d67a"
       }
     ],
-    "local-download": [
+    "vocal-separator": [
       {
-        "path": "backend/downloads.py",
-        "sha256": "aa178ae2d8082dffae9b809bfd09e4debd672f722fb00699f77efa1623b6f26f"
+        "path": "frontend/inference/separation-worker.js",
+        "sha256": "756cb4a7195c4e75634432975fa74fac8ff7aa6234ae2db4996ca7d657c81456"
       },
       {
-        "path": "backend/app.py",
-        "sha256": "7831c415ba1cb61eeaf16ae6710c64aea78a96c5979d0cea85153f7411ec574d"
+        "path": "backend/enhanced_pitch.py",
+        "sha256": "7ce4af82053eb43751d2f829a1173405bf0945fa02b0cff08aa87f3698efde17"
+      }
+    ],
+    "release-separator": [
+      {
+        "path": "frontend/inference/separation-client.js",
+        "sha256": "b73960ff0a518885774f9460a4de7ee317f74b14a18ba2c015dd17dbf232e503"
+      },
+      {
+        "path": "backend/enhanced_pitch.py",
+        "sha256": "7ce4af82053eb43751d2f829a1173405bf0945fa02b0cff08aa87f3698efde17"
+      }
+    ],
+    "large-note-model": [
+      {
+        "path": "frontend/inference/pitch-engine.js",
+        "sha256": "26e29ae9414efd0c058cb6c76ff2cacab006ff671d1f3c7742ac66acf055b062"
+      },
+      {
+        "path": "backend/enhanced_pitch.py",
+        "sha256": "7ce4af82053eb43751d2f829a1173405bf0945fa02b0cff08aa87f3698efde17"
       }
     ]
   }
