@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { runInNewContext } from 'node:vm';
 import { build } from 'esbuild';
 
-// Execute the real app and range editor, replacing only browser media/runtime
-// dependencies. This exercises the installed event handlers without a browser.
+// Execute the real app and range editor, replacing browser media/runtime and
+// external star lookup dependencies. Exercise analysis handlers without a browser.
 const html = await readFile(new URL('../../frontend/ui/index.html', import.meta.url), 'utf8');
 const bundled = await build({
   entryPoints: [new URL('../../frontend/ui/app.js', import.meta.url).pathname],
@@ -19,6 +19,7 @@ const bundled = await build({
       setup(build) {
         const exports = {
           'i18n.js': ['setText'],
+          'github-stars.js': ['loadStars'],
           'engine.js': ['createEngine'],
           'audio-source.js': ['decodeSource'],
           'pitch-view.js': ['createPitchView'],
@@ -78,6 +79,7 @@ function setup() {
   const requests = [];
   const pitchResults = [];
   const harness = {
+    loadStars: async () => {},
     setText(element, value) {
       (typeof element === 'string' ? get(element) : element).textContent = value;
     },
